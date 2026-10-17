@@ -1,7 +1,8 @@
 # Meu Livrinho de Colorir, guia de trabalho
 
 Site de venda de livrinhos de colorir personalizados: Next.js 14 na Vercel.
-Uma pessoa só decide (o dono, Rodrigo).
+Uma pessoa só decide (o dono, Rodrigo); o trabalho vai direto para a `main`
+(regra do dono, 17/10/2026: "coloque tudo na main, sempre").
 
 **Antes de qualquer coisa**: leia `docs/mapa-do-codigo.md` (onde cada coisa mora)
 e, para qualquer decisão de produto, texto ou visual, `docs/produto-e-marca.md`.
