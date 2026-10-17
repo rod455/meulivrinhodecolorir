@@ -16,6 +16,9 @@ export type Tema = {
   amostras: [string, string];
   /** começo da história do livrinho presente; {nome} vira o nome */
   historia: string;
+  /** artes coloridas em public/artes: a cena da capa e as duas das páginas de amostra.
+   * Sem elas, o tema usa o desenho em SVG de components/desenho/temas.tsx. */
+  artes?: { capa: string; amostras: [string, string] };
 };
 
 export type Faixa = 'todos' | 'bebes' | 'maiores';
@@ -31,12 +34,16 @@ export const TEMAS: Record<TemaId, Tema> = {
     id: 'futebol',
     emoji: '⚽',
     nome: 'Futebol com a turma Little Paws',
-    descricao: 'Cachorrinhos craques, bola no pé e muito gol.',
+    descricao: 'Urso, coelha, raposa, guaxinim e tartaruga, bola no pé e muito gol.',
     tituloDaHistoria: 'e o gol mais bonito do mundo',
     cor: 'verde',
     faixas: ['todos', 'bebes', 'maiores'],
     amostras: ['{nome} chutou e foi gol!', 'Pinte a camisa do time de {nome}'],
     historia: 'Naquela manhã, {nome} acordou com um barulhinho de bola quicando lá fora…',
+    artes: {
+      capa: '/artes/turma-em-fila.webp',
+      amostras: ['/artes/turma-comemorando.webp', '/artes/turma-no-banco.webp'],
+    },
   },
   natal: {
     id: 'natal',

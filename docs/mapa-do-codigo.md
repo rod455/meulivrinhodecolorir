@@ -4,7 +4,8 @@
 | --- | --- |
 | preço, nome ou descrição de um produto | `lib/produtos.ts` (só com o dono; confira com `npm run conferir:pedido`) |
 | um tema (nome, frases das páginas, começo da história) | `lib/temas.ts` |
-| o desenho de um tema | `components/desenho/temas.tsx`, lista de formas num quadro de 240 x 200 |
+| a arte colorida de um tema (capa e páginas de amostra) | arquivo em `public/artes/` + campo `artes` do tema em `lib/temas.ts`; originais em `docs/artes/referencias/` |
+| o desenho de um tema sem arte | `components/desenho/temas.tsx`, lista de formas num quadro de 240 x 200 |
 | o efeito "do contorno à cor" | `components/desenho/formas.tsx` |
 | a capa do livrinho | `components/CapaLivrinho.tsx` (A5, viewBox 296 x 420) |
 | as páginas de amostra | `components/PaginaAmostra.tsx` |
@@ -35,6 +36,6 @@
 
 - Geração do PDF: o script Python dos livros Little Paws mora fora deste repositório.
 - Confirmação automática de pagamento (webhook do Mercado Pago ou Stripe).
-- Artes finais dos temas: os desenhos do site são ilustrações próprias em SVG,
-  feitas para a vitrine; a arte do livrinho de verdade vem do script.
+- Artes de Natal e Fundo do mar: só o Futebol usa as artes da turma Little Paws;
+  os outros dois ainda mostram o desenho em SVG. A arte do livrinho de verdade vem do script.
 - Fotos de clientes, prova social e order bump das etiquetas (entram depois das primeiras vendas).

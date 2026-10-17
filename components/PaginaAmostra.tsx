@@ -2,6 +2,7 @@
 // como a criança vai receber para pintar.
 
 import { comNome, TEMAS, type TemaId } from '@/lib/temas';
+import { ArteNoQuadro } from './CapaLivrinho';
 import { COR, Desenho, GRAFITE } from './desenho/formas';
 import { DESENHOS, DETALHE, QUADRO } from './desenho/temas';
 
@@ -51,9 +52,13 @@ export function PaginaAmostra({
           {linha}
         </text>
       ))}
-      <svg x={18} y={130} width={260} height={250} viewBox={viewBox}>
-        <Desenho formas={DESENHOS[tema]} modo="traco" traco={pagina === 2 ? 1.3 : 1} />
-      </svg>
+      {t.artes ? (
+        <ArteNoQuadro id={`amostra-${tema}-${pagina}`} href={t.artes.amostras[pagina - 1]} x={18} y={130} largura={260} altura={250} />
+      ) : (
+        <svg x={18} y={130} width={260} height={250} viewBox={viewBox}>
+          <Desenho formas={DESENHOS[tema]} modo="traco" traco={pagina === 2 ? 1.3 : 1} />
+        </svg>
+      )}
       <text x={148} y={404} textAnchor="middle" fontSize={11} fill={GRAFITE} opacity={0.6} style={TEXTO}>
         {pagina + 2}
       </text>

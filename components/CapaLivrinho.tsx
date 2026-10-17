@@ -31,6 +31,19 @@ export function NomeNaCapa({ nome, y, max }: { nome: string; y: number; max?: nu
   );
 }
 
+/** Arte colorida do tema dentro de uma moldura arredondada com o traço Grafite. */
+export function ArteNoQuadro({ id, href, x, y, largura, altura }: { id: string; href: string; x: number; y: number; largura: number; altura: number }) {
+  return (
+    <>
+      <clipPath id={`${id}-moldura`}>
+        <rect x={x} y={y} width={largura} height={altura} rx={12} />
+      </clipPath>
+      <image href={href} x={x} y={y} width={largura} height={altura} preserveAspectRatio="xMidYMid slice" clipPath={`url(#${id}-moldura)`} />
+      <rect x={x} y={y} width={largura} height={altura} rx={12} fill="none" stroke={GRAFITE} strokeWidth={3} />
+    </>
+  );
+}
+
 export function CapaLivrinho({
   id,
   tema,
@@ -60,9 +73,13 @@ export function CapaLivrinho({
           <text x={148} y={130} textAnchor="middle" fontSize={16} fill={GRAFITE} style={TEXTO}>
             {t.tituloDaHistoria}
           </text>
-          <g transform="translate(28 152)">
-            <DoContornoACor id={`${id}-capa`} formas={DESENHOS[tema]} {...QUADRO} corte={corte} />
-          </g>
+          {t.artes ? (
+            <ArteNoQuadro id={`${id}-capa`} href={t.artes.capa} x={16} y={178} largura={264} altura={170} />
+          ) : (
+            <g transform="translate(28 152)">
+              <DoContornoACor id={`${id}-capa`} formas={DESENHOS[tema]} {...QUADRO} corte={corte} />
+            </g>
+          )}
         </>
       ) : (
         <>
@@ -74,9 +91,13 @@ export function CapaLivrinho({
           <text x={148} y={148} textAnchor="middle" fontSize={20} fill={GRAFITE} style={TITULO}>
             {idade} {idade === 1 ? 'ano' : 'anos'}
           </text>
-          <g transform="translate(28 180)">
-            <DoContornoACor id={`${id}-capa`} formas={DESENHOS[tema]} {...QUADRO} corte={corte} />
-          </g>
+          {t.artes ? (
+            <ArteNoQuadro id={`${id}-capa`} href={t.artes.capa} x={16} y={194} largura={264} altura={170} />
+          ) : (
+            <g transform="translate(28 180)">
+              <DoContornoACor id={`${id}-capa`} formas={DESENHOS[tema]} {...QUADRO} corte={corte} />
+            </g>
+          )}
         </>
       )}
       <text x={148} y={402} textAnchor="middle" fontSize={11} fill={GRAFITE} opacity={0.7} style={TEXTO}>
