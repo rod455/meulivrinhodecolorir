@@ -13,7 +13,11 @@ e, para qualquer decisão de produto, texto ou visual, `docs/produto-e-marca.md`
 - **Nunca sem o dono**: preço e planos, cobrança e links de pagamento, mensagem a
   cliente, apagar dados, gasto novo, chaves e segredos.
 - **Preço nunca vem do navegador**: a rota recalcula com `lib/produtos.ts`.
-- **LGPD**: da criança, só o primeiro nome e a idade. Sem foto, sobrenome nem escola.
+- **LGPD**: da criança, só o primeiro nome, a idade e o personagem. Sem sobrenome nem escola.
+  Foto só para criar o personagem (decisão do dono, 18/10/2026): consentimento
+  destacado e registrado, arquivo privado, sem metadados, apagada em 7 dias, e
+  nunca enviada nas páginas, só na ficha. O nome da criança nunca vai para o
+  prompt de imagem (`npm run conferir:personagem` grita).
 - **Personagens próprios**: nada parecido com personagem licenciado.
 - **Marca**: `docs/identidade-visual.md` (Ateliê de Rabiscos), que atualiza a seção 6 de `docs/produto-e-marca.md`; botão
   Laranja Giz com texto Grafite (nunca texto branco sobre laranja ou amarelo).

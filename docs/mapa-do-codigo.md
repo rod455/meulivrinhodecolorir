@@ -4,6 +4,9 @@
 | --- | --- |
 | preço, nome ou descrição de um produto | `lib/produtos.ts` (só com o dono; confira com `npm run conferir:pedido`) |
 | um tema (nome, frases das páginas, começo da história) | `lib/temas.ts` |
+| o personagem da criança (opções do formulário, validação, prompt da ficha) | `lib/personagem.ts` (confira com `npm run conferir:personagem`) |
+| a história personalizada de futebol (16 páginas, ações, superpoder) | `lib/historias/futebol.ts`, fonte em `livros-fonte/10-personalizados/` |
+| o plano do livro que vai para o n8n gerar as imagens e o PDF | `lib/geracao.ts` |
 | a arte colorida de um tema (capa e páginas de amostra) | arquivo em `public/artes/` + campo `artes` do tema em `lib/temas.ts`; originais em `docs/artes/referencias/` |
 | o desenho de um tema sem arte | `components/desenho/temas.tsx`, lista de formas num quadro de 240 x 200 |
 | o efeito "do contorno à cor" | `components/desenho/formas.tsx` |

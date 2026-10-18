@@ -7,13 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "conferir": "npm run conferir:tipos && npm run conferir:estilo && npm run conferir:nome && npm run conferir:pedido && npm run conferir:travessao",
+    "conferir": "npm run conferir:tipos && npm run conferir:estilo && npm run conferir:nome && npm run conferir:pedido && npm run conferir:personagem && npm run conferir:travessao",
     "conferir:tipos": "tsc --noEmit",
     "conferir:estilo": "next lint",
     "conferir:nome": "node --experimental-strip-types --no-warnings scripts/verifica-nome.ts",
     "conferir:pedido": "node --experimental-strip-types --no-warnings scripts/verifica-pedido.ts",
     "conferir:travessao": "node scripts/verifica-travessao.mjs",
-    "conferir:navegador": "node scripts/navegador.mjs"
+    "conferir:navegador": "node scripts/navegador.mjs",
+    "conferir:personagem": "node --experimental-strip-types --no-warnings scripts/verifica-personagem.ts"
   },
   "dependencies": {
     "next": "14.2.35",
