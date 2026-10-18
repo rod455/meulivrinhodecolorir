@@ -1,13 +1,12 @@
 import type { Metadata, Viewport } from 'next';
-import { Baloo_2, Gochi_Hand, Nunito } from 'next/font/google';
+import { Baloo_2, Nunito_Sans } from 'next/font/google';
 import Script from 'next/script';
 import { GuardaOrigem } from '@/components/GuardaOrigem';
 import { SITE } from '@/lib/config';
 import './globals.css';
 
 const titulo = Baloo_2({ subsets: ['latin'], weight: ['700', '800'], variable: '--fonte-titulo', display: 'swap' });
-const texto = Nunito({ subsets: ['latin'], weight: ['400', '600', '700', '800'], variable: '--fonte-texto', display: 'swap' });
-const lapis = Gochi_Hand({ subsets: ['latin'], weight: '400', variable: '--fonte-lapis', display: 'swap' });
+const texto = Nunito_Sans({ subsets: ['latin'], weight: ['400', '600', '700'], variable: '--fonte-texto', display: 'swap', adjustFontFallback: false });
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 const PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
@@ -31,7 +30,7 @@ export const viewport: Viewport = { themeColor: '#FFF8EE' };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className={`${titulo.variable} ${texto.variable} ${lapis.variable}`}>
+    <html lang="pt-BR" className={`${titulo.variable} ${texto.variable}`}>
       <body>
         <GuardaOrigem />
         {children}

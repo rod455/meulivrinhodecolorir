@@ -15,7 +15,7 @@ e, para qualquer decisão de produto, texto ou visual, `docs/produto-e-marca.md`
 - **Preço nunca vem do navegador**: a rota recalcula com `lib/produtos.ts`.
 - **LGPD**: da criança, só o primeiro nome e a idade. Sem foto, sobrenome nem escola.
 - **Personagens próprios**: nada parecido com personagem licenciado.
-- **Marca**: paleta e tipografia de `docs/produto-e-marca.md` seção 6; botão
+- **Marca**: `docs/identidade-visual.md` (Ateliê de Rabiscos), que atualiza a seção 6 de `docs/produto-e-marca.md`; botão
   Laranja Giz com texto Grafite (nunca texto branco sobre laranja ou amarelo).
 - Commits em português: título curto com o porquê, corpo explicando a decisão.
 

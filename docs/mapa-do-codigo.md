@@ -18,7 +18,7 @@
 | eventos de medição (GA4, Meta Pixel) | `lib/analytics.ts` |
 | UTM e QR code que acompanham o pedido | `components/GuardaOrigem.tsx` |
 | WhatsApp, e-mail, CNPJ do rodapé | variáveis `NEXT_PUBLIC_*` (veja `.env.example`) |
-| cores, fontes, botões | `app/globals.css` e `app/layout.tsx` |
+| cores, fontes, botões | `app/globals.css` e `app/layout.tsx`, seguindo `docs/identidade-visual.md` |
 
 ## Como o pedido anda
 

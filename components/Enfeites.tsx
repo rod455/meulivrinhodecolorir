@@ -14,7 +14,7 @@ export function Grifo({ children, cor = COR.amarelo }: { children: React.ReactNo
   );
 }
 
-/** Manuscrito curto, no máximo três palavras (Gochi Hand). */
+/** Frase curta de rabisco (a assinatura da marca, por exemplo), em Baloo 2 sobre grifo amarelo (docs/identidade-visual.md seção 6). */
 export function ALapis({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return <span className={`a-lapis ${className}`}>{children}</span>;
 }

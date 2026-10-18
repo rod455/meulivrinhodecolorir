@@ -65,17 +65,23 @@ export default function Inicio() {
           <Confete />
           <div className="miolo">
             <div>
-              <ALapis>pronto em minutos!</ALapis>
+              <ALapis>Sua história começa com um rabisco</ALapis>
               <h1>
-                Livrinho de colorir personalizado com o <Grifo>nome do seu filho</Grifo>
+                Uma história com o <Grifo>nome do seu pequeno</Grifo>. E as cores que ele imaginar.
               </h1>
               <p className="hero-sub">
-                Lembrancinha de festa ou presente, pronto em minutos. Você recebe o arquivo e imprime quantos quiser.
+                Personalize um livrinho de colorir e transforme uma história em um momento de criação. Lembrancinha de festa ou
+                presente: você recebe o arquivo na hora e imprime quantos quiser.
               </p>
               <div className="hero-chamada">
-                <Link href="/criar" className="botao">
-                  Criar meu livrinho
-                </Link>
+                <div className="hero-botoes">
+                  <Link href="/criar" className="botao">
+                    Criar meu livrinho
+                  </Link>
+                  <Link href="#temas" className="botao botao-secundario">
+                    Ver um exemplo
+                  </Link>
+                </div>
                 <span className="letra-miuda">A partir de {emReais(MENOR_PRECO)} · Pix ou cartão</span>
                 {FAMILIAS_ATENDIDAS && (
                   <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700 }}>

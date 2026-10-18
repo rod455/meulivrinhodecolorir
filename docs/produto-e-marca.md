@@ -251,6 +251,8 @@ A marca vive no momento em que o desenho ganha cor pela mão da criança.
 - Use **no máximo 2 cores de apoio por seção**, para não virar "arco-íris".
 - O fundo nunca é branco puro: o creme deixa tudo mais acolhedor e combina com a ideia de papel.
 
+> **Atualização de 18/10/2026:** a identidade visual completa (direção Ateliê de Rabiscos, mascote Rabisco, tipografia Baloo 2 + Nunito Sans) está em `docs/identidade-visual.md` e vale por cima desta seção 6 onde as duas divergirem.
+
 ### 6.4 Tipografia (Google Fonts, gratuitas)
 - **Títulos:** **Baloo 2** (ExtraBold), arredondada, amigável e muito legível no celular.
 - **Textos:** **Nunito** (Regular, SemiBold e Bold). É a mesma família usada nas capas Little Paws, o que dá coerência entre as marcas.
