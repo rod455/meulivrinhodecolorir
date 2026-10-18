@@ -24,7 +24,16 @@ export default function Privacidade() {
         <h2>Dados da criança</h2>
         <ul>
           <li>Guardamos só o <strong>primeiro nome</strong> (ou apelido) e a <strong>idade</strong>, para colocar no livrinho.</li>
-          <li>Não pedimos foto, sobrenome nem escola.</li>
+          <li>
+            Nos temas em que a criança vira personagem da história, guardamos também as escolhas do personagem (cabelo, tom de pele,
+            óculos, roupa, superpoder) e o personagem desenhado, só para o seu pedido.
+          </li>
+          <li>
+            A <strong>foto</strong> é opcional e só entra com a sua autorização, marcada no pedido. Ela serve apenas para desenhar o personagem:
+            tiramos dela os dados de localização e do aparelho, guardamos num arquivo privado e <strong>apagamos em 7 dias</strong>. As
+            páginas do livro são desenhadas a partir do personagem, nunca da foto.
+          </li>
+          <li>Não pedimos sobrenome nem escola.</li>
           <li>A data da festa é opcional e serve só para o lembrete do ano seguinte, se você quiser.</li>
           <li>
             Apagamos os dados de personalização em <strong>12 meses</strong>, a não ser que você tenha aceitado o lembrete de aniversário.
@@ -46,8 +55,9 @@ export default function Privacidade() {
 
         <h2>Com quem compartilhamos</h2>
         <p>
-          Só com os serviços que fazem o pedido funcionar: hospedagem do site, banco de dados, envio de e-mail e WhatsApp e a empresa de
-          pagamento. Nunca vendemos dados.
+          Só com os serviços que fazem o pedido funcionar: hospedagem do site, banco de dados, envio de e-mail e WhatsApp, a empresa de
+          pagamento e o serviço de inteligência artificial que desenha o personagem (OpenAI), que recebe as escolhas do personagem e, se
+          você enviar, a foto. O nome da criança não vai para esse serviço. Nunca vendemos dados.
         </p>
 
         <h2>Seus direitos</h2>

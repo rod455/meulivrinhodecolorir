@@ -16,8 +16,11 @@
 | validação do pedido | `lib/pedido.ts`, a mesma no navegador e na rota |
 | textos e seções da LP | `app/page.tsx`; perguntas frequentes em `lib/faq.ts` |
 | o fluxo de criação (produto, tema, nome, pagamento) | `app/criar/Criar.tsx` |
+| a etapa "Crie o personagem" (só nos temas com `comPersonagem`) | `app/criar/EtapaPersonagem.tsx` |
+| o tratamento da foto (formato, tamanho, tirar metadados) | `lib/foto.ts` (confira com `npm run conferir:foto`) |
+| onde a foto mora e quando some (bucket privado, 7 dias) | `lib/servidor/fotos.ts`, `app/api/foto/route.ts`, `app/api/limpeza-fotos/route.ts` e o cron em `vercel.json` |
 | para onde vai o pedido (Supabase, n8n, link de pagamento) | `lib/servidor/pedidos.ts` e `app/api/pedido/route.ts` |
-| a tabela de pedidos | `supabase/migrations/0001_pedidos.sql` |
+| a tabela de pedidos | `supabase/migrations/0001_pedidos.sql`; personagem, plano, fotos e consentimentos em `0002_personagem_e_fotos.sql` |
 | eventos de medição (GA4, Meta Pixel) | `lib/analytics.ts` |
 | UTM e QR code que acompanham o pedido | `components/GuardaOrigem.tsx` |
 | WhatsApp, e-mail, CNPJ do rodapé | variáveis `NEXT_PUBLIC_*` (veja `.env.example`) |
@@ -26,12 +29,19 @@
 ## Como o pedido anda
 
 1. A pessoa escolhe produto, tema e nome em `/criar`, vê a capa ao vivo e preenche contato.
-2. `POST /api/pedido` valida de novo, recalcula o preço e grava no Supabase e/ou
-   avisa o n8n (`N8N_WEBHOOK_PEDIDO`). Sem nenhum dos dois ligado, a rota recusa
+   No futebol, antes do contato, cria o personagem: pelas características ou por foto.
+   A foto só aparece com o Supabase ligado; sobe por `POST /api/foto`, que exige o
+   aceite da versão atual do consentimento, redesenha a imagem sem metadados e
+   registra a foto (apaga em 7 dias) e o aceite (só o prefixo da rede, sem o IP inteiro).
+2. `POST /api/pedido` valida de novo, recalcula o preço, confere que a foto existe
+   e não venceu, monta o plano do livro (`lib/geracao.ts`) e grava no Supabase e/ou
+   avisa o n8n (`N8N_WEBHOOK_PEDIDO`). O plano vai no campo `plano` da linha. Sem nenhum dos dois ligado, a rota recusa
    o pedido e manda a pessoa para o WhatsApp: pedido que não fica guardado é perdido.
 3. Se existe `PAGAMENTO_LINK_<PRODUTO>_<PIX|CARTAO>`, a pessoa vai para o
    pagamento; senão, cai em `/obrigado` e o link segue pelo WhatsApp.
-4. Do pagamento em diante (gerar o PDF pelo script Python, enviar por e-mail e
+4. Todo dia às 06:17 UTC, a Vercel Cron chama `/api/limpeza-fotos` (com
+   `CRON_SECRET`), que apaga do bucket as fotos vencidas e marca a hora.
+5. Do pagamento em diante (gerar a ficha e as páginas pelo plano, montar o PDF, enviar por e-mail e
    WhatsApp, lembretes D+1, pós-festa e aniversário) é do n8n. O link de
    pagamento deve voltar para `/obrigado?status=pago`.
 

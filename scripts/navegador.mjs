@@ -66,6 +66,50 @@ if (RECEBIDOS) {
   assert.equal(pedido.origem.utm_source, 'teste', 'UTM da primeira página chega no pedido');
 }
 
+// futebol: o tema com história tem a etapa do personagem, e o plano chega ao n8n
+await p.goto(`${SITE}/criar?produto=presente&tema=futebol&nome=Bia&idade=6`);
+await p.getByRole('heading', { name: 'Agora, o nome' }).waitFor();
+assert.equal(await p.locator('.etapas li').count(), 5, 'futebol tem cinco etapas');
+await p.getByRole('button', { name: 'Continuar' }).click();
+await p.getByRole('heading', { name: 'Crie o personagem' }).waitFor();
+// sem Supabase no teste, a foto fica escondida e o personagem é pelas características
+assert.equal(await p.getByRole('button', { name: /Por uma foto/ }).count(), 0, 'sem armazenamento, sem opção de foto');
+await p.getByRole('button', { name: 'Cacheado' }).click();
+await p.getByRole('button', { name: 'Tom 6' }).click();
+await p.getByRole('button', { name: 'Óculos redondos' }).click();
+await p.getByRole('button', { name: 'Sardas' }).click();
+await p.getByRole('button', { name: 'Gentileza' }).click();
+await p.getByRole('button', { name: 'Continuar' }).click();
+await p.getByRole('heading', { name: 'Para onde mandamos?' }).waitFor();
+await p.getByText('Superpoder: Gentileza').waitFor();
+await p.fill('#responsavel', 'Carla Teste');
+await p.fill('#email', 'carla@exemplo.com.br');
+await p.fill('#whatsapp', '(11) 91234-5678');
+await p.getByRole('button', { name: 'Pagar com Pix' }).click();
+await p.waitForURL(/\/obrigado\?pedido=/, { timeout: 15000 });
+
+if (RECEBIDOS) {
+  const linhas = readFileSync(RECEBIDOS, 'utf8').trim().split('\n');
+  const { pedido } = JSON.parse(linhas.at(-1));
+  assert.equal(pedido.tema, 'futebol');
+  assert.equal(pedido.modelo, 'futebol-little-paws-v1');
+  assert.equal(pedido.personagem.cabeloTipo, 'cacheado');
+  assert.deepEqual(pedido.personagem.detalhes, ['sardas']);
+  assert.equal(pedido.plano.paginas.length, 16, 'Presente: dezesseis páginas no plano');
+  assert.equal(pedido.total_centavos, 2365, 'preço recalculado também no futebol');
+  assert.equal(pedido.plano.titulo, 'Bia entra em campo!');
+  assert.match(pedido.plano.ficha.prompt, /curly/);
+  const prompts = [pedido.plano.ficha.prompt, ...pedido.plano.paginas.map((pg) => pg.prompt)];
+  assert.ok(prompts.every((t) => !t.includes('Bia')), 'o nome não vai para o prompt de imagem');
+  assert.ok(pedido.plano.paginas.some((pg) => pg.prompt.includes("Bo's arm")), 'página 13 com a ação da gentileza');
+}
+
+// as rotas da foto não abrem sem o que precisam
+const foto = await fetch(`${SITE}/api/foto`, { method: 'POST', body: new FormData() });
+assert.equal(foto.status, 503, 'sem Supabase, a rota da foto recusa');
+const limpeza = await fetch(`${SITE}/api/limpeza-fotos`);
+assert.equal(limpeza.status, 401, 'limpeza sem o segredo do cron é recusada');
+
 assert.deepEqual(erros, [], 'sem erro de JavaScript na página');
 await navegador.close();
 console.log('navegador: LP e fluxo do pedido ok');

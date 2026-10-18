@@ -1,7 +1,8 @@
 'use client';
 
 // O fluxo do pedido (seção 4.2, passos 3 a 7): produto, tema, personalização
-// com prévia ao vivo e, por fim, os dados de contato e a forma de pagamento.
+// com prévia ao vivo, o personagem (só nos temas com história para ele) e, por
+// fim, os dados de contato e a forma de pagamento.
 // Sem conta e sem cadastro. O preço mostrado aqui é só vitrine: a rota recalcula.
 
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -13,10 +14,13 @@ import { registrar } from '@/lib/analytics';
 import { linkDoWhatsapp } from '@/lib/config';
 import { arrumarNome, LIMITE_DO_NOME, MENSAGEM_DO_PROBLEMA, problemaDoNome } from '@/lib/nome';
 import { DEDICATORIAS_PRONTAS, LIMITE_DA_DEDICATORIA, lerPedido, type ErrosDoPedido } from '@/lib/pedido';
+import { lerPersonagem, PERSONAGEM_INICIAL, SUPERPODERES, type Personagem } from '@/lib/personagem';
 import { DESCONTO_PIX, ehProduto, emReais, LISTA_DE_PRODUTOS, PRODUTOS, totalDoPedido, type FormaDePagamento, type ProdutoId } from '@/lib/produtos';
 import { ehTema, LISTA_DE_TEMAS, TEMAS, type TemaId } from '@/lib/temas';
+import { EtapaPersonagem } from './EtapaPersonagem';
 
-type Etapa = 0 | 1 | 2 | 3;
+/** 0 produto, 1 tema, 2 nome, 3 personagem (só se o tema tem), 4 contato e pagamento */
+type Etapa = 0 | 1 | 2 | 3 | 4;
 const GUARDADO = 'livrinho:rascunho';
 
 type Rascunho = {
@@ -32,6 +36,7 @@ type Rascunho = {
   pagamento: FormaDePagamento;
   aceitaNovidades: boolean;
   aceitaLembrete: boolean;
+  personagem: Personagem;
 };
 
 const VAZIO: Rascunho = {
@@ -47,6 +52,7 @@ const VAZIO: Rascunho = {
   pagamento: 'pix',
   aceitaNovidades: false,
   aceitaLembrete: true,
+  personagem: PERSONAGEM_INICIAL,
 };
 
 function primeiraEtapaQueFalta(r: Rascunho): Etapa {
@@ -55,7 +61,7 @@ function primeiraEtapaQueFalta(r: Rascunho): Etapa {
   return 2;
 }
 
-export function Criar() {
+export function Criar({ fotoLigada }: { fotoLigada: boolean }) {
   const busca = useSearchParams();
   const router = useRouter();
   const [r, setR] = useState<Rascunho>(VAZIO);
@@ -110,7 +116,7 @@ export function Criar() {
       viuPrevia.current = true;
       registrar('previa_vista', { tema: r.tema ?? '', produto: r.produto ?? '' });
     }
-    if (nova === 3) registrar('checkout_iniciado', { produto: r.produto ?? '' });
+    if (nova === 4) registrar('checkout_iniciado', { produto: r.produto ?? '' });
   }
 
   const muda = <K extends keyof Rascunho>(campo: K, valor: Rascunho[K]) => {
@@ -124,6 +130,9 @@ export function Criar() {
   const nome = arrumarNome(r.nome);
   const problema = r.nome.trim() ? problemaDoNome(r.nome) : null;
   const nomeNaCapa = problema === 'bloqueado' ? '' : nome;
+  const temPersonagem = Boolean(r.tema && TEMAS[r.tema].comPersonagem);
+  const ordem: Etapa[] = temPersonagem ? [0, 1, 2, 3, 4] : [0, 1, 2, 4];
+  const posicao = Math.max(0, ordem.indexOf(etapa));
 
   function validarPersonalizacao(): boolean {
     const p = problemaDoNome(r.nome);
@@ -136,11 +145,24 @@ export function Criar() {
     return Object.keys(novos).length === 0;
   }
 
+  // sem o envio de foto ligado, um rascunho antigo no jeito foto volta para as características
+  const personagemDoPedido: Personagem = fotoLigada ? r.personagem : { ...r.personagem, jeito: 'caracteristicas', foto: null };
+
+  function validarPersonagem() {
+    const lido = lerPersonagem(personagemDoPedido);
+    if (!lido.ok) {
+      setErros((e) => ({ ...e, personagem: lido.erro }));
+      return;
+    }
+    irPara(4);
+  }
+
   async function enviar() {
-    const resultado = lerPedido({ ...r });
+    const resultado = lerPedido({ ...r, personagem: personagemDoPedido });
     if (!resultado.ok) {
       setErros(resultado.erros);
       if (resultado.erros.nome || resultado.erros.dedicatoria) irPara(2);
+      else if (resultado.erros.personagem) irPara(3);
       return;
     }
     setEnviando(true);
@@ -149,11 +171,16 @@ export function Criar() {
       const resposta = await fetch('/api/pedido', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ ...r, origem: lerOrigem(), site: (document.getElementById('site') as HTMLInputElement | null)?.value ?? '' }),
+        body: JSON.stringify({ ...r, personagem: personagemDoPedido, origem: lerOrigem(), site: (document.getElementById('site') as HTMLInputElement | null)?.value ?? '' }),
       });
       const dados = (await resposta.json().catch(() => ({}))) as { id?: string; pagar?: string | null; erros?: ErrosDoPedido; mensagem?: string };
       if (!resposta.ok || !dados.id) {
         if (dados.erros) setErros(dados.erros);
+        if (dados.erros?.personagem) {
+          setEnviando(false);
+          irPara(3);
+          return;
+        }
         setFalha(dados.mensagem ?? 'Não conseguimos registrar o pedido agora. Tente de novo em instantes.');
         setEnviando(false);
         return;
@@ -180,13 +207,13 @@ export function Criar() {
 
   return (
     <div ref={topo} style={{ scrollMarginTop: 90 }}>
-      <ol className="etapas" aria-label={`Etapa ${etapa + 1} de 4`}>
-        {[0, 1, 2, 3].map((i) => (
-          <li key={i} className={i < etapa ? 'feita' : i === etapa ? 'atual' : ''} />
+      <ol className="etapas" aria-label={`Etapa ${posicao + 1} de ${ordem.length}`}>
+        {ordem.map((e, i) => (
+          <li key={e} className={i < posicao ? 'feita' : i === posicao ? 'atual' : ''} />
         ))}
       </ol>
       {etapa > 0 && (
-        <button type="button" className="voltar" onClick={() => irPara((etapa - 1) as Etapa)}>
+        <button type="button" className="voltar" onClick={() => irPara(ordem[posicao - 1] ?? 0)}>
           ← Voltar
         </button>
       )}
@@ -356,7 +383,17 @@ export function Criar() {
         </section>
       )}
 
-      {etapa === 3 && r.produto && r.tema && produto && (
+      {etapa === 3 && temPersonagem && (
+        <EtapaPersonagem
+          personagem={r.personagem}
+          onMudar={(p) => muda('personagem', p)}
+          nome={nomeNaCapa}
+          fotoLigada={fotoLigada}
+          erro={erros.personagem}
+        />
+      )}
+
+      {etapa === 4 && r.produto && r.tema && produto && (
         <section className="criar-grade">
           <div className="cartao" style={{ display: 'grid', gridTemplateColumns: '110px 1fr', gap: 16, alignItems: 'center' }}>
             <CapaLivrinho id="resumo-capa" tema={r.tema} produto={r.produto === 'presente' ? 'presente' : 'lembrancinha'} nome={nome} idade={r.idade} corte={0.7} />
@@ -367,6 +404,12 @@ export function Criar() {
               <div className="letra-miuda">
                 {TEMAS[r.tema].nome} · {nome}, {r.idade} {r.idade === 1 ? 'ano' : 'anos'}
               </div>
+              {temPersonagem && (
+                <div className="letra-miuda">
+                  Personagem {r.personagem.jeito === 'foto' ? 'pela foto' : 'pelas características'} · Superpoder:{' '}
+                  {SUPERPODERES.find((s) => s.id === r.personagem.superpoder)?.rotulo}
+                </div>
+              )}
               <div className="letra-miuda">Arquivo para imprimir, por e-mail e WhatsApp</div>
             </div>
           </div>
@@ -446,13 +489,13 @@ export function Criar() {
             </div>
             <p className="letra-miuda">
               Sem criar conta. Ao continuar, você concorda com os <a href="/termos" target="_blank">termos</a> e a{' '}
-              <a href="/privacidade" target="_blank">política de privacidade</a>. Guardamos só o primeiro nome e a idade da criança.
+              <a href="/privacidade" target="_blank">política de privacidade</a>. Guardamos só o primeiro nome, a idade e o personagem da criança{temPersonagem && r.personagem.jeito === 'foto' ? '; a foto é apagada em 7 dias' : ''}.
             </p>
           </div>
         </section>
       )}
 
-      {(etapa === 2 || etapa === 3) && produto && (
+      {etapa >= 2 && produto && (
         <div className="barra-fixa">
           <div className="miolo">
             <div>
@@ -460,7 +503,11 @@ export function Criar() {
               <strong style={{ fontFamily: 'var(--fonte-titulo)', fontSize: '1.4rem' }}>{emReais(total)}</strong>
             </div>
             {etapa === 2 ? (
-              <button type="button" className="botao" onClick={() => validarPersonalizacao() && irPara(3)}>
+              <button type="button" className="botao" onClick={() => validarPersonalizacao() && irPara(temPersonagem ? 3 : 4)}>
+                Continuar
+              </button>
+            ) : etapa === 3 ? (
+              <button type="button" className="botao" onClick={validarPersonagem}>
                 Continuar
               </button>
             ) : (

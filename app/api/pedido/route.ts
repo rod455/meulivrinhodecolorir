@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { CAMPOS_DE_ORIGEM } from '@/lib/origem';
+import { planoDoLivro } from '@/lib/geracao';
 import { lerPedido } from '@/lib/pedido';
+import { fotoDisponivel, fotoLigada, ligarFotoAoPedido } from '@/lib/servidor/fotos';
 import { destinosLigados, guardarPedido, linkDePagamento } from '@/lib/servidor/pedidos';
 
 export const dynamic = 'force-dynamic';
@@ -42,11 +44,34 @@ export async function POST(req: Request) {
     }
   }
 
+  // a foto tem que ser uma que a rota /api/foto guardou e que ainda não venceu
+  const { pedido } = lido;
+  const foto = pedido.personagem?.foto ?? null;
+  if (foto) {
+    let disponivel = false;
+    try {
+      disponivel = fotoLigada() && (await fotoDisponivel(foto.caminho));
+    } catch (e) {
+      console.error('[pedido] não conferiu a foto', e);
+    }
+    if (!disponivel) {
+      return NextResponse.json(
+        { erros: { personagem: 'A foto expirou. Envie de novo ou crie pelas características.' }, mensagem: 'Confira o personagem.' },
+        { status: 422 },
+      );
+    }
+  }
+
   const id = crypto.randomUUID();
-  const { guardado } = await guardarPedido({ ...lido.pedido, id, criadoEm: new Date().toISOString(), origem });
+  const plano = pedido.personagem
+    ? planoDoLivro({ nome: pedido.nome, idade: pedido.idade, produto: pedido.produto, personagem: pedido.personagem })
+    : null;
+  const { guardado } = await guardarPedido({ ...pedido, id, criadoEm: new Date().toISOString(), origem, plano });
   if (!guardado) {
     return NextResponse.json({ mensagem: 'Não conseguimos registrar o pedido agora. Tente de novo em instantes.' }, { status: 502 });
   }
+  // a foto passa a pertencer ao pedido (continua vencendo em 7 dias do envio)
+  if (foto) await ligarFotoAoPedido(foto.caminho, id).catch((e) => console.error('[pedido] foto sem pedido', id, e));
 
-  return NextResponse.json({ id, pagar: linkDePagamento(lido.pedido) });
+  return NextResponse.json({ id, pagar: linkDePagamento(pedido) });
 }

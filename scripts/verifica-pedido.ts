@@ -4,6 +4,7 @@
 // Rode com: npm run conferir:pedido
 import assert from 'node:assert/strict';
 import { arrumarWhatsapp, lerPedido } from '../lib/pedido.ts';
+import { PERSONAGEM_INICIAL } from '../lib/personagem.ts';
 import { emReais, PRODUTOS, totalDoPedido } from '../lib/produtos.ts';
 
 let casos = 0;
@@ -21,6 +22,7 @@ const base = {
   email: 'Carla@Exemplo.com.br',
   whatsapp: '(11) 91234-5678',
   pagamento: 'pix',
+  personagem: PERSONAGEM_INICIAL,
 };
 
 const lido = lerPedido(base);
@@ -50,6 +52,14 @@ ok(lembrancinhaComDedicatoria.ok && lembrancinhaComDedicatoria.pedido.dedicatori
 const comData = lerPedido({ ...base, dataDaFesta: '2026-12-05', aceitaLembrete: true });
 ok(comData.ok && comData.pedido.aceitaLembrete && comData.pedido.dataDaFesta === '2026-12-05', 'lembrete com data');
 ok(!lerPedido({ ...base, dataDaFesta: '2026-02-30' }).ok, 'data impossível barra');
+
+// personagem: obrigatório no tema que tem história para ele, ignorado nos outros
+const semPersonagem = lerPedido({ ...base, personagem: undefined });
+ok(!semPersonagem.ok && Boolean(semPersonagem.erros.personagem), 'futebol sem personagem barra');
+ok(!lerPedido({ ...base, personagem: { ...PERSONAGEM_INICIAL, superpoder: 'voar' } }).ok, 'personagem inválido barra');
+const natal = lerPedido({ ...base, tema: 'natal', personagem: { lixo: 1 } });
+ok(natal.ok && natal.pedido.personagem === null, 'Natal não leva personagem');
+ok(lido.ok && lido.pedido.personagem?.superpoder === 'coragem', 'futebol leva o personagem validado');
 
 // recusas
 ok(!lerPedido({ ...base, produto: 'kit' }).ok, 'produto desconhecido');

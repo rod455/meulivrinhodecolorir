@@ -21,6 +21,8 @@ export type Tema = {
   artes?: { capa: string; amostras: [string, string] };
   /** imagem de vitrine do tema na galeria da LP, do kit de marca (sem nome gravado por cima) */
   vitrine: { src: string; largura: number; altura: number };
+  /** o tema tem história com vaga para o personagem da criança (lib/historias) */
+  comPersonagem?: boolean;
 };
 
 export type Faixa = 'todos' | 'bebes' | 'maiores';
@@ -43,6 +45,7 @@ export const TEMAS: Record<TemaId, Tema> = {
     amostras: ['{nome} chutou e foi gol!', 'Pinte a camisa do time de {nome}'],
     historia: 'Naquela manhã, {nome} acordou com um barulhinho de bola quicando lá fora…',
     vitrine: { src: '/artes/turma-em-fila.webp', largura: 970, altura: 600 },
+    comPersonagem: true,
     artes: {
       capa: '/artes/turma-em-fila.webp',
       amostras: ['/artes/turma-comemorando.webp', '/artes/turma-no-banco.webp'],

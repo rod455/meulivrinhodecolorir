@@ -8,9 +8,11 @@ import 'server-only';
 // Sem nenhum dos dois primeiros, a rota recusa o pedido: pedido que não fica
 // guardado em lugar nenhum é pedido perdido.
 
+import type { PlanoDoLivro } from '@/lib/geracao';
 import type { Pedido } from '@/lib/pedido';
 
-export type Registro = Pedido & { id: string; criadoEm: string; origem: Record<string, string> };
+/** `plano` só existe nos temas com personagem: é a receita que o n8n executa. */
+export type Registro = Pedido & { id: string; criadoEm: string; origem: Record<string, string>; plano: PlanoDoLivro | null };
 
 export function destinosLigados() {
   return {
@@ -44,6 +46,9 @@ function emLinhaDoBanco(r: Registro) {
     aceita_lembrete: r.aceitaLembrete,
     status: 'aguardando_pagamento',
     origem: r.origem,
+    modelo: r.plano?.modelo ?? null,
+    personagem: r.personagem,
+    plano: r.plano,
   };
 }
 

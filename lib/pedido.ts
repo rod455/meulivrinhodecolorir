@@ -3,7 +3,8 @@
 
 import { arrumarNome, MENSAGEM_DO_PROBLEMA, problemaDoNome } from './nome.ts';
 import { ehProduto, PRODUTOS, totalDoPedido, type FormaDePagamento, type ProdutoId } from './produtos.ts';
-import { ehTema, type TemaId } from './temas.ts';
+import { lerPersonagem, type Personagem } from './personagem.ts';
+import { ehTema, TEMAS, type TemaId } from './temas.ts';
 
 export const LIMITE_DA_DEDICATORIA = 120;
 
@@ -26,6 +27,8 @@ export type Pedido = {
   pagamento: FormaDePagamento;
   aceitaNovidades: boolean;
   aceitaLembrete: boolean;
+  /** só nos temas com personagem (futebol); null nos outros */
+  personagem: Personagem | null;
   total: number;
 };
 
@@ -96,6 +99,13 @@ export function lerPedido(entrada: Record<string, unknown>):
   const whatsapp = arrumarWhatsapp(texto('whatsapp'));
   if (!whatsapp) erros.whatsapp = 'Confira o WhatsApp, com DDD.';
 
+  let personagem: Personagem | null = null;
+  if (ehTema(tema) && TEMAS[tema].comPersonagem) {
+    const lido = lerPersonagem(entrada.personagem);
+    if (lido.ok) personagem = lido.personagem;
+    else erros.personagem = lido.erro;
+  }
+
   const pagamento = entrada.pagamento === 'cartao' ? 'cartao' : 'pix';
 
   if (Object.keys(erros).length > 0 || !ehProduto(produto) || !ehTema(tema) || !whatsapp) {
@@ -118,6 +128,7 @@ export function lerPedido(entrada: Record<string, unknown>):
       aceitaNovidades: entrada.aceitaNovidades === true,
       // o lembrete de aniversário só faz sentido com a data da festa
       aceitaLembrete: entrada.aceitaLembrete === true && Boolean(dataBruta),
+      personagem,
       total: totalDoPedido(produto, pagamento),
     },
   };

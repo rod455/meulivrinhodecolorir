@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { Cabecalho } from '@/components/Cabecalho';
+import { fotoLigada } from '@/lib/servidor/fotos';
 import { Criar } from './Criar';
 
 export const metadata: Metadata = {
@@ -16,7 +17,7 @@ export default function PaginaCriar() {
       <main className="criar">
         <div className="miolo">
           <Suspense>
-            <Criar />
+            <Criar fotoLigada={fotoLigada()} />
           </Suspense>
         </div>
       </main>
