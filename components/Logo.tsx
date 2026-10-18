@@ -3,10 +3,6 @@
 
 import Image from 'next/image';
 
-export function SimboloLogo({ tamanho = 44 }: { tamanho?: number }) {
-  return <Image src="/marca/simbolo.webp" alt="" width={tamanho} height={tamanho} aria-hidden="true" />;
-}
-
 /** Assinatura horizontal; `escuro` usa a versão sobre grafite, para o rodapé. */
 export function Logo({ escuro = false, largura = 170 }: { escuro?: boolean; largura?: number }) {
   return (

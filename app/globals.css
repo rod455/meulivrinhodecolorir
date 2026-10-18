@@ -52,6 +52,7 @@ p { margin: 0 0 1em; }
 .secao-azul { background: #e3f3fc; }
 .titulo-secao { text-align: center; max-width: 720px; margin: 0 auto 36px; }
 .titulo-secao .rabisco { margin: 0 auto 4px; width: 96px; height: auto; }
+.titulo-secao .rabisco + h2 { margin-top: 0; }
 .titulo-secao p { color: var(--grafite-suave); font-size: 1.1rem; }
 
 /* Botão em pílula, laranja com texto grafite e sombra curta de 3 px; contorno só no secundário */
@@ -116,7 +117,7 @@ p { margin: 0 0 1em; }
 /* Como funciona */
 .passos { display: grid; gap: 18px; counter-reset: passo; }
 .passo { text-align: center; position: relative; }
-.passo .icones { font-size: 2rem; letter-spacing: 4px; }
+.passo .passo-icone { height: 56px; width: auto; margin: 4px auto 10px; }
 .passo .numero { display: inline-grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--grafite); background: var(--amarelo); font-family: var(--fonte-titulo); font-weight: 800; margin-bottom: 8px; }
 @media (min-width: 760px) { .passos { grid-template-columns: repeat(3, 1fr); } }
 

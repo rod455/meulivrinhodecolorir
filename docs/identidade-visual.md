@@ -226,9 +226,10 @@ O recorte do símbolo e a textura perdem detalhes naturalmente em 16 px. Para us
 - **Logo do kit** no cabeçalho (170 px de largura, acima do mínimo de 160 px) e a versão sobre fundo escuro no rodapé. O símbolo isolado aparece na página de obrigado.
 - **Favicon e ícones** do kit: `app/favicon.ico`, `app/icon.png` (512) e `app/apple-icon.png` (180).
 - **Ilustração principal** (livro aberto, criança e dinossauro) no primeiro bloco, à direita do texto; no celular, depois do texto. Título, apoio e botões em HTML.
-- **Rabisco acenando** no "Como funciona", uma vez só.
+- **Rabisco** em três poses, uma vez cada: acenando no "Como funciona", desenhando na prévia do nome e lendo o livro na página de obrigado (a conclusão). As duas últimas foram recortadas da prancha aprovada por `scripts/recorta-marca.py`.
+- **Ícones dos passos** (livro, ficha com lápis e impressora) recortados da prancha de aplicações, no lugar dos emojis do "Como funciona".
 - **Fontes:** Baloo 2 (700 e 800) nos títulos e Nunito Sans (400, 600 e 700) no texto, sem terceira família.
 - **Componentes:** escala de títulos e corpo de 18 px; botões em pílula com sombra curta de 3 px e contorno só no secundário; cartões de raio 24 com contorno discreto; campos de 48 px com foco grafite.
 - **Primeiro bloco:** chamada e apoio da seção 9 e a ação secundária "Ver um exemplo". O apoio mantém "livrinho de colorir" e "lembrancinha" por causa da busca.
 
-**Ainda não aplicado:** ícones de traço no lugar dos emojis (o kit não traz os ícones de passo como arquivos separados), novas poses do Rabisco e capas dos temas no estilo da marca.
+**Ainda não aplicado:** capas e páginas de amostra do Natal e do Fundo do mar no estilo da marca (as da prancha têm cerca de 200 px e texto gravado, então ficariam borradas e não aceitam o nome ao vivo); emojis dos produtos e dos diferenciais.

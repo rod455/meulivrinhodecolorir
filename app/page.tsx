@@ -113,19 +113,19 @@ export default function Inicio() {
             <div className="passos">
               <div className="passo cartao">
                 <span className="numero">1</span>
-                <div className="icones" aria-hidden="true">⚽🎄🌊</div>
+                <Image src="/marca/icone-escolha.webp" alt="" width={116} height={65} className="passo-icone" />
                 <h3>Escolha o tema</h3>
                 <p className="letra-miuda">Futebol, Natal ou fundo do mar, com personagens nossos.</p>
               </div>
               <div className="passo cartao">
                 <span className="numero">2</span>
-                <div className="icones" aria-hidden="true">✏️</div>
+                <Image src="/marca/icone-personalize.webp" alt="" width={99} height={61} className="passo-icone" />
                 <h3>Digite o nome</h3>
                 <p className="letra-miuda">E veja a capa pronta na hora, antes de pagar.</p>
               </div>
               <div className="passo cartao">
                 <span className="numero">3</span>
-                <div className="icones" aria-hidden="true">🖨️</div>
+                <Image src="/marca/icone-imprima.webp" alt="" width={58} height={62} className="passo-icone" />
                 <h3>Receba e imprima</h3>
                 <p className="letra-miuda">O arquivo chega por e-mail e WhatsApp. Imprima em casa ou na gráfica.</p>
               </div>
@@ -137,6 +137,7 @@ export default function Inicio() {
         <section className="secao" id="previa">
           <div className="miolo">
             <div className="titulo-secao">
+              <Image src="/marca/rabisco-desenhando.webp" alt="" width={110} height={134} className="rabisco" />
               <h2>
                 Experimente: digite o <Grifo cor={COR.azul}>nome</Grifo>
               </h2>

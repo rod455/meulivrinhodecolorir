@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import { Cabecalho } from '@/components/Cabecalho';
-import { SimboloLogo } from '@/components/Logo';
 import { Rodape } from '@/components/Rodape';
 import { linkDoWhatsapp } from '@/lib/config';
 
@@ -21,7 +21,7 @@ export default function Obrigado({ searchParams }: { searchParams: { pedido?: st
       <Cabecalho semMenu />
       <main className="texto-longo obrigado">
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}>
-          <SimboloLogo tamanho={96} />
+          <Image src="/marca/rabisco-com-livro.webp" alt="" width={120} height={193} priority />
         </div>
         <h1>{pago ? 'Pagamento confirmado!' : 'Pedido recebido!'}</h1>
         {codigo && <p className="letra-miuda">Código do pedido: {codigo}</p>}
