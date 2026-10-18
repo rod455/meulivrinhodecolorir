@@ -12,7 +12,7 @@ import type { PlanoDoLivro } from '@/lib/geracao';
 import type { Pedido } from '@/lib/pedido';
 
 /** `plano` só existe nos temas com personagem: é a receita que o n8n executa. */
-export type Registro = Pedido & { id: string; criadoEm: string; origem: Record<string, string>; plano: PlanoDoLivro | null };
+export type Registro = Pedido & { id: string; criadoEm: string; origem: Record<string, string>; plano: PlanoDoLivro | null; userId: string };
 
 export function destinosLigados() {
   return {
@@ -49,6 +49,7 @@ function emLinhaDoBanco(r: Registro) {
     modelo: r.plano?.modelo ?? null,
     personagem: r.personagem,
     plano: r.plano,
+    user_id: r.userId,
   };
 }
 

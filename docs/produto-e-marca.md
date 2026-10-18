@@ -120,7 +120,7 @@ flowchart LR
 
 **Passo 7: Checkout**
 - **Pix** (padrão, com desconto de 5%) e **cartão**.
-- Pede só **nome, e-mail e WhatsApp**. Sem criar conta.
+- Pede só **nome, e-mail e WhatsApp**. Monta e vê a capa sem conta; para comprar e baixar, cria a conta (e-mail e senha, link por e-mail ou Google; decisão do dono, 18/10/2026).
 - Caixa opcional: "Quero receber ideias de festa e cupons".
 - Order bump: "Adicione as etiquetas de sacolinha combinando (+R$ 9)".
 

@@ -19,8 +19,11 @@
 | a etapa "Crie o personagem" (só nos temas com `comPersonagem`) | `app/criar/EtapaPersonagem.tsx` |
 | o tratamento da foto (formato, tamanho, tirar metadados) | `lib/foto.ts` (confira com `npm run conferir:foto`) |
 | onde a foto mora e quando some (bucket privado, 7 dias) | `lib/servidor/fotos.ts`, `app/api/foto/route.ts`, `app/api/limpeza-fotos/route.ts` e o cron em `vercel.json` |
+| login e conta (e-mail e senha, link por e-mail, Google) | `components/FormularioDeConta.tsx`, `lib/servidor/sessao.ts`, `middleware.ts`, volta em `app/auth/callback/route.ts` |
+| a área "Meus livrinhos" (pedidos, baixar, apagar fotos, excluir conta) | `app/conta/`, `app/api/conta/`, `app/api/livro/[id]/route.ts` |
+| endereço e chave pública do Supabase | `SUPABASE_PUBLICO` em `lib/config.ts` (públicos por natureza; a chave de serviço fica só na Vercel) |
 | para onde vai o pedido (Supabase, n8n, link de pagamento) | `lib/servidor/pedidos.ts` e `app/api/pedido/route.ts` |
-| a tabela de pedidos | `supabase/migrations/0001_pedidos.sql`; personagem, plano, fotos e consentimentos em `0002_personagem_e_fotos.sql`; aplicadas no projeto `meulivrinhodecolorir` (ref nkqxydwnarxjfypbeqji) em 18/10/2026 |
+| a tabela de pedidos | `supabase/migrations/0001_pedidos.sql`; personagem, plano, fotos e consentimentos em `0002_personagem_e_fotos.sql`; contas, RLS de leitura e bucket `livros` em `0004_contas.sql`; todas aplicadas no projeto `meulivrinhodecolorir` (ref nkqxydwnarxjfypbeqji) em 18/10/2026 |
 | eventos de medição (GA4, Meta Pixel) | `lib/analytics.ts` |
 | UTM e QR code que acompanham o pedido | `components/GuardaOrigem.tsx` |
 | WhatsApp, e-mail, CNPJ do rodapé | variáveis `NEXT_PUBLIC_*` (veja `.env.example`) |
@@ -33,7 +36,11 @@
    A foto só aparece com o Supabase ligado; sobe por `POST /api/foto`, que exige o
    aceite da versão atual do consentimento, redesenha a imagem sem metadados e
    registra a foto (apaga em 7 dias) e o aceite (só o prefixo da rede, sem o IP inteiro).
-2. `POST /api/pedido` valida de novo, recalcula o preço, confere que a foto existe
+   Para pagar, precisa de conta (decisão do dono, 18/10/2026): a etapa final mostra
+   o cadastro ou a entrada; o rascunho fica no localStorage para sobreviver à volta
+   do Google e do link por e-mail (`/criar?etapa=pagar`).
+2. `POST /api/pedido` exige a sessão (401 sem ela), usa o e-mail da conta, grava o
+   `user_id` e valida de novo, recalcula o preço, confere que a foto existe
    e não venceu, monta o plano do livro (`lib/geracao.ts`) e grava no Supabase e/ou
    avisa o n8n (`N8N_WEBHOOK_PEDIDO`). O plano vai no campo `plano` da linha. Sem nenhum dos dois ligado, a rota recusa
    o pedido e manda a pessoa para o WhatsApp: pedido que não fica guardado é perdido.
@@ -41,9 +48,19 @@
    pagamento; senão, cai em `/obrigado` e o link segue pelo WhatsApp.
 4. Todo dia às 06:17 UTC, a Vercel Cron chama `/api/limpeza-fotos` (com
    `CRON_SECRET`), que apaga do bucket as fotos vencidas e marca a hora.
-5. Do pagamento em diante (gerar a ficha e as páginas pelo plano, montar o PDF, enviar por e-mail e
+5. O n8n grava o PDF no bucket privado `livros` como `<id do pedido>.pdf`, põe esse
+   caminho em `link_pdf` e o status `entregue`. A família baixa em "Meus livrinhos"
+   por link assinado de 60 segundos; o e-mail de entrega leva para `/conta`.
+6. Do pagamento em diante (gerar a ficha e as páginas pelo plano, montar o PDF, enviar por e-mail e
    WhatsApp, lembretes D+1, pós-festa e aniversário) é do n8n. O link de
    pagamento deve voltar para `/obrigado?status=pago`.
+
+## A suíte de navegador
+
+Roda contra `scripts/supabase-falso.mjs` (Auth, REST com a regra de RLS, Storage
+e o webhook do n8n), porque o ambiente de teste não alcança o Supabase de verdade.
+O passo a passo está no topo de `scripts/navegador.mjs`. O falso imita a RLS; a
+RLS de verdade foi conferida no banco com duas contas numa transação desfeita.
 
 ## Os livros Little Team Tales
 

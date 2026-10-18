@@ -287,3 +287,21 @@ p { margin: 0 0 1em; }
 .foto-recebida img { border-radius: 12px; border: 2px solid var(--grafite); object-fit: cover; }
 .campo .marcar input { padding: 0; border: none; border-radius: 4px; }
 .campo .marcar input:focus:not(:focus-visible) { outline: none; }
+
+/* Conta */
+.conta-pagina { max-width: 560px; }
+.conta-caixa { display: grid; gap: 14px; }
+.conta-titulo { font-size: 1.4rem; margin: 0; }
+.botao-google { width: 100%; justify-content: center; }
+.botao-google span { font-weight: 900; font-size: 1.15rem; margin-right: 6px; }
+.link-botao { background: none; border: none; padding: 0; font: inherit; color: var(--grafite); text-decoration: underline; cursor: pointer; }
+.aviso-ok { background: #e7f6e6; border: 2px solid var(--verde); border-radius: 14px; padding: 12px 14px; font-weight: 700; margin-bottom: 14px; }
+.link-conta { margin-left: auto; font-weight: 800; color: var(--grafite); }
+.conta-atual { margin-top: -6px; margin-bottom: 14px; }
+.pedidos-da-conta { list-style: none; padding: 0; display: grid; gap: 12px; margin: 18px 0 32px; }
+.pedidos-da-conta li { display: flex; gap: 12px; align-items: center; justify-content: space-between; }
+.status { font-weight: 800; font-size: 0.95rem; margin-top: 4px; }
+.status-entregue { color: #2f6b2d; }
+.conta-acoes h2 { font-size: 1.25rem; margin: 28px 0 8px; }
+.conta-acoes .campo { max-width: 420px; }
+.botao-perigo { background: var(--branco); border-color: var(--erro); color: var(--erro); box-shadow: 0 3px 0 var(--erro); }

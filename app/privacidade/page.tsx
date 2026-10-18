@@ -43,6 +43,15 @@ export default function Privacidade() {
         <h2>Seus dados</h2>
         <ul>
           <li>Nome, e-mail e WhatsApp: para entregar o arquivo, tirar dúvidas e mandar o recado de pós-venda.</li>
+          <li>
+            Para comprar e baixar, você cria uma conta com e-mail e senha, link por e-mail ou Google. A senha fica guardada cifrada pelo
+            nosso provedor de login; nem a gente consegue ler. Do Google, recebemos só o seu e-mail.
+          </li>
+          <li>
+            Em <strong>Meus livrinhos</strong> você vê os pedidos, baixa os arquivos, apaga as fotos na hora e pode excluir a conta. Ao
+            excluir, apagamos o login, as fotos, os livrinhos e os dados da criança e de contato; fica só o registro da venda (produto,
+            valor e data), para a contabilidade.
+          </li>
           <li>Ideias de festa e cupons só chegam se você marcar a caixa no pedido. Dá para sair a qualquer momento.</li>
           <li>Os dados de pagamento ficam com a empresa de pagamento; a gente não vê nem guarda o número do cartão.</li>
         </ul>

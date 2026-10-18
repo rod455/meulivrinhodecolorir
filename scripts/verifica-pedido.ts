@@ -3,6 +3,7 @@
 //
 // Rode com: npm run conferir:pedido
 import assert from 'node:assert/strict';
+import { destinoSeguro } from '../lib/destino.ts';
 import { arrumarWhatsapp, lerPedido } from '../lib/pedido.ts';
 import { PERSONAGEM_INICIAL } from '../lib/personagem.ts';
 import { emReais, PRODUTOS, totalDoPedido } from '../lib/produtos.ts';
@@ -82,5 +83,11 @@ ok(emReais(PRODUTOS.presente.preco) === 'R$ 24,90', 'presente R$ 24,90');
 ok(emReais(PRODUTOS.combo.preco) === 'R$ 54', 'combo R$ 54');
 ok(totalDoPedido('presente', 'pix') === 2365, 'presente no Pix arredonda a favor de quem compra');
 ok(PRODUTOS.combo.preco < PRODUTOS.lembrancinha.preco + PRODUTOS.presente.preco, 'combo sai mais barato que os dois separados');
+
+// a volta do login só vai para caminho do próprio site (senão vira redirecionador de golpe)
+ok(destinoSeguro('/criar?etapa=pagar') === '/criar?etapa=pagar', 'caminho do site passa');
+for (const ruim of ['//golpe.example', 'https://golpe.example', '/\\golpe.example', 'javascript:alert(1)', '', null]) {
+  ok(destinoSeguro(ruim) === '/conta', `destino para fora barrado: ${String(ruim)}`);
+}
 
 console.log(`pedido: ${casos} casos ok`);

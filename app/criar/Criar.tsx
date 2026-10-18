@@ -8,9 +8,11 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { CapaLivrinho } from '@/components/CapaLivrinho';
+import { FormularioDeConta, useConta } from '@/components/FormularioDeConta';
 import { lerOrigem } from '@/components/GuardaOrigem';
 import { PaginaAmostra } from '@/components/PaginaAmostra';
 import { registrar } from '@/lib/analytics';
+import { supabaseNoNavegador } from '@/lib/supabase/navegador';
 import { linkDoWhatsapp } from '@/lib/config';
 import { arrumarNome, LIMITE_DO_NOME, MENSAGEM_DO_PROBLEMA, problemaDoNome } from '@/lib/nome';
 import { DEDICATORIAS_PRONTAS, LIMITE_DA_DEDICATORIA, lerPedido, type ErrosDoPedido } from '@/lib/pedido';
@@ -22,6 +24,8 @@ import { EtapaPersonagem } from './EtapaPersonagem';
 /** 0 produto, 1 tema, 2 nome, 3 personagem (só se o tema tem), 4 contato e pagamento */
 type Etapa = 0 | 1 | 2 | 3 | 4;
 const GUARDADO = 'livrinho:rascunho';
+/** volta do Google e do link por e-mail: cai direto no pagamento, com o rascunho guardado */
+export const DESTINO_DEPOIS_DE_ENTRAR = '/criar?etapa=pagar';
 
 type Rascunho = {
   produto: ProdutoId | null;
@@ -61,7 +65,8 @@ function primeiraEtapaQueFalta(r: Rascunho): Etapa {
   return 2;
 }
 
-export function Criar({ fotoLigada }: { fotoLigada: boolean }) {
+export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boolean }) {
+  const { carregando: carregandoConta, conta } = useConta();
   const busca = useSearchParams();
   const router = useRouter();
   const [r, setR] = useState<Rascunho>(VAZIO);
@@ -77,7 +82,8 @@ export function Criar({ fotoLigada }: { fotoLigada: boolean }) {
   useEffect(() => {
     let base = VAZIO;
     try {
-      const salvo = sessionStorage.getItem(GUARDADO);
+      // localStorage, não sessionStorage: o link de entrada por e-mail abre em outra aba
+      const salvo = localStorage.getItem(GUARDADO);
       if (salvo) base = { ...VAZIO, ...JSON.parse(salvo) };
     } catch {
       // sem armazenamento, começa do zero
@@ -94,7 +100,9 @@ export function Criar({ fotoLigada }: { fotoLigada: boolean }) {
       idade: Number.isInteger(idade) && idade >= 1 && idade <= 10 ? idade : base.idade,
     };
     setR(inicial);
-    setEtapa(primeiraEtapaQueFalta(inicial));
+    const falta = primeiraEtapaQueFalta(inicial);
+    const voltouDoLogin = busca.get('etapa') === 'pagar' && falta === 2 && !problemaDoNome(inicial.nome);
+    setEtapa(voltouDoLogin ? 4 : falta);
     setPronto(true);
     registrar('personalizacao_iniciada');
   }, [busca]);
@@ -102,7 +110,7 @@ export function Criar({ fotoLigada }: { fotoLigada: boolean }) {
   useEffect(() => {
     if (!pronto) return;
     try {
-      sessionStorage.setItem(GUARDADO, JSON.stringify(r));
+      localStorage.setItem(GUARDADO, JSON.stringify(r));
     } catch {
       // segue sem guardar
     }
@@ -158,7 +166,8 @@ export function Criar({ fotoLigada }: { fotoLigada: boolean }) {
   }
 
   async function enviar() {
-    const resultado = lerPedido({ ...r, personagem: personagemDoPedido });
+    if (!conta) return;
+    const resultado = lerPedido({ ...r, email: conta.email, personagem: personagemDoPedido });
     if (!resultado.ok) {
       setErros(resultado.erros);
       if (resultado.erros.nome || resultado.erros.dedicatoria) irPara(2);
@@ -171,7 +180,7 @@ export function Criar({ fotoLigada }: { fotoLigada: boolean }) {
       const resposta = await fetch('/api/pedido', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ ...r, personagem: personagemDoPedido, origem: lerOrigem(), site: (document.getElementById('site') as HTMLInputElement | null)?.value ?? '' }),
+        body: JSON.stringify({ ...r, email: conta.email, personagem: personagemDoPedido, origem: lerOrigem(), site: (document.getElementById('site') as HTMLInputElement | null)?.value ?? '' }),
       });
       const dados = (await resposta.json().catch(() => ({}))) as { id?: string; pagar?: string | null; erros?: ErrosDoPedido; mensagem?: string };
       if (!resposta.ok || !dados.id) {
@@ -187,7 +196,7 @@ export function Criar({ fotoLigada }: { fotoLigada: boolean }) {
       }
       registrar('pedido_enviado', { produto: resultado.pedido.produto, valor: resultado.pedido.total / 100 });
       try {
-        sessionStorage.removeItem(GUARDADO);
+        localStorage.removeItem(GUARDADO);
       } catch {
         // tanto faz
       }
@@ -414,7 +423,25 @@ export function Criar({ fotoLigada }: { fotoLigada: boolean }) {
             </div>
           </div>
           <div>
+            {carregandoConta ? (
+              <div style={{ minHeight: 240 }} />
+            ) : !conta ? (
+              <>
+                <h1 style={{ fontSize: 'clamp(1.8rem, 6vw, 2.4rem)' }}>Falta pouco: sua conta</h1>
+                <p className="letra-miuda">
+                  É nela que você baixa o livrinho, vê os pedidos e apaga os dados quando quiser. O livrinho que você montou fica guardado.
+                </p>
+                <FormularioDeConta destino={DESTINO_DEPOIS_DE_ENTRAR} google={google} />
+              </>
+            ) : (
+            <>
             <h1 style={{ fontSize: 'clamp(1.8rem, 6vw, 2.4rem)' }}>Para onde mandamos?</h1>
+            <p className="letra-miuda conta-atual">
+              Comprando como <strong>{conta.email}</strong>.{' '}
+              <button type="button" className="link-botao" onClick={() => void supabaseNoNavegador().auth.signOut()}>
+                Trocar de conta
+              </button>
+            </p>
             {falha && (
               <div className="aviso-erro" role="alert">
                 {falha}
@@ -432,11 +459,6 @@ export function Criar({ fotoLigada }: { fotoLigada: boolean }) {
               <label htmlFor="responsavel">Seu nome</label>
               <input id="responsavel" autoComplete="name" value={r.responsavel} onChange={(e) => muda('responsavel', e.target.value)} aria-invalid={Boolean(erros.responsavel)} />
               {erros.responsavel && <span className="erro">{erros.responsavel}</span>}
-            </div>
-            <div className="campo">
-              <label htmlFor="email">E-mail</label>
-              <input id="email" type="email" inputMode="email" autoComplete="email" value={r.email} onChange={(e) => muda('email', e.target.value)} aria-invalid={Boolean(erros.email)} />
-              {erros.email && <span className="erro">{erros.email}</span>}
             </div>
             <div className="campo">
               <label htmlFor="whatsapp">WhatsApp</label>
@@ -488,9 +510,11 @@ export function Criar({ fotoLigada }: { fotoLigada: boolean }) {
               </span>
             </div>
             <p className="letra-miuda">
-              Sem criar conta. Ao continuar, você concorda com os <a href="/termos" target="_blank">termos</a> e a{' '}
+              Ao continuar, você concorda com os <a href="/termos" target="_blank">termos</a> e a{' '}
               <a href="/privacidade" target="_blank">política de privacidade</a>. Guardamos só o primeiro nome, a idade e o personagem da criança{temPersonagem && r.personagem.jeito === 'foto' ? '; a foto é apagada em 7 dias' : ''}.
             </p>
+            </>
+            )}
           </div>
         </section>
       )}
@@ -510,7 +534,7 @@ export function Criar({ fotoLigada }: { fotoLigada: boolean }) {
               <button type="button" className="botao" onClick={validarPersonagem}>
                 Continuar
               </button>
-            ) : (
+            ) : !conta ? null : (
               <button type="button" className="botao" disabled={enviando} onClick={enviar}>
                 {enviando ? 'Enviando…' : r.pagamento === 'pix' ? 'Pagar com Pix' : 'Pagar com cartão'}
               </button>

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { Cabecalho } from '@/components/Cabecalho';
 import { fotoLigada } from '@/lib/servidor/fotos';
+import { googleLigado } from '@/lib/servidor/sessao';
 import { Criar } from './Criar';
 
 export const metadata: Metadata = {
@@ -10,14 +11,15 @@ export const metadata: Metadata = {
   alternates: { canonical: '/criar' },
 };
 
-export default function PaginaCriar() {
+export default async function PaginaCriar() {
+  const google = await googleLigado();
   return (
     <>
       <Cabecalho semMenu />
       <main className="criar">
         <div className="miolo">
           <Suspense>
-            <Criar fotoLigada={fotoLigada()} />
+            <Criar fotoLigada={fotoLigada()} google={google} />
           </Suspense>
         </div>
       </main>

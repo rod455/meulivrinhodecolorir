@@ -142,7 +142,7 @@ export default function Inicio() {
               <h2>
                 Experimente: digite o <Grifo cor={COR.azul}>nome</Grifo>
               </h2>
-              <p>Cada livrinho leva o nome da criança na capa e nas páginas. Sem cadastro, sem compromisso.</p>
+              <p>Cada livrinho leva o nome da criança na capa e nas páginas. Monte e veja a capa sem cadastro; a conta só entra na hora de comprar.</p>
             </div>
             <PreviaNaLp />
           </div>
