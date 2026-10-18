@@ -32,6 +32,15 @@
    WhatsApp, lembretes D+1, pós-festa e aniversário) é do n8n. O link de
    pagamento deve voltar para `/obrigado?status=pago`.
 
+## Os livros Little Team Tales
+
+`livros-fonte/` guarda os pacotes dos livros já publicados na KDP (história, ficha de
+personagens, prompt mestre e prompts página a página), como o dono mandou em 18/10/2026.
+É a base para as versões personalizadas e para manter a turma igual em toda arte nova:
+Pip (coelho), Bo (urso), Luna (raposa), Milo (guaxinim), Dot (tartaruga). Fica fora de
+`docs/` de propósito: os textos estão em inglês e com travessão, como foram publicados,
+e não são texto do site.
+
 ## O que ainda NÃO está aqui
 
 - Geração do PDF: o script Python dos livros Little Paws mora fora deste repositório.

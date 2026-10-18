@@ -36,7 +36,7 @@ export const TEMAS: Record<TemaId, Tema> = {
     id: 'futebol',
     emoji: '⚽',
     nome: 'Futebol com a turma Little Paws',
-    descricao: 'Urso, coelha, raposa, guaxinim e tartaruga, bola no pé e muito gol.',
+    descricao: 'Pip, Bo, Luna, Milo e Dot, a turma Little Paws, com bola no pé e muito gol.',
     tituloDaHistoria: 'e o gol mais bonito do mundo',
     cor: 'verde',
     faixas: ['todos', 'bebes', 'maiores'],
