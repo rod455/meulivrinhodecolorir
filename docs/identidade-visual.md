@@ -232,4 +232,6 @@ O recorte do símbolo e a textura perdem detalhes naturalmente em 16 px. Para us
 - **Componentes:** escala de títulos e corpo de 18 px; botões em pílula com sombra curta de 3 px e contorno só no secundário; cartões de raio 24 com contorno discreto; campos de 48 px com foco grafite.
 - **Primeiro bloco:** chamada e apoio da seção 9 e a ação secundária "Ver um exemplo". O apoio mantém "livrinho de colorir" e "lembrancinha" por causa da busca.
 
+- **Ajustes vindos do Behance (18/10/2026):** "Por que é diferente" em caixas de tamanhos e cores diferentes, com o Rabisco lendo e os ícones do kit (referência: BLOOMIE); seções cinza e azul como faixas arredondadas; seta de giz do kit entre os passos; estrela e coração de giz da campanha ao lado de alguns títulos; temas "em breve" em pílulas coloridas.
+
 **Ainda não aplicado:** capas e páginas de amostra do Natal e do Fundo do mar no estilo da marca (as da prancha têm cerca de 200 px e texto gravado, então ficariam borradas e não aceitam o nome ao vivo); emojis dos produtos e dos diferenciais.

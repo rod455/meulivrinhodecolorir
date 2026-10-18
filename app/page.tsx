@@ -10,13 +10,14 @@ import { FAMILIAS_ATENDIDAS, SITE } from '@/lib/config';
 import { PERGUNTAS } from '@/lib/faq';
 import { emReais, MENOR_PRECO, PRODUTOS } from '@/lib/produtos';
 
+// Caixas de tamanhos e cores diferentes (referência: BLOOMIE no Behance); ícones e Rabisco do kit.
 const DIFERENCIAIS = [
-  { emoji: '✏️', titulo: 'Desenhos com traço grosso', texto: 'Fáceis de pintar até para os pequenos.' },
-  { emoji: '📖', titulo: 'Tem história de verdade', texto: 'Não são só desenhos soltos: a criança vira a heroína.' },
-  { emoji: '🎨', titulo: 'Personagens próprios', texto: 'Nada de cópia de personagem famoso.' },
-  { emoji: '⚡', titulo: 'Pronto em minutos', texto: 'Nada de esperar os Correios. Você recebe na hora.' },
-  { emoji: '🖨️', titulo: 'Imprima quantas vezes quiser', texto: 'Um para cada convidado da festa.' },
-  { emoji: '💛', titulo: 'Garantia de 7 dias', texto: 'Se não gostar, devolvemos o seu dinheiro.' },
+  { arte: { src: '/marca/rabisco-com-livro.webp', l: 220, a: 353 }, titulo: 'Tem história de verdade', texto: 'Não são só desenhos soltos: a criança vira a heroína, com o nome dela no texto.', jeito: 'destaque' },
+  { arte: { src: '/marca/icone-pinte.webp', l: 116, a: 73 }, titulo: 'Desenhos com traço grosso', texto: 'Fáceis de pintar até para os pequenos.', jeito: '' },
+  { arte: { src: '/marca/icone-personalize.webp', l: 99, a: 61 }, titulo: 'Personagens próprios', texto: 'Nada de cópia de personagem famoso.', jeito: 'azul' },
+  { arte: { src: '/marca/estrela-giz.webp', l: 83, a: 89 }, titulo: 'Pronto em minutos', texto: 'Nada de esperar os Correios. Você recebe na hora.', jeito: '' },
+  { arte: { src: '/marca/icone-imprima.webp', l: 58, a: 62 }, titulo: 'Imprima quantas vezes quiser', texto: 'Um para cada convidado da festa.', jeito: '' },
+  { arte: { src: '/marca/coracao-giz.webp', l: 73, a: 86 }, titulo: 'Garantia de 7 dias', texto: 'Se não gostar, devolvemos o seu dinheiro. Sem perguntas.', jeito: 'largo' },
 ];
 
 const dadosEstruturados = {
@@ -151,7 +152,7 @@ export default function Inicio() {
         <section className="secao secao-nuvem" id="produtos">
           <div className="miolo">
             <div className="titulo-secao">
-              <h2>Escolha o seu livrinho</h2>
+              <h2 className="titulo-rabisco titulo-estrela">Escolha o seu livrinho</h2>
               <p>Você paga uma vez e imprime quantas vezes quiser.</p>
             </div>
             <div className="produtos">
@@ -214,7 +215,7 @@ export default function Inicio() {
         <section className="secao" id="temas">
           <div className="miolo">
             <div className="titulo-secao">
-              <h2>Temas exclusivos</h2>
+              <h2 className="titulo-rabisco titulo-coracao">Temas exclusivos</h2>
               <p>Toque numa capa para ver as páginas por dentro.</p>
             </div>
             <GaleriaDeTemas />
@@ -225,12 +226,12 @@ export default function Inicio() {
         <section className="secao secao-azul">
           <div className="miolo">
             <div className="titulo-secao">
-              <h2>Por que é diferente</h2>
+              <h2 className="titulo-rabisco titulo-estrela">Por que é diferente</h2>
             </div>
             <div className="diferenciais">
               {DIFERENCIAIS.map((d) => (
-                <div key={d.titulo} className="diferencial">
-                  <span className="emoji" aria-hidden="true">{d.emoji}</span>
+                <div key={d.titulo} className={`diferencial ${d.jeito}`}>
+                  <Image src={d.arte.src} alt="" width={d.arte.l} height={d.arte.a} className="diferencial-arte" />
                   <div>
                     <h3>{d.titulo}</h3>
                     <p>{d.texto}</p>
@@ -247,7 +248,7 @@ export default function Inicio() {
         <section className="secao" id="duvidas">
           <div className="miolo">
             <div className="titulo-secao">
-              <h2>Perguntas frequentes</h2>
+              <h2 className="titulo-rabisco titulo-coracao">Perguntas frequentes</h2>
             </div>
             <div className="faq">
               {PERGUNTAS.map((p) => (

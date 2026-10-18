@@ -34,3 +34,9 @@ corta(A,(872,98,1528,522),'public/marca/livros-exemplo.webp',1400)
 corta(A,(872,98,1100,500),'public/marca/livro-dinossauro.webp',600)
 corta(A,(1083,118,1322,522),'public/marca/livro-fundo-do-mar.webp',600)
 corta(A,(1318,95,1526,495),'public/marca/livro-natal.webp',600)
+# Enfeites de giz: a seta entre os passos, a estrela e o coração da campanha, o giz do "Pinte".
+C='campanhas/seu-nome-sua-aventura.png'
+corta(A,(265,548,358,598),'public/marca/seta-giz.webp',240)
+corta(A,(640,537,760,610),'public/marca/icone-pinte.webp',240)
+corta(C,(30,415,118,510),'public/marca/estrela-giz.webp',200)
+corta(C,(1015,470,1100,560),'public/marca/coracao-giz.webp',200)
