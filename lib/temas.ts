@@ -19,6 +19,8 @@ export type Tema = {
   /** artes coloridas em public/artes: a cena da capa e as duas das páginas de amostra.
    * Sem elas, o tema usa o desenho em SVG de components/desenho/temas.tsx. */
   artes?: { capa: string; amostras: [string, string] };
+  /** imagem de vitrine do tema na galeria da LP, do kit de marca (sem nome gravado por cima) */
+  vitrine: { src: string; largura: number; altura: number };
 };
 
 export type Faixa = 'todos' | 'bebes' | 'maiores';
@@ -40,6 +42,7 @@ export const TEMAS: Record<TemaId, Tema> = {
     faixas: ['todos', 'bebes', 'maiores'],
     amostras: ['{nome} chutou e foi gol!', 'Pinte a camisa do time de {nome}'],
     historia: 'Naquela manhã, {nome} acordou com um barulhinho de bola quicando lá fora…',
+    vitrine: { src: '/artes/turma-em-fila.webp', largura: 970, altura: 600 },
     artes: {
       capa: '/artes/turma-em-fila.webp',
       amostras: ['/artes/turma-comemorando.webp', '/artes/turma-no-banco.webp'],
@@ -55,6 +58,7 @@ export const TEMAS: Record<TemaId, Tema> = {
     faixas: ['todos', 'bebes', 'maiores'],
     amostras: ['Feliz Natal, {nome}!', 'Que presente {nome} vai abrir?'],
     historia: 'Na noite de Natal, {nome} viu uma luz pequenininha piscando perto da janela…',
+    vitrine: { src: '/marca/livro-natal.webp', largura: 216, altura: 390 },
   },
   'fundo-do-mar': {
     id: 'fundo-do-mar',
@@ -66,6 +70,7 @@ export const TEMAS: Record<TemaId, Tema> = {
     faixas: ['todos', 'bebes', 'maiores'],
     amostras: ['{nome} fez amizade com a baleia', 'Quantos peixinhos {nome} encontrou?'],
     historia: 'Num dia de sol, {nome} encontrou uma concha que cantava baixinho…',
+    vitrine: { src: '/marca/livro-fundo-do-mar.webp', largura: 238, altura: 402 },
   },
 };
 

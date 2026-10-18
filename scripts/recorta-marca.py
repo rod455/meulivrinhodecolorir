@@ -29,3 +29,8 @@ corta(A,(385,532,492,606),'public/marca/icone-personalize.webp',240)
 corta(A,(1249,716,1309,784),'public/marca/icone-imprima.webp',240)
 corta(P,(990,70,1292,452),'public/marca/rabisco-desenhando.webp',400,apaga=(985,80,1045,330))
 corta(P,(1295,70,1515,430),'public/marca/rabisco-com-livro.webp',400)
+# Os livros de exemplo da prancha de aplicações: o trio e cada um separado.
+corta(A,(872,98,1528,522),'public/marca/livros-exemplo.webp',1400)
+corta(A,(872,98,1100,500),'public/marca/livro-dinossauro.webp',600)
+corta(A,(1083,118,1322,522),'public/marca/livro-fundo-do-mar.webp',600)
+corta(A,(1318,95,1526,495),'public/marca/livro-natal.webp',600)

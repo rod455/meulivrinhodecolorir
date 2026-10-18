@@ -1,14 +1,14 @@
 'use client';
 
-// Seção 3 da LP: o campo de nome já na página, atualizando a capa ao vivo.
+// Seção 3 da LP: o campo de nome já na página, ao lado dos livrinhos de exemplo do kit.
 // É a seção que mais converte; o botão leva o que foi digitado para o fluxo.
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRef, useState } from 'react';
 import { registrar } from '@/lib/analytics';
 import { arrumarNome, LIMITE_DO_NOME, MENSAGEM_DO_PROBLEMA, problemaDoNome } from '@/lib/nome';
 import { LISTA_DE_TEMAS, type TemaId } from '@/lib/temas';
-import { CapaLivrinho } from './CapaLivrinho';
 import { ALapis } from './Enfeites';
 
 export function PreviaNaLp() {
@@ -19,8 +19,6 @@ export function PreviaNaLp() {
 
   const nome = arrumarNome(bruto);
   const problema = bruto.trim() ? problemaDoNome(bruto) : null;
-  const nomeNaCapa = problema === 'bloqueado' ? '' : nome;
-  const progresso = nome ? Math.min(0.25 + nome.length * 0.06, 0.75) : 0.2;
 
   const params = new URLSearchParams({ tema, idade: String(idade) });
   if (nome && !problema) params.set('nome', nome);
@@ -28,7 +26,14 @@ export function PreviaNaLp() {
   return (
     <div className="previa">
       <div>
-        <CapaLivrinho id="previa-lp" tema={tema} produto="lembrancinha" nome={nomeNaCapa} idade={idade} corte={progresso} className="previa-capa" />
+        <Image
+          src="/marca/livros-exemplo.webp"
+          alt="Três livrinhos de exemplo: A aventura de Theo, O mundo de Laura e O Natal de Helena"
+          width={661}
+          height={432}
+          sizes="(min-width: 860px) 520px, 100vw"
+          className="previa-livros"
+        />
       </div>
       <div className="cartao">
         <div className="campo campo-nome">
@@ -55,7 +60,7 @@ export function PreviaNaLp() {
             </span>
           ) : (
             <span className="ajuda" id="nome-lp-ajuda">
-              Veja a capa mudar <ALapis>enquanto você digita!</ALapis>
+              No próximo passo, você vê <ALapis>a capa com o nome!</ALapis>
             </span>
           )}
         </div>

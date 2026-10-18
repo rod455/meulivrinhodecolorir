@@ -123,7 +123,7 @@ p { margin: 0 0 1em; }
 
 /* Prévia interativa */
 .previa { display: grid; gap: 28px; align-items: center; }
-.previa-capa { max-width: 320px; width: 100%; margin: 0 auto; filter: drop-shadow(0 12px 18px rgba(43, 45, 66, 0.18)); }
+.previa-livros { width: 100%; max-width: 560px; height: auto; margin: 0 auto; filter: drop-shadow(0 10px 16px rgba(43, 45, 66, 0.12)); }
 .campo { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
 .campo label, .campo .rotulo { font-weight: 800; }
 .campo input, .campo select, .campo textarea {
@@ -161,14 +161,18 @@ p { margin: 0 0 1em; }
 .galeria { display: grid; grid-auto-flow: column; grid-auto-columns: 78%; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 6px 4px 18px; }
 .galeria > * { scroll-snap-align: start; }
 .tema-cartao { display: flex; flex-direction: column; gap: 12px; text-align: left; cursor: pointer; font: inherit; color: inherit; }
-.tema-cartao .capa { max-width: 230px; width: 100%; margin: 0 auto; }
+.tema-vitrine { display: grid; place-items: center; height: 340px; background: var(--papel); border-radius: 18px; overflow: hidden; }
+.tema-vitrine img { height: 310px; width: auto; max-width: 100%; object-fit: contain; filter: drop-shadow(0 8px 12px rgba(43, 45, 66, 0.14)); }
+.tema-vitrine img[src*='turma'] { height: 100%; width: 100%; object-fit: cover; filter: none; }
+.janela-vitrine { display: grid; place-items: center; margin: 14px 0; }
+.janela-vitrine img { max-height: 60vh; width: auto; height: auto; }
 .em-breve { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 22px; }
 .em-breve span { background: var(--branco); border: 2px dashed var(--grafite-suave); border-radius: 999px; padding: 4px 12px; font-size: 0.92rem; }
 @media (min-width: 760px) { .galeria { grid-auto-flow: row; grid-template-columns: repeat(3, 1fr); overflow: visible; } }
 
 .janela-fundo { position: fixed; inset: 0; background: rgba(43, 45, 66, 0.55); z-index: 50; display: grid; place-items: center; padding: 16px; }
 .janela { background: var(--papel); border: 2px solid var(--grafite); border-radius: var(--raio); max-width: 760px; width: 100%; max-height: 92vh; overflow: auto; padding: 20px; }
-.janela-paginas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 14px 0; }
+.janela-paginas { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 14px 0; }
 .janela-topo { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .fechar { border: 2px solid var(--grafite); background: var(--branco); border-radius: 50%; width: 44px; height: 44px; font-size: 1.3rem; cursor: pointer; flex: none; }
 

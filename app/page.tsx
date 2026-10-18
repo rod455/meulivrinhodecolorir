@@ -141,7 +141,7 @@ export default function Inicio() {
               <h2>
                 Experimente: digite o <Grifo cor={COR.azul}>nome</Grifo>
               </h2>
-              <p>A capa muda enquanto você digita. Sem cadastro, sem compromisso.</p>
+              <p>Cada livrinho leva o nome da criança na capa e nas páginas. Sem cadastro, sem compromisso.</p>
             </div>
             <PreviaNaLp />
           </div>

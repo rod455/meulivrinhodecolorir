@@ -23,7 +23,8 @@ p.on('pageerror', (e) => erros.push(e.message));
 // LP: a prévia muda a capa enquanto digita, e o botão leva o nome para o fluxo
 await p.goto(`${SITE}/?utm_source=teste&utm_campaign=suite`);
 await p.fill('#nome-lp', 'joão pedro');
-await p.locator('svg[aria-label^="Capa: Festa de João Pedro"]').first().waitFor();
+// o nome digitado vai arrumado no link para o fluxo (a capa ao vivo fica no /criar)
+await p.locator('a[href*="nome=Jo%C3%A3o+Pedro"]').first().waitFor();
 await p.getByRole('button', { name: /Natal/ }).first().click();
 await p.getByRole('link', { name: 'Gostei! Quero esse' }).click();
 await p.waitForURL(/\/criar\?/);
