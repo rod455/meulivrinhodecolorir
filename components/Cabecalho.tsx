@@ -6,7 +6,7 @@ export function Cabecalho({ semMenu = false }: { semMenu?: boolean }) {
     <header className="cabecalho">
       <div className="miolo">
         <Link href="/" className="logo" aria-label="Meu Livrinho de Colorir, página inicial">
-          <Logo compacto />
+          <Logo />
         </Link>
         {!semMenu && (
           <>

@@ -1,8 +1,8 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { Cabecalho } from '@/components/Cabecalho';
-import { CapaLivrinho } from '@/components/CapaLivrinho';
 import { COR } from '@/components/desenho/formas';
-import { ALapis, Confete, Estrelinha, GizDeCera, Grifo } from '@/components/Enfeites';
+import { ALapis, Confete, Estrelinha, Grifo } from '@/components/Enfeites';
 import { GaleriaDeTemas } from '@/components/GaleriaDeTemas';
 import { PreviaNaLp } from '@/components/PreviaNaLp';
 import { Rodape } from '@/components/Rodape';
@@ -62,7 +62,6 @@ export default function Inicio() {
       <main>
         {/* 1. Hero */}
         <section className="hero">
-          <Confete />
           <div className="miolo">
             <div>
               <ALapis>Sua história começa com um rabisco</ALapis>
@@ -90,12 +89,15 @@ export default function Inicio() {
                 )}
               </div>
             </div>
-            <div className="hero-livros" aria-label="Três livrinhos de exemplo">
-              <CapaLivrinho id="hero-1" tema="fundo-do-mar" produto="lembrancinha" nome="Helena" idade={3} corte={0.5} className="livro" />
-              <CapaLivrinho id="hero-2" tema="futebol" produto="lembrancinha" nome="Theo" idade={4} corte={0.58} className="livro" />
-              <CapaLivrinho id="hero-3" tema="natal" produto="presente" nome="Laura" idade={6} corte={0.45} className="livro" />
-              <GizDeCera cor={COR.laranja} className="giz giz-1" rotacao={-12} />
-              <GizDeCera cor={COR.azul} className="giz giz-2" rotacao={18} />
+            <div className="hero-arte">
+              <Image
+                src="/marca/hero-livro.webp"
+                alt="Criança pintando um livrinho aberto: uma página ainda em contorno e a outra já colorida, com um dinossauro"
+                width={1536}
+                height={1024}
+                sizes="(min-width: 860px) 560px, 100vw"
+                priority
+              />
             </div>
           </div>
         </section>
@@ -104,6 +106,7 @@ export default function Inicio() {
         <section className="secao secao-nuvem" id="como-funciona">
           <div className="miolo">
             <div className="titulo-secao">
+              <Image src="/marca/rabisco-acenando.webp" alt="" width={96} height={121} className="rabisco" />
               <h2>Como funciona</h2>
               <p>Três passos, e a festa ganha a cara do seu filho.</p>
             </div>

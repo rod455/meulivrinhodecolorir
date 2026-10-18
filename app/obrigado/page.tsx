@@ -21,7 +21,7 @@ export default function Obrigado({ searchParams }: { searchParams: { pedido?: st
       <Cabecalho semMenu />
       <main className="texto-longo obrigado">
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}>
-          <SimboloLogo tamanho={84} id="obrigado" />
+          <SimboloLogo tamanho={96} />
         </div>
         <h1>{pago ? 'Pagamento confirmado!' : 'Pedido recebido!'}</h1>
         {codigo && <p className="letra-miuda">Código do pedido: {codigo}</p>}

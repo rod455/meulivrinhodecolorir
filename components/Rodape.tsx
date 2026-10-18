@@ -8,7 +8,7 @@ export function Rodape() {
     <footer className="rodape">
       <div className="miolo rodape-grade">
         <div>
-          <Logo />
+          <Logo escuro />
           <p style={{ marginTop: 14 }}>Livrinhos de colorir com o nome da criança, prontos em minutos.</p>
           {(SITE.razaoSocial || SITE.cnpj) && (
             <p className="letra-miuda">

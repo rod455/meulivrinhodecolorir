@@ -1,0 +1,221 @@
+{
+  "brand": "Meu Livrinho de Colorir",
+  "version": "1.0",
+  "files": [
+    {
+      "path": "LEIA-ME.md",
+      "bytes": 1269,
+      "sha256": "47312ee8a8ff8e35634cede99b46628ee059b723618d94b5a59574f185043608"
+    },
+    {
+      "path": "campanhas/seu-nome-sua-aventura.png",
+      "bytes": 2376952,
+      "sha256": "73fcb4579868a9d035ce7eb059deeb5f2a6fc1826a5042d7926baaebf4836a4a",
+      "width": 1122,
+      "height": 1402,
+      "format": "PNG",
+      "mode": "RGB"
+    },
+    {
+      "path": "icones/apple-touch-icon-180.png",
+      "bytes": 25404,
+      "sha256": "33c2fc4880fb66258f8906a26a53b05f587b2e6453f28fac0e221a4e9f2a9a14",
+      "width": 180,
+      "height": 180,
+      "format": "PNG",
+      "mode": "RGB"
+    },
+    {
+      "path": "icones/favicon-16.png",
+      "bytes": 979,
+      "sha256": "adc565728476bc00fa5e4fe4eafcdb7649b876ba041e7d811a407b5200faeeba",
+      "width": 16,
+      "height": 16,
+      "format": "PNG",
+      "mode": "P"
+    },
+    {
+      "path": "icones/favicon-32.png",
+      "bytes": 2257,
+      "sha256": "663d643ab0d56017929476a15c1f8bc604179adc8bc89a03eb65c8da50f3b9d0",
+      "width": 32,
+      "height": 32,
+      "format": "PNG",
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "icones/favicon-48.png",
+      "bytes": 4235,
+      "sha256": "58bdfe26c49710e83b34154dc98e9744fad537128862eff045d297af1f220e6e",
+      "width": 48,
+      "height": 48,
+      "format": "PNG",
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "icones/favicon.ico",
+      "bytes": 15086,
+      "sha256": "6ddcfe29419eec7f47d0a1309efb76f5fe3f6acb61ed18acf980e559654afe5c",
+      "width": 48,
+      "height": 48,
+      "format": "ICO",
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "sizes": [
+        [
+          16,
+          16
+        ],
+        [
+          32,
+          32
+        ],
+        [
+          48,
+          48
+        ]
+      ]
+    },
+    {
+      "path": "icones/icone-app-1024.png",
+      "bytes": 508838,
+      "sha256": "b88c9aa2bd4d25ad2235e3a3fa8adc30e5e0893c6d530a913820108574004574",
+      "width": 1024,
+      "height": 1024,
+      "format": "PNG",
+      "mode": "RGB"
+    },
+    {
+      "path": "icones/icone-app-192.png",
+      "bytes": 28256,
+      "sha256": "a6f306ef6a06ce2599e6bcb6efd8214a1938197200ccd5f32e2afdece7d59975",
+      "width": 192,
+      "height": 192,
+      "format": "PNG",
+      "mode": "RGB"
+    },
+    {
+      "path": "icones/icone-app-512.png",
+      "bytes": 158061,
+      "sha256": "406f0622a160d7e3cf44d65e987b225266a992fe358be448ae4fd0f2728aac74",
+      "width": 512,
+      "height": 512,
+      "format": "PNG",
+      "mode": "RGB"
+    },
+    {
+      "path": "implementacao/tokens.css",
+      "bytes": 506,
+      "sha256": "f9ac7763102f1f402328f1041fc104ae5fcdabb49e79f67d2dfe197c2d3d2e1a"
+    },
+    {
+      "path": "implementacao/tokens.json",
+      "bytes": 578,
+      "sha256": "ee087ec279bade575e820c244d6fa9edffc79648130d8f37ce603aa69c01b804"
+    },
+    {
+      "path": "logos/logo-fundo-escuro.png",
+      "bytes": 1533329,
+      "sha256": "fa657c85c4e4dd4d41630143462d51e1145293036684d18200865cada4fc80b2",
+      "width": 1983,
+      "height": 793,
+      "format": "PNG",
+      "mode": "RGB"
+    },
+    {
+      "path": "logos/logo-monocromatico-transparente.png",
+      "bytes": 885367,
+      "sha256": "64f0cffdb5b098de0cfa07e8afa3fe6e0a33f3f599a7e9c981d3dfbd3e16a4a5",
+      "width": 1983,
+      "height": 793,
+      "format": "PNG",
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "logos/logo-principal-transparente.png",
+      "bytes": 984508,
+      "sha256": "43eb99aec0a030b7f59e01af282bc29fb3d3119d9666c025c3b367357b13490b",
+      "width": 1983,
+      "height": 793,
+      "format": "PNG",
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "mascote/rabisco-acenando-transparente.png",
+      "bytes": 1194820,
+      "sha256": "8f9b1cb4980d9b426399591d499ff6b739756b4ed0dc1b887a3bcae2b0e6b6eb",
+      "width": 1122,
+      "height": 1402,
+      "format": "PNG",
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "meu-livrinho-identidade-visual.md",
+      "bytes": 16725,
+      "sha256": "4a3374881a2bfc70334feda020d1db4e5e78568089dc019dc4ba88b57bd6267f"
+    },
+    {
+      "path": "referencia/aplicacoes-da-marca.png",
+      "bytes": 2364689,
+      "sha256": "2d5492d929f704b16f7f1403462dc1a4d9cf692a4249e94f9f3166d6a6c12067",
+      "width": 1536,
+      "height": 1024,
+      "format": "PNG",
+      "mode": "RGB"
+    },
+    {
+      "path": "referencia/prancha-aprovada.png",
+      "bytes": 2119006,
+      "sha256": "52e916bc4a36918b7d3f53984b77daec62236767afae9bba4edef6e7c88c4cbd",
+      "width": 1536,
+      "height": 1024,
+      "format": "PNG",
+      "mode": "RGB"
+    },
+    {
+      "path": "simbolos/simbolo-transparente.png",
+      "bytes": 1592817,
+      "sha256": "2f68e6315b3b427b48c282df094c725eb6d84f49c70ff077061c302567507fff",
+      "width": 1254,
+      "height": 1254,
+      "format": "PNG",
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "site/hero-livro-fundo-creme.png",
+      "bytes": 2312606,
+      "sha256": "0bf9cf1ff12f34baeb293421713ca591419120c9182d5261c7c1a1eddf37a6f0",
+      "width": 1536,
+      "height": 1024,
+      "format": "PNG",
+      "mode": "RGB"
+    }
+  ]
+}

@@ -1,12 +1,14 @@
 # Meu Livrinho de Colorir
-## Identidade escolhida: Ateliê de Rabiscos
+## Guia de marca: Ateliê de Rabiscos
+
+**Versão:** 1.0 · kit de arquivos de 18/10/2026.
 
 **Aprovação:** direção 1 selecionada por Luiz em 17/10/2026.
 **Nome da empresa:** Meu Livrinho de Colorir. “Ateliê de Rabiscos” identifica apenas a direção visual.
 
 **Conceito:** Do contorno à cor.
 **Assinatura:** Sua história começa com um rabisco.
-**Status:** direção visual aprovada. Recebida pelo dono (Rodrigo) em 18/10/2026 como a identidade do site; o que já foi aplicado está na seção 13. Logo, mascote e ilustração principal foram desdobrados em imagens individuais. As imagens geradas são raster; não são arquivos vetoriais. 
+**Status:** identidade escolhida e kit raster entregue. O ZIP reúne 17 arquivos de imagem/ícone, este guia, instruções rápidas, paleta CSS/JSON e inventário. Recebido pelo dono (Rodrigo) em 18/10/2026; o que já está no site está na seção 13. Os arquivos originais do kit ficam em `docs/artes/marca/`, e as versões otimizadas para o site em `public/marca/`.
 
 ## 1. A ideia central
 
@@ -38,7 +40,7 @@ As referências orientam princípios de design. A proposta não reproduz seus lo
 
 **Símbolo escolhido:** um livro aberto com uma página colorida e outra clara. Uma linha desenhada sai do livro e termina em uma pequena estrela. O livro comunica o produto; a linha comunica a criação; a parte em branco convida a completar a história.
 
-**Nome:** sempre “meu livrinho de colorir”. Construção preferencial em duas linhas: “meu livrinho” / “de colorir”. Letras minúsculas, arredondadas e fortes. Base tipográfica sugerida: Baloo 2 ExtraBold, com ajustes ópticos na arte final.
+**Nome:** sempre “meu livrinho de colorir”. Construção preferencial em duas linhas: “meu livrinho” / “de colorir”. Letras minúsculas, arredondadas e fortes. O lettering das imagens foi desenvolvido visualmente. Baloo 2 ExtraBold é a referência para títulos da interface, não uma identificação exata do lettering do logo. Usar o arquivo do logo fornecido, sem redigitá-lo.
 
 | Versão | Uso |
 |---|---|
@@ -72,7 +74,7 @@ Usar texto grafite sobre laranja, azul, amarelo, rosa e verde. Evitar texto bran
 
 ## 6. Tipografia
 
-- **Baloo 2, pesos 700 e 800:** títulos, chamadas e base do logotipo.
+- **Baloo 2, pesos 700 e 800:** títulos e chamadas da interface. O logo utiliza o lettering da imagem fornecida.
 - **Nunito Sans, pesos 400, 600 e 700:** parágrafos, formulários, botões e textos de apoio.
 - A escrita à mão aparece apenas em pequenos rabiscos ilustrados; não precisa de uma terceira família tipográfica.
 
@@ -169,23 +171,49 @@ Voz: frases curtas e concretas, falando com quem cria ou compra. Usar “livrinh
 }
 ```
 
-Os tokens definem a direção visual e não representam uma alteração já aplicada ao site.
+Os tokens estão aplicados em `app/globals.css` com os nomes em português que o site já usava (`--papel`, `--grafite`, `--laranja` e assim por diante).
 
-## 12. Entrega e aplicação
+## 12. Arquivos entregues
 
-A direção 1 foi escolhida. Paleta, conceito, mascote, lettering e estilo de ilustração deste guia passam a orientar as novas peças da marca.
+O kit contém **17 imagens e ícones: 16 PNGs e 1 ICO**. Os tamanhos menores são exportações do mesmo símbolo, sem redesenho. As dimensões nativas, transparência e hashes constam de `inventario.json`.
 
-### Imagens individuais desta etapa
+| Arquivo | Uso |
+|---|---|
+| `logos/logo-principal-transparente.png` | Logo completo colorido sobre fundos claros |
+| `logos/logo-monocromatico-transparente.png` | Logo em grafite, com áreas vazadas, sobre fundo claro |
+| `logos/logo-fundo-escuro.png` | Composição pronta com fundo grafite incorporado |
+| `simbolos/simbolo-transparente.png` | Livro e estrela sem lettering, para aplicações reduzidas |
+| `icones/icone-app-1024.png` | Ícone quadrado com fundo creme opaco; sem máscara de cantos |
+| `icones/icone-app-512.png` | Ícone web 512 × 512 |
+| `icones/icone-app-192.png` | Ícone web 192 × 192 |
+| `icones/apple-touch-icon-180.png` | Ícone 180 × 180 para atalhos Apple |
+| `icones/favicon-16.png` | Favicon 16 × 16 |
+| `icones/favicon-32.png` | Favicon 32 × 32 |
+| `icones/favicon-48.png` | Favicon 48 × 48 |
+| `icones/favicon.ico` | ICO com tamanhos 16, 32 e 48 |
+| `mascote/rabisco-acenando-transparente.png` | Mascote separado, com fundo transparente |
+| `site/hero-livro-fundo-creme.png` | Ilustração principal com fundo creme incorporado |
+| `campanhas/seu-nome-sua-aventura.png` | Campanha vertical com texto e chamada visual |
+| `referencia/prancha-aprovada.png` | Prancha da direção 1 selecionada |
+| `referencia/aplicacoes-da-marca.png` | Referência de composição para site, capas e redes |
 
-- Logo principal: livro com página laranja, página branca, linha azul e estrela; lettering grafite e sublinhado laranja; sem slogan para preservar legibilidade.
-- Rabisco acenando: personagem inteiro, sem texto ou cenário, para tutorial e comunicação.
-- Ilustração principal: livro aberto, criança e dinossauro; transição de contorno para cor, sem texto, para montagem da página principal.
+O botão desenhado na campanha não é clicável; aplicar o link na plataforma. Na página inicial, aplicar títulos e botões em HTML sobre ou ao lado da ilustração sem texto. Não usar a prancha inteira como tela do site.
 
-O logo e o mascote têm fundo transparente. A ilustração principal usa fundo creme, adequado à página inicial, para evitar halos no recorte. Preservar as partes brancas internas do livro e os detalhes claros do mascote. A frase, os botões e demais textos da página devem ser aplicados em HTML, e não gravados na ilustração.
+### Arquivos de apoio
 
-### Próximos arquivos de produção
+- `meu-livrinho-identidade-visual.md`: este guia.
+- `LEIA-ME.md`: início rápido e orientações de uso.
+- `implementacao/tokens.css`: cores, tipografia e raios para o site.
+- `implementacao/tokens.json`: os mesmos valores em formato estruturado.
+- `inventario.json`: lista de arquivos, dimensões e integridade.
 
-A finalização vetorial do logo e suas versões monocromática e negativa, o favicon simplificado, os templates sociais editáveis e as capas por tema exigem desdobramentos específicos. Não tratar a prancha de identidade como um arquivo pronto para impressão em qualquer tamanho.
+### Natureza do pacote
+
+As artes são raster. O kit não contém SVG, EPS, AI, arquivo de fonte, template editável ou animação. As versões geradas separadamente podem apresentar pequenas diferenças de contorno e textura; a prancha escolhida continua sendo a referência visual. Não ampliar as imagens indefinidamente nem apresentar um PNG encapsulado em SVG como vetor real.
+
+A versão colorida preserva o branco opaco da página. A monocromática usa vazados para permitir reprodução em uma cor. A versão de fundo escuro é opaca. Os ícones de app têm fundo creme opaco; os favicons PNG mantêm transparência.
+
+O recorte do símbolo e a textura perdem detalhes naturalmente em 16 px. Para uso em grandes impressos, finalizar o logo em vetor com padronização de contornos. Para novas poses do Rabisco ou capas, anexar a referência e manter a mesma identidade.
 
 ### Prompt mestre aprovado
 
@@ -195,10 +223,12 @@ A finalização vetorial do logo e suas versões monocromática e negativa, o fa
 
 ## 13. O que já está aplicado no site (18/10/2026)
 
-- Fontes: Baloo 2 (700 e 800) nos títulos e Nunito Sans (400, 600 e 700) no texto. A Gochi Hand saiu: o "a lápis" agora usa a Baloo 2.
-- Escala de títulos e corpo da seção 6.
-- Botões em pílula, laranja com texto grafite e sombra curta de 3 px; o contorno escuro ficou só no botão branco.
-- Cartões com raio de 24 px e contorno discreto; campos com raio de 12 px, altura mínima de 48 px e foco grafite.
-- Primeiro bloco com a chamada e o apoio da seção 9, e a ação secundária "Ver um exemplo".
+- **Logo do kit** no cabeçalho (170 px de largura, acima do mínimo de 160 px) e a versão sobre fundo escuro no rodapé. O símbolo isolado aparece na página de obrigado.
+- **Favicon e ícones** do kit: `app/favicon.ico`, `app/icon.png` (512) e `app/apple-icon.png` (180).
+- **Ilustração principal** (livro aberto, criança e dinossauro) no primeiro bloco, à direita do texto; no celular, depois do texto. Título, apoio e botões em HTML.
+- **Rabisco acenando** no "Como funciona", uma vez só.
+- **Fontes:** Baloo 2 (700 e 800) nos títulos e Nunito Sans (400, 600 e 700) no texto, sem terceira família.
+- **Componentes:** escala de títulos e corpo de 18 px; botões em pílula com sombra curta de 3 px e contorno só no secundário; cartões de raio 24 com contorno discreto; campos de 48 px com foco grafite.
+- **Primeiro bloco:** chamada e apoio da seção 9 e a ação secundária "Ver um exemplo". O apoio mantém "livrinho de colorir" e "lembrancinha" por causa da busca.
 
-Ainda não aplicado, porque depende das imagens: logo novo, o Rabisco, a ilustração principal do livro aberto e os ícones no lugar dos emojis.
+**Ainda não aplicado:** ícones de traço no lugar dos emojis (o kit não traz os ícones de passo como arquivos separados), novas poses do Rabisco e capas dos temas no estilo da marca.
