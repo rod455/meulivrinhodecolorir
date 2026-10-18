@@ -20,7 +20,7 @@
 | o tratamento da foto (formato, tamanho, tirar metadados) | `lib/foto.ts` (confira com `npm run conferir:foto`) |
 | onde a foto mora e quando some (bucket privado, 7 dias) | `lib/servidor/fotos.ts`, `app/api/foto/route.ts`, `app/api/limpeza-fotos/route.ts` e o cron em `vercel.json` |
 | para onde vai o pedido (Supabase, n8n, link de pagamento) | `lib/servidor/pedidos.ts` e `app/api/pedido/route.ts` |
-| a tabela de pedidos | `supabase/migrations/0001_pedidos.sql`; personagem, plano, fotos e consentimentos em `0002_personagem_e_fotos.sql` |
+| a tabela de pedidos | `supabase/migrations/0001_pedidos.sql`; personagem, plano, fotos e consentimentos em `0002_personagem_e_fotos.sql`; aplicadas no projeto `meulivrinhodecolorir` (ref nkqxydwnarxjfypbeqji) em 18/10/2026 |
 | eventos de medição (GA4, Meta Pixel) | `lib/analytics.ts` |
 | UTM e QR code que acompanham o pedido | `components/GuardaOrigem.tsx` |
 | WhatsApp, e-mail, CNPJ do rodapé | variáveis `NEXT_PUBLIC_*` (veja `.env.example`) |
