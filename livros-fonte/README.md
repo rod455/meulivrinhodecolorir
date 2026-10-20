@@ -6,6 +6,7 @@ Servem de base para gerar novas histórias, inclusive as versões personalizadas
 | Pasta | Livro | Formato | Status |
 |---|---|---|---|
 | `01-little-paws-big-game/colorir-8.5x8.5.md` | Little Paws, Big Game (basquete) | Livro de colorir 8,5 × 8,5" | Publicado |
+| `01-little-paws-big-game/colorir-21x21-brasil.md` | Little Paws: O Grande Jogo (edição brasileira) | Livro de colorir 21 × 21 cm, português, gráfica | Pronto para montar |
 | `02-little-paws-big-play/colorir-8.5x11.md` | Little Paws, Big Play (flag football) | Livro de colorir 8,5 × 11" | Publicado |
 | `02-little-paws-big-play/ilustrado-8x10-e-ebook.md` | Little Paws, Big Play | Ilustrado colorido 8 × 10" + eBook | Publicado |
 | `03-little-paws-big-christmas/colorir-e-atividades-8.5x11.md` | Little Paws, Big Christmas | Colorir + atividades 8,5 × 11" | Publicado |
