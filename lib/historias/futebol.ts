@@ -19,7 +19,7 @@ export type PaginaDaHistoria = {
   /** legenda curta quando a página entra na Lembrancinha */
   lembrancinha: string | null;
   /** só a página 13: texto e ação mudam conforme o superpoder */
-  porSuperpoder?: Record<SuperpoderId, { texto: string; acao: string }>;
+  porSuperpoder?: Record<SuperpoderId, { texto: string; acao: string; ajusteDaCena?: string }>;
 };
 
 export const ID_DO_MODELO = 'futebol-little-paws-v1';
@@ -166,6 +166,8 @@ export const PAGINAS: PaginaDaHistoria[] = [
       bom_humor: {
         texto: `${INTERVALO} Então {NOME} fez a dança mais engraçada do mundo. Até o Bo deu risada!`,
         acao: 'doing a silly dance on one foot, arms wiggling, tongue out playfully',
+        // o texto diz que o Bo riu; a cena base tem o Bo triste (teste de 21/10/2026)
+        ajusteDaCena: "change ONLY Bo's face (the bear sitting on the bench) to a big, happy laugh with closed eyes; keep his pose, body and everything else exactly the same",
       },
       curiosidade: {
         texto: `${INTERVALO} Então {NOME} contou uma descoberta: "O Time da Lagoa sempre chuta para o mesmo lado!"`,
@@ -186,7 +188,8 @@ export const PAGINAS: PaginaDaHistoria[] = [
     pagina: 15,
     cenaBase: base(15),
     texto: '{NOME} tocou para Luna, Luna tocou para Pip, Pip devolveu… e {NOME} chutou com toda a força!',
-    acao: 'kicking the soccer ball toward the goal in a strong, balanced kick, ball just leaving the foot with motion lines (the ball has outlined white patches)',
+    // no teste de 21/10/2026 a bola saiu na direção do Pip e virou passe: a direção precisa ser explícita
+    acao: 'kicking the soccer ball toward the goal in the background in a strong, balanced kick, the ball just leaving the foot and flying toward the frog goalkeeper, away from Pip, with motion lines (the ball has outlined white patches)',
     area: 'the left foreground',
     roupa: 'time',
     lembrancinha: '{NOME} chutou com toda a força!',

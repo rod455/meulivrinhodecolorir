@@ -58,7 +58,10 @@ export function planoDoLivro(entrada: { nome: string; idade: number; produto: Pr
     return {
       pagina: p.pagina,
       cenaBase: p.cenaBase,
-      prompt: preencher(PROMPT_DE_INSERCAO, { CHILD_SHORT: crianca, ACTION: acao, AREA: p.area, CHILD_HEIGHT: altura, OUTFIT: roupa }),
+      prompt:
+        preencher(PROMPT_DE_INSERCAO, { CHILD_SHORT: crianca, ACTION: acao, AREA: p.area, CHILD_HEIGHT: altura, OUTFIT: roupa }) +
+        // a única exceção ao "não mude nada na cena", quando o texto pede
+        (variante?.ajusteDaCena ? `\nOne exception to the rule above: ${variante.ajusteDaCena}.` : ''),
       texto: comNomeNoTexto(variante?.texto ?? p.texto, nome),
       legenda: p.lembrancinha ? comNomeNoTexto(p.lembrancinha, nome) : null,
     };

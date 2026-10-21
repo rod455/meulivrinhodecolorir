@@ -83,6 +83,16 @@ for (const s of SUPERPODERES) {
   ok(pg.prompt.includes(p13.porSuperpoder![s.id].acao), `página 13 usa a ação de ${s.rotulo}`);
   ok(pl.certificado!.texto.endsWith(`Superpoder: ${s.rotulo}.`), `certificado com ${s.rotulo}`);
 }
+// teste de 21/10/2026: no bom humor o texto diz que o Bo riu, então só ali o rosto dele muda
+for (const s of SUPERPODERES) {
+  const pg = planoDoLivro({ nome, idade: 6, produto: 'presente', personagem: { ...personagem, superpoder: s.id } }).paginas.find((p) => p.pagina === 13)!;
+  const muda = /exception/i.test(pg.prompt);
+  ok(muda === (s.id === 'bom_humor'), `página 13 de ${s.rotulo}: ${muda ? 'muda' : 'não muda'} a cena base`);
+  if (s.id === 'bom_humor') ok(/Bo's face/.test(pg.prompt) && /laugh/.test(pg.prompt), 'no bom humor, o Bo ri como o texto diz');
+}
+ok(PAGINAS.every((p) => p.pagina === 13 || !/exception/i.test(presente.paginas.find((x) => x.pagina === p.pagina)!.prompt)), 'nenhuma outra página mexe na cena base');
+// teste de 21/10/2026: a bola da página 15 saiu na direção do Pip
+ok(/toward the goal/.test(presente.paginas.find((p) => p.pagina === 15)!.prompt) && /away from Pip/.test(presente.paginas.find((p) => p.pagina === 15)!.prompt), 'página 15: o chute vai para o gol, não para o Pip');
 ok(presente.paginas.find((p) => p.pagina === 9)!.prompt.includes('favorite outfit'), 'página 9 ainda com a roupa própria');
 ok(presente.paginas.find((p) => p.pagina === 10)!.prompt.includes('Little Paws soccer uniform'), 'página 10 já de uniforme');
 
