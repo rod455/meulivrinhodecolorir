@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Cabecalho } from '@/components/Cabecalho';
+import { Icone } from '@/components/Icone';
+import { linkDoWhatsapp, SITE } from '@/lib/config';
 import { STATUS_DO_PEDIDO } from '@/lib/conta';
 import { emReais, ehProduto, PRODUTOS } from '@/lib/produtos';
 import { contaDaSessao, supabaseNoServidor } from '@/lib/servidor/sessao';
@@ -11,7 +13,7 @@ import { AcoesDaConta } from './AcoesDaConta';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Meus livrinhos | Meu Livrinho de Colorir',
+  title: 'Minha conta | Meu Livrinho de Colorir',
   robots: { index: false },
 };
 
@@ -26,6 +28,9 @@ type Linha = {
   link_pdf: string | null;
 };
 
+// A conta no formato de perfil (pedido do dono, 25/10/2026, a partir da tela
+// de perfil do Mentorque): quem entrou no topo, os livrinhos, a conta e as
+// informações em grupos de linhas, sair e excluir no fim.
 export default async function PaginaConta() {
   const conta = await contaDaSessao();
   if (!conta) redirect('/entrar?next=/conta');
@@ -37,36 +42,58 @@ export default async function PaginaConta() {
     supabase.from('fotos').select('caminho', { count: 'exact', head: true }).is('apagada_em', null),
   ]);
   const lista = (pedidos ?? []) as Linha[];
+  const whatsapp = linkDoWhatsapp('Oi! Tenho uma dúvida sobre o meu livrinho.');
+  const faleComAGente = whatsapp ?? (SITE.email ? `mailto:${SITE.email}` : null);
+  const inicial = (conta.nome || conta.email).trim().charAt(0).toUpperCase();
 
   return (
     <>
       <Cabecalho semMenu />
-      <main className="texto-longo conta-pagina">
-        <h1>Meus livrinhos</h1>
-        <p className="letra-miuda">Você entrou como {conta.email}.</p>
+      <main className="conta-perfil">
+        <section className="perfil">
+          <div className="perfil-avatar" aria-hidden="true">
+            {inicial}
+          </div>
+          <h1>{conta.nome || 'Minha conta'}</h1>
+          <p>{conta.email}</p>
+        </section>
 
+        <Link href="/criar" className="perfil-destaque">
+          <span className="linha-icone tom-amarelo">
+            <Icone nome="mais" />
+          </span>
+          <span className="linha-texto">
+            <strong>Criar um livrinho novo</strong>
+            <small>Outro tema, outro nome, outra festa.</small>
+          </span>
+          <span className="perfil-destaque-seta" aria-hidden="true">
+            →
+          </span>
+        </Link>
+
+        <h2 className="grupo-rotulo">Meus livrinhos</h2>
         {lista.length === 0 ? (
-          <div className="cartao" style={{ textAlign: 'center' }}>
+          <div className="grupo grupo-vazio">
             <p>Nenhum livrinho por aqui ainda.</p>
-            <Link href="/criar" className="botao">
-              Criar meu livrinho
-            </Link>
           </div>
         ) : (
-          <ul className="pedidos-da-conta">
+          <ul className="grupo pedidos-da-conta">
             {lista.map((p) => (
-              <li key={p.id} className="cartao">
-                <div>
+              <li key={p.id} className="linha">
+                <span className={`linha-icone ${p.link_pdf ? 'tom-verde' : 'tom-laranja'}`}>
+                  <Icone nome="livro" />
+                </span>
+                <span className="linha-texto">
                   <strong>
                     {ehProduto(p.produto) ? PRODUTOS[p.produto].nome : p.produto} de {p.nome_crianca}
                   </strong>
-                  <div className="letra-miuda">
+                  <small>
                     {ehTema(p.tema) ? TEMAS[p.tema].nome : p.tema} · {new Date(p.criado_em).toLocaleDateString('pt-BR')} · {emReais(p.total_centavos)}
-                  </div>
-                  <div className={`status status-${p.status}`}>{STATUS_DO_PEDIDO[p.status] ?? p.status}</div>
-                </div>
+                  </small>
+                  <span className={`status status-${p.status}`}>{STATUS_DO_PEDIDO[p.status] ?? p.status}</span>
+                </span>
                 {p.link_pdf && (
-                  <a className="botao" href={`/api/livro/${p.id}`}>
+                  <a className="botao botao-pequeno" href={`/api/livro/${p.id}`}>
                     Baixar
                   </a>
                 )}
@@ -75,8 +102,67 @@ export default async function PaginaConta() {
           </ul>
         )}
 
-        <AcoesDaConta fotosGuardadas={fotos ?? 0} />
+        <AcoesDaConta fotosGuardadas={fotos ?? 0} entrouCom={conta.entrouCom ?? 'email'} />
+
+        <h2 className="grupo-rotulo">Informações</h2>
+        <ul className="grupo">
+          {faleComAGente && (
+            <li>
+              <a className="linha linha-link" href={faleComAGente} target={whatsapp ? '_blank' : undefined} rel={whatsapp ? 'noopener' : undefined}>
+                <span className="linha-icone tom-verde">
+                  <Icone nome="conversa" />
+                </span>
+                <span className="linha-texto">
+                  <strong>Fale com a gente</strong>
+                  <small>{whatsapp ? 'Pelo WhatsApp' : 'Pelo e-mail'}</small>
+                </span>
+                <Seta />
+              </a>
+            </li>
+          )}
+          <li>
+            <Link className="linha linha-link" href="/#duvidas">
+              <span className="linha-icone tom-azul">
+                <Icone nome="ajuda" />
+              </span>
+              <span className="linha-texto">
+                <strong>Dúvidas frequentes</strong>
+              </span>
+              <Seta />
+            </Link>
+          </li>
+          <li>
+            <Link className="linha linha-link" href="/privacidade">
+              <span className="linha-icone tom-rosa">
+                <Icone nome="escudo" />
+              </span>
+              <span className="linha-texto">
+                <strong>Política de privacidade</strong>
+              </span>
+              <Seta />
+            </Link>
+          </li>
+          <li>
+            <Link className="linha linha-link" href="/termos">
+              <span className="linha-icone tom-nuvem">
+                <Icone nome="documento" />
+              </span>
+              <span className="linha-texto">
+                <strong>Termos de uso</strong>
+              </span>
+              <Seta />
+            </Link>
+          </li>
+        </ul>
       </main>
     </>
+  );
+}
+
+function Seta() {
+  return (
+    <span className="linha-fim">
+      <Icone nome="seta" tamanho={18} />
+    </span>
   );
 }

@@ -24,13 +24,21 @@ export function supabaseNoServidor() {
   });
 }
 
-export type Conta = { id: string; email: string };
+export type Conta = {
+  id: string;
+  email: string;
+  /** o nome que o Google manda; com e-mail e senha não há nome */
+  nome?: string;
+  entrouCom?: 'google' | 'email';
+};
 
 export async function contaDaSessao(): Promise<Conta | null> {
   try {
     const { data } = await supabaseNoServidor().auth.getUser();
     const u = data.user;
-    return u?.email ? { id: u.id, email: u.email.toLowerCase() } : null;
+    if (!u?.email) return null;
+    const nome = typeof u.user_metadata?.full_name === 'string' ? u.user_metadata.full_name.trim() : '';
+    return { id: u.id, email: u.email.toLowerCase(), nome: nome || undefined, entrouCom: u.app_metadata?.provider === 'google' ? 'google' : 'email' };
   } catch {
     return null;
   }

@@ -283,6 +283,8 @@ await fetch(`${FALSO}/__confirmar-email?ligar=0`);
 
 // excluir a conta: some o login e o que identifica, fica a venda
 await p.goto(`${SITE}/conta`);
+assert.ok(!(await p.locator('#confirmar-exclusao').isVisible()), 'excluir fica fechado até a pessoa abrir');
+await p.getByText('Excluir conta', { exact: true }).click();
 assert.ok(await p.getByRole('button', { name: /Excluir minha conta/ }).isDisabled(), 'sem digitar EXCLUIR, o botão não age');
 await p.fill('#confirmar-exclusao', 'excluir');
 await p.getByRole('button', { name: /Excluir minha conta/ }).click();

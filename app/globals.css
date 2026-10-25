@@ -306,12 +306,48 @@ p { margin: 0 0 1em; }
   .cabecalho a.logo { min-width: 0; flex-shrink: 1; }
 }
 .conta-atual { margin-top: -6px; margin-bottom: 14px; }
-.pedidos-da-conta { list-style: none; padding: 0; display: grid; gap: 12px; margin: 18px 0 32px; }
-.pedidos-da-conta li { display: flex; gap: 12px; align-items: center; justify-content: space-between; }
 .status { font-weight: 800; font-size: 0.95rem; margin-top: 4px; }
 .status-entregue { color: #2f6b2d; }
-.conta-acoes h2 { font-size: 1.25rem; margin: 28px 0 8px; }
-.conta-acoes .campo { max-width: 420px; }
+/* Minha conta, em formato de perfil */
+.conta-perfil { max-width: 640px; margin: 0 auto; padding: 24px 16px 64px; }
+.perfil { display: grid; justify-items: center; text-align: center; gap: 4px; margin-bottom: 22px; }
+.perfil-avatar { width: 96px; height: 96px; border-radius: 50%; display: grid; place-items: center; background: var(--laranja); color: var(--grafite); border: 3px solid var(--grafite); box-shadow: 0 4px 0 var(--grafite); font-family: var(--fonte-titulo), system-ui, sans-serif; font-size: 2.8rem; font-weight: 800; margin-bottom: 10px; }
+.perfil h1 { font-size: clamp(1.6rem, 6vw, 2rem); margin: 0; overflow-wrap: anywhere; }
+.perfil p { margin: 0; color: var(--grafite-suave); overflow-wrap: anywhere; }
+.perfil-destaque { display: flex; align-items: center; gap: 14px; padding: 16px 18px; border-radius: 20px; background: #fff1d6; border: 2px solid var(--amarelo); color: var(--grafite); text-decoration: none; margin-bottom: 8px; }
+.perfil-destaque:hover { border-color: var(--laranja); }
+.perfil-destaque-seta { margin-left: auto; font-size: 1.6rem; font-weight: 800; color: var(--laranja); }
+.grupo-rotulo { font-family: var(--fonte-texto), system-ui, sans-serif; font-size: 0.85rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--grafite-suave); margin: 28px 4px 10px; }
+.grupo { list-style: none; margin: 0; padding: 0; background: var(--branco); border: 2px solid var(--contorno-suave); border-radius: 20px; overflow: hidden; }
+.grupo > li + li, .grupo > .linha + .linha { border-top: 2px solid var(--nuvem); }
+.grupo-vazio { padding: 18px; text-align: center; }
+.grupo-vazio p { margin: 0; }
+.linha { display: flex; align-items: center; gap: 14px; padding: 14px 16px; width: 100%; color: var(--grafite); }
+.linha-link { background: none; border: none; font: inherit; text-align: left; text-decoration: none; cursor: pointer; }
+.linha-link:hover { background: #fffaf2; }
+.linha-link:focus-visible { outline: 3px solid var(--azul); outline-offset: -3px; }
+.linha-icone { flex: none; width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; }
+.linha-texto { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.linha-texto strong { font-weight: 800; }
+.linha-texto small { color: var(--grafite-suave); font-size: 0.9rem; }
+.linha-fim { margin-left: auto; color: var(--grafite-suave); display: grid; }
+.linha-perigo .linha-texto strong { color: var(--erro); }
+.linha-abre > summary { list-style: none; }
+.linha-abre > summary::-webkit-details-marker { display: none; }
+.linha-abre[open] .linha-fim { transform: rotate(90deg); }
+.linha-conteudo { padding: 0 16px 18px 72px; display: grid; gap: 10px; justify-items: start; }
+.linha-conteudo.campo input { width: 100%; max-width: 360px; }
+@media (max-width: 479px) { .linha-conteudo { padding-left: 16px; } }
+.tom-amarelo { background: #fff1c2; color: #8a6400; }
+.tom-laranja { background: #ffe6d4; color: #b4510d; }
+.tom-verde { background: #e3f4e2; color: #2f6b2d; }
+.tom-azul { background: #e0f2fb; color: #1f6f99; }
+.tom-rosa { background: #ffe3ef; color: #b3306b; }
+.tom-nuvem { background: var(--nuvem); color: var(--grafite); }
+.tom-erro { background: #fde8de; color: var(--erro); }
+.tom-branco { background: var(--branco); border: 2px solid var(--nuvem); }
+.letra-google { font-weight: 900; font-size: 1.3rem; color: #4285f4; }
+.pedidos-da-conta .status { margin-top: 2px; }
 .botao-perigo { background: var(--branco); border-color: var(--erro); color: var(--erro); box-shadow: 0 3px 0 var(--erro); }
 
 /* Conheça o personagem (a ficha antes de pagar) */
