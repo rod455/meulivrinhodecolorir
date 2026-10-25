@@ -247,7 +247,7 @@ export function promptDaFicha(personagem: Personagem, idade: number): string {
   const corpo = `${alturaNaCena(personagem).replace("of Bo's height", 'of the bear')}`;
   const linhas = [
     'The FIRST attached image is the STYLE REFERENCE: the Little Paws team (a bunny, a bear, a fox, a raccoon and a turtle). Create ONE character sheet of a NEW human child who looks like a new member of this team, drawn in EXACTLY the same art style as the reference.',
-    'Copy the style precisely: hand-drawn children\'s picture-book cartoon, slightly soft dark brown outlines of even medium-thick weight, big round head (about one third of the total height), short chunky body, short rounded arms and legs, small rounded hands, oversized chunky white sneakers. Same face style: large simple dark oval eyes with one small white highlight, tiny nose, wide open happy smile, small soft rosy cheeks. Soft flat crayon-like colors with very gentle shading, exactly like the reference.',
+    'Copy the style precisely: hand-drawn children\'s picture-book cartoon (never clean vector clip art), slightly sketchy hand-inked dark brown outlines of medium-thick weight like the reference, big round head (about one third of the total height), short chunky body, short rounded arms and legs, small rounded hands, oversized chunky white sneakers. Same face style: large simple dark oval eyes with one small white highlight, tiny nose, wide open happy smile, small soft rosy cheeks. Soft colored-pencil and crayon coloring with visible light texture and very gentle shading, exactly like the reference.',
     `The child is ${idade} years old, ${p(ALTURAS, personagem.altura) || 'average height'} for the age (${corpo}).`,
   ];
   if (personagem.jeito === 'foto') {
@@ -261,6 +261,7 @@ export function promptDaFicha(personagem: Personagem, idade: number): string {
   const pele = personagem.jeito === 'foto' ? 'skin tone as in the photo' : `skin ${p(PELES, personagem.pele)}`;
   const cabelo = personagem.jeito === 'foto' ? 'hair as in the photo' : `hair ${p(CABELO_CORES, personagem.cabeloCor)}`;
   linhas.push(
+    'The outfit is the child\'s own clothes: plain, with NO paw emblem, logo or print (the paw emblem belongs only to the team uniform).',
     'Show ONLY this child, twice, side by side, standing, full body, friendly happy pose, on a plain white background. Do not draw any of the animals and do not copy the park background.',
     `Left: full color version, front view (${pele}, ${cabelo}, outfit in ${p(CORES, personagem.cor)}).`,
     'Right: the same child in three-quarter view as coloring-book line art: the same outlines in black, every area white, no gray, no shading, no color.',

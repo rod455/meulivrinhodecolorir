@@ -102,6 +102,7 @@ ok(comFoto.ficha.usaFoto && comFoto.ficha.caminhoDaFoto === foto.caminho, 'ficha
 ok(comFoto.ficha.prompt.includes('ONLY as a loose reference'), 'ficha pede estilização, não cópia da foto');
 ok(/FIRST attached image is the STYLE REFERENCE/.test(comFoto.ficha.prompt) && /SECOND attached image is a photo/.test(comFoto.ficha.prompt), 'com foto: a turma é a primeira imagem, a foto a segunda');
 ok(/FIRST attached image is the STYLE REFERENCE/.test(presente.ficha.prompt) && !/SECOND attached/.test(presente.ficha.prompt), 'sem foto: o estilo vem da arte da turma, e não se fala de foto');
+ok(/NO paw emblem/.test(presente.ficha.prompt), 'a roupa própria da ficha vem sem a patinha do uniforme (25/10/2026)');
 ok(comFoto.paginas.every((p) => !/photo/i.test(p.prompt)), 'nenhuma página usa a foto');
 
 console.log(`personagem: ${casos} casos ok`);
