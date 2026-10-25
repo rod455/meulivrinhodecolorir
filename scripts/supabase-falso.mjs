@@ -35,14 +35,18 @@ async function n8nFicha({ ficha_id, token }) {
   trabalhosRecebidos.push({ status: t.status, ...trabalho });
   if (!t.ok) return;
   await new Promise((r) => setTimeout(r, 1500));
-  const corpo = n8nFalha
-    ? { ficha_id, token, erro: 'moderação recusou a imagem (teste)' }
-    : {
-        ficha_id,
-        token,
-        imagem_base64: (await sharp({ create: { width: 1536, height: 1024, channels: 3, background: '#ffd23f' } }).jpeg().toBuffer()).toString('base64'),
-      };
-  await fetch(`${site}/api/ficha/pronta`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(corpo) });
+  if (n8nFalha) {
+    // o nó "Avisa o site que falhou" manda JSON
+    await fetch(`${site}/api/ficha/pronta`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ficha_id, token, erro: 'moderação recusou a imagem (teste)' }) });
+    return;
+  }
+  // o nó "Devolve a imagem ao site" manda a imagem como arquivo (multipart), como a OpenAI devolveu
+  const dados = new FormData();
+  dados.append('ficha_id', ficha_id);
+  dados.append('token', token);
+  const png = await sharp({ create: { width: 1536, height: 1024, channels: 3, background: '#ffd23f' } }).png().toBuffer();
+  dados.append('imagem', new Blob([png], { type: 'image/png' }), 'data.png');
+  await fetch(`${site}/api/ficha/pronta`, { method: 'POST', body: dados });
 }
 
 const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');

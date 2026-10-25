@@ -10,7 +10,10 @@ export const JANELA_DO_LIMITE_HORAS = 24;
 /** passou disso "gerando", a ficha conta como falha e não gasta tentativa */
 export const MINUTOS_PARA_DESISTIR = 10;
 
-/** O que o n8n manda para a OpenAI. Fica no site para mudar sem mexer no fluxo. */
+/**
+ * O tamanho e a qualidade que o fluxo "Meu Livrinho: gerar ficha" usa (o modelo,
+ * gpt-image-1, fica fixo nos nós da OpenAI do fluxo). Mudou aqui, muda lá.
+ */
 export const PEDIDO_DE_IMAGEM = {
   tamanho: '1536x1024',
   qualidade: 'medium',

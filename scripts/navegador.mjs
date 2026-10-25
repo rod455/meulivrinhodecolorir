@@ -131,7 +131,11 @@ assert.equal(agora.fotos.at(-1).user_id, carla, 'a foto passa a ser da conta já
 // o bilhete não serve duas vezes, e sem ele o n8n não recebe nada
 const repetido = await fetch(`${SITE}/api/ficha/trabalho?id=${primeira.id}&token=${'0'.repeat(64)}`);
 assert.equal(repetido.status, 404, 'trabalho com bilhete errado é recusado');
-const troca = await fetch(`${SITE}/api/ficha/pronta`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ficha_id: primeira.id, token: 'x', imagem_base64: 'AAAA' }) });
+const outraImagem = new FormData();
+outraImagem.append('ficha_id', primeira.id);
+outraImagem.append('token', 'x'.repeat(64));
+outraImagem.append('imagem', new Blob([foto], { type: 'image/jpeg' }), 'troca.jpg');
+const troca = await fetch(`${SITE}/api/ficha/pronta`, { method: 'POST', body: outraImagem });
 assert.equal(troca.status, 404, 'ninguém troca a imagem de uma ficha pronta');
 
 // ajustar: volta às escolhas, desenha de novo e gasta uma tentativa

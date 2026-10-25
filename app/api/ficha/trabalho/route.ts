@@ -17,7 +17,6 @@ export async function GET(req: Request) {
   return NextResponse.json({
     ficha_id: ficha.id,
     prompt: ficha.prompt,
-    modelo: process.env.OPENAI_MODELO_IMAGEM || 'gpt-image-1',
     ...PEDIDO_DE_IMAGEM,
     // com foto, o n8n usa a edição de imagem; sem foto, a geração
     foto_url: ficha.caminho_foto ? await linkDaFoto(ficha.caminho_foto) : null,
