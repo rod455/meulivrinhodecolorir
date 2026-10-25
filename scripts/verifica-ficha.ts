@@ -3,8 +3,11 @@
 // quebrar, um robô com conta gasta os créditos da OpenAI à vontade.
 //
 // Rode com: npm run conferir:ficha
+// sem fonte nenhuma, como na Vercel (precisa vir antes do sharp carregar)
+process.env.FONTCONFIG_FILE = new URL('./sem-fonte.conf', import.meta.url).pathname;
 import assert from 'node:assert/strict';
 import { bilheteConfere, chaveDoDesenho, desistiu, ehUuid, fichasRestantes, LIMITE_DE_FICHAS, novoBilhete, type FichaNoBanco } from '../lib/ficha.ts';
+import { FRASE_DA_MARCA, svgDaMarca, tracosDoTexto } from '../lib/marca.ts';
 import { lerPedido } from '../lib/pedido.ts';
 import { PERSONAGEM_INICIAL } from '../lib/personagem.ts';
 
@@ -73,5 +76,22 @@ ok(comFicha.ok && Boolean(comFicha.pedido.fichaId), 'futebol com ficha passa');
 ok(!lerPedido({ ...pedido, fichaId: 'qualquer-coisa' }).ok, 'ficha com id inválido não passa');
 const natal = lerPedido({ ...pedido, tema: 'natal', fichaId: crypto.randomUUID() });
 ok(natal.ok && natal.pedido.fichaId === null, 'Natal ignora a ficha');
+
+// 5. a marca d'água da prévia: em traços, nunca em texto. Na Vercel não há
+// fonte, e o <text> da primeira versão saiu como quadradinhos (25/10/2026).
+// Aqui o sharp roda sem fonte nenhuma, como lá.
+const { default: sharp } = await import('sharp');
+const svg = svgDaMarca(640, 427);
+ok(!/<text/i.test(svg), 'a marca não usa <text> (sem fonte, vira quadradinho)');
+ok(Array.from(FRASE_DA_MARCA).every((letra) => { try { tracosDoTexto(letra, 0, 0, 10); return true; } catch { return false; } }), 'toda letra da frase tem desenho');
+let semLetra = false;
+try { tracosDoTexto('PRÉVIA X', 0, 0, 10); } catch { semLetra = true; }
+ok(semLetra, 'letra sem desenho grita em vez de sumir');
+const fundo = await sharp({ create: { width: 640, height: 427, channels: 3, background: '#ffffff' } }).png().toBuffer();
+const comMarca = await sharp(fundo).composite([{ input: Buffer.from(svg) }]).raw().toBuffer();
+let marcados = 0;
+for (let i = 0; i < comMarca.length; i += 3) if (comMarca[i] < 235) marcados++;
+const fracao = marcados / (640 * 427);
+ok(fracao > 0.04 && fracao < 0.35, `a marca cobre a prévia sem esconder o desenho (${(fracao * 100).toFixed(1)}% dos pontos)`);
 
 console.log(`ficha: ${casos} casos ok`);

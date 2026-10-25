@@ -7,6 +7,7 @@ import 'server-only';
 import sharp from 'sharp';
 import type { FichaNoBanco } from '@/lib/ficha';
 import type { Personagem } from '@/lib/personagem';
+import { svgDaMarca } from '@/lib/marca';
 import { comChaveDeServico } from './fotos';
 
 const BUCKET = 'fichas';
@@ -126,12 +127,6 @@ export async function previaComMarca(imagem: Buffer): Promise<Buffer> {
   const largura = 640;
   const base = sharp(imagem).resize({ width: largura, withoutEnlargement: true });
   const { width = largura, height = 427 } = await base.clone().toBuffer({ resolveWithObject: true }).then((r) => r.info);
-  const frase = 'PRÉVIA · MEU LIVRINHO DE COLORIR · '.repeat(4);
-  const linhas = Array.from({ length: Math.ceil((height * 3) / 90) }, (_, i) =>
-    `<text x="${-width}" y="${-height + i * 90}" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#2B2D42" fill-opacity="0.24">${frase}</text>`,
-  ).join('');
-  const marca = Buffer.from(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}"><g transform="rotate(-24 ${width / 2} ${height / 2})">${linhas}</g></svg>`,
-  );
+  const marca = Buffer.from(svgDaMarca(width, height));
   return base.composite([{ input: marca, top: 0, left: 0 }]).jpeg({ quality: 68 }).toBuffer();
 }
