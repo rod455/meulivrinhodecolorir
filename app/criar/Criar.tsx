@@ -442,6 +442,13 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
             irPara(5);
           }}
           onAjustar={() => irPara(3)}
+          onEscolher={(d) =>
+            setR((atual) => {
+              // o superpoder não muda o desenho: fica o que a família escolheu agora
+              const personagem = { ...d.personagem, superpoder: atual.personagem.superpoder };
+              return { ...atual, personagem, fichaId: d.id, fichaDoDesenho: chaveDoDesenho(personagem, atual.idade), fichaAprovada: false };
+            })
+          }
         />
       )}
 

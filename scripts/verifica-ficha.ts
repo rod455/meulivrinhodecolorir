@@ -6,7 +6,7 @@
 // sem fonte nenhuma, como na Vercel (precisa vir antes do sharp carregar)
 process.env.FONTCONFIG_FILE = new URL('./sem-fonte.conf', import.meta.url).pathname;
 import assert from 'node:assert/strict';
-import { bilheteConfere, chaveDoDesenho, desistiu, ehUuid, fichasRestantes, LIMITE_DE_FICHAS, novoBilhete, type FichaNoBanco } from '../lib/ficha.ts';
+import { bilheteConfere, chaveDoDesenho, desenhosParaEscolher, desistiu, ehUuid, fichasRestantes, LIMITE_DE_FICHAS, novoBilhete, type FichaNoBanco } from '../lib/ficha.ts';
 import { FRASE_DA_MARCA, svgDaMarca, tracosDoTexto } from '../lib/marca.ts';
 import { lerPedido } from '../lib/pedido.ts';
 import { PERSONAGEM_INICIAL } from '../lib/personagem.ts';
@@ -46,6 +46,12 @@ const base = PERSONAGEM_INICIAL;
 ok(chaveDoDesenho(base, 6) === chaveDoDesenho({ ...base, superpoder: 'gentileza' }, 6), 'trocar o superpoder não pede ficha nova');
 ok(chaveDoDesenho(base, 6) !== chaveDoDesenho({ ...base, cabeloTipo: 'cacheado' }, 6), 'mudar o cabelo pede ficha nova');
 ok(chaveDoDesenho(base, 6) !== chaveDoDesenho(base, 7), 'mudar a idade pede ficha nova');
+
+// os desenhos que a família já viu (25/10/2026): mesma idade, sem repetir o atual, os mais novos primeiro
+const desenho = (id: string, h: number, idade = 6) => ({ id, criada_em: horasAtras(h), idade, personagem: base });
+const lista = desenhosParaEscolher([desenho('a', 3), desenho('b', 1), desenho('c', 2), desenho('d', 1, 7)], 6, 'c');
+ok(lista.map((d) => d.id).join() === 'b,a', 'lista: outra idade e o atual ficam de fora, o mais novo primeiro');
+ok(desenhosParaEscolher(Array.from({ length: 9 }, (_, i) => desenho(`x${i}`, i)), 6, null).length === 6, 'lista: no máximo 6');
 
 // 3. o bilhete do n8n
 const bilhete = novoBilhete();

@@ -52,6 +52,23 @@ export function desistiu(f: Pick<FichaNoBanco, 'status' | 'criada_em'>, agora: D
   return f.status === 'gerando' && agora.getTime() - new Date(f.criada_em).getTime() > MINUTOS_PARA_DESISTIR * 60 * 1000;
 }
 
+/** Um desenho já pronto que a família pode voltar a escolher. */
+export type DesenhoFeito = { id: string; criada_em: string; idade: number; personagem: Personagem };
+
+export const DESENHOS_NA_LISTA = 6;
+
+/**
+ * Os desenhos que a família já viu e pode escolher de novo (pedido do dono,
+ * 25/10/2026: mudar as escolhas sumia com o desenho anterior). Só os da mesma
+ * idade, porque o pedido exige a idade da ficha; o atual não se repete.
+ */
+export function desenhosParaEscolher(desenhos: DesenhoFeito[], idade: number, atual: string | null): DesenhoFeito[] {
+  return desenhos
+    .filter((d) => d.idade === idade && d.id !== atual)
+    .sort((a, b) => b.criada_em.localeCompare(a.criada_em))
+    .slice(0, DESENHOS_NA_LISTA);
+}
+
 /**
  * O que define o desenho. O superpoder não muda a ficha (só a página 13),
  * então trocar de superpoder depois de aprovar não pede ficha nova.

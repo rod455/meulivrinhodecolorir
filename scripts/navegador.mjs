@@ -174,6 +174,22 @@ await fetch(`${FALSO}/__n8n-falha?ligar=0`);
 await p.getByRole('button', { name: 'Tentar de novo' }).click();
 await previa.waitFor({ timeout: 20000 });
 await p.getByText('Você já usou os 3 desenhos de hoje.').waitFor();
+// os desenhos anteriores continuam à vista, e dá para voltar a um deles sem gastar tentativa
+const [porFoto, cacheado, ruivo] = (await estado()).fichas.filter((f) => f.status === 'pronta');
+const feitos = p.locator('.ficha-feitos li');
+await feitos.first().waitFor();
+assert.equal(await feitos.count(), 2, 'os dois desenhos anteriores aparecem, o atual não se repete');
+await feitos.filter({ has: p.locator(`img[src*="${porFoto.id}"]`) }).getByRole('button', { name: 'Usar este' }).click();
+await p.locator(`img.ficha-previa[src*="${porFoto.id}"]`).waitFor();
+assert.equal(await p.locator(`.ficha-feitos img[src*="${ruivo.id}"]`).count(), 1, 'o que saiu de cena vai para a lista');
+await p.getByRole('button', { name: 'Voltar' }).click();
+await p.getByRole('heading', { name: 'Crie o personagem' }).waitFor();
+assert.equal(await p.getByRole('button', { name: /Por uma foto/ }).getAttribute('aria-pressed'), 'true', 'as escolhas voltam a ser as do desenho escolhido');
+await p.getByRole('button', { name: 'Continuar' }).click();
+await p.locator(`img.ficha-previa[src*="${porFoto.id}"]`).waitFor();
+await p.locator('.ficha-feitos li').filter({ has: p.locator(`img[src*="${ruivo.id}"]`) }).getByRole('button', { name: 'Usar este' }).click();
+await p.locator(`img.ficha-previa[src*="${ruivo.id}"]`).waitFor();
+assert.ok(cacheado, 'três desenhos prontos no dia');
 // o limite vale no servidor, não só na tela
 const quarta = await p.request.post(`${SITE}/api/ficha`, { data: { personagem: { ...(await estado()).fichas.at(-1).personagem }, idade: 6 } });
 assert.equal(quarta.status(), 429, 'a quarta ficha do dia é recusada');

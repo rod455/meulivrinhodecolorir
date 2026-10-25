@@ -8,7 +8,7 @@
 import Image from 'next/image';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { FormularioDeConta, type ContaNoNavegador } from '@/components/FormularioDeConta';
-import { LIMITE_DE_FICHAS, MINUTOS_PARA_DESISTIR } from '@/lib/ficha';
+import { desenhosParaEscolher, LIMITE_DE_FICHAS, MINUTOS_PARA_DESISTIR, type DesenhoFeito } from '@/lib/ficha';
 import type { Personagem } from '@/lib/personagem';
 
 type Situacao = 'parada' | 'pedindo' | 'gerando' | 'pronta' | 'falhou';
@@ -25,6 +25,7 @@ export function EtapaFicha({
   onNova,
   onAprovada,
   onAjustar,
+  onEscolher,
 }: {
   personagem: Personagem;
   idade: number;
@@ -38,9 +39,12 @@ export function EtapaFicha({
   onNova: (id: string) => void;
   onAprovada: () => void;
   onAjustar: () => void;
+  /** voltar a um desenho que a família já viu: o personagem passa a ser o dele */
+  onEscolher: (desenho: DesenhoFeito) => void;
 }) {
   const [situacao, setSituacao] = useState<Situacao>(fichaId ? 'gerando' : 'parada');
   const [restantes, setRestantes] = useState<number | null>(null);
+  const [desenhos, setDesenhos] = useState<DesenhoFeito[]>([]);
   const [aviso, setAviso] = useState<string | null>(null);
   const [aprovando, setAprovando] = useState(false);
   const inicio = useRef(Date.now());
@@ -51,7 +55,10 @@ export function EtapaFicha({
     if (!conta) return;
     fetch('/api/ficha')
       .then((r) => r.json())
-      .then((d: { restantes?: number | null }) => setRestantes(typeof d.restantes === 'number' ? d.restantes : null))
+      .then((d: { restantes?: number | null; desenhos?: DesenhoFeito[] }) => {
+        setRestantes(typeof d.restantes === 'number' ? d.restantes : null);
+        setDesenhos(Array.isArray(d.desenhos) ? d.desenhos : []);
+      })
       .catch(() => undefined);
   }, [conta, situacao]);
 
@@ -120,6 +127,8 @@ export function EtapaFicha({
     if (r?.ok) onAprovada();
     else setAviso('Não conseguimos registrar a aprovação. Tente de novo.');
   }
+
+  const outros = situacao === 'gerando' || situacao === 'pedindo' ? [] : desenhosParaEscolher(desenhos, idade, fichaId);
 
   const titulo = <h1 style={{ fontSize: 'clamp(1.8rem, 6vw, 2.4rem)' }}>Conheça {nome || 'o personagem'}</h1>;
 
@@ -210,6 +219,24 @@ export function EtapaFicha({
           <button type="button" className="link-botao" onClick={onAjustar}>
             Voltar e mudar as escolhas
           </button>
+        </div>
+      )}
+
+      {outros.length > 0 && (
+        <div className="ficha-feitos">
+          <h2>Desenhos que você já fez</h2>
+          <p className="letra-miuda">Gostou mais de um destes? Escolha e ele volta a ser o personagem de {quem}.</p>
+          <ul>
+            {outros.map((d) => (
+              <li key={d.id}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={`/api/ficha/${d.id}/previa`} alt="Prévia de um desenho anterior" className="ficha-miniatura" loading="lazy" />
+                <button type="button" className="botao botao-secundario botao-pequeno" onClick={() => onEscolher(d)}>
+                  Usar este
+                </button>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </section>

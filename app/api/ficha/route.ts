@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { desistiu, fichasRestantes, novoBilhete } from '@/lib/ficha';
+import { desistiu, fichasRestantes, novoBilhete, type DesenhoFeito } from '@/lib/ficha';
 import { lerPersonagem, promptDaFicha } from '@/lib/personagem';
 import { criarFicha, fichasRecentes, mudarFicha, tomarFoto } from '@/lib/servidor/fichas';
 import { fotoDisponivel, fotoLigada } from '@/lib/servidor/fotos';
@@ -63,12 +63,17 @@ export async function POST(req: Request) {
   }
 }
 
-// Quantas fichas ainda dá para gerar, para a tela mostrar antes de pedir.
+// Quantas fichas ainda dá para gerar, e os desenhos prontos que a pessoa já
+// viu e pode escolher de novo (só os que ainda não viraram pedido).
 export async function GET() {
   const conta = await contaDaSessao();
   if (!conta) return NextResponse.json({ conta: false }, { status: 401 });
   try {
-    return NextResponse.json({ restantes: fichasRestantes(await fichasRecentes(conta.id), new Date()) });
+    const recentes = await fichasRecentes(conta.id);
+    const desenhos: DesenhoFeito[] = recentes
+      .filter((f) => f.status === 'pronta' && !f.pedido_id && f.caminho_imagem)
+      .map((f) => ({ id: f.id, criada_em: f.criada_em, idade: f.idade, personagem: f.personagem }));
+    return NextResponse.json({ restantes: fichasRestantes(recentes, new Date()), desenhos });
   } catch {
     return NextResponse.json({ restantes: null });
   }
