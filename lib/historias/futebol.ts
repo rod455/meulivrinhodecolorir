@@ -192,7 +192,8 @@ export const PAGINAS: PaginaDaHistoria[] = [
     acao: 'kicking the soccer ball toward the goal in the background in a strong, balanced kick, the ball just leaving the foot and flying toward the frog goalkeeper, away from Pip, with motion lines (the ball has outlined white patches)',
     area: 'the left foreground',
     roupa: 'time',
-    lembrancinha: '{NOME} chutou com toda a força!',
+    // na Lembrancinha o Pip aparece logo depois de tocar; a legenda explica (revisão do dono, 25/10/2026)
+    lembrancinha: 'Pip tocou e {NOME} chutou para o gol!',
   },
   {
     pagina: 16,
