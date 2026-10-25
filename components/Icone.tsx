@@ -15,6 +15,8 @@ const CAMINHOS = {
   documento: 'M7 3h7l4 4v14H7V3Zm7 0v4h4M10 12h5M10 16h5',
   seta: 'm9 6 6 6-6 6',
   mais: 'M12 5v14M5 12h14',
+  certo: 'm5 12.5 4.5 4.5L19 7.5',
+  coracao: 'M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z',
 } as const;
 
 export type NomeDoIcone = keyof typeof CAMINHOS;

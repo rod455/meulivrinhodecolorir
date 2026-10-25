@@ -9,6 +9,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { CapaLivrinho } from '@/components/CapaLivrinho';
 import { FormularioDeConta, useConta } from '@/components/FormularioDeConta';
+import { Icone } from '@/components/Icone';
 import { lerOrigem } from '@/components/GuardaOrigem';
 import { PaginaAmostra } from '@/components/PaginaAmostra';
 import { registrar } from '@/lib/analytics';
@@ -26,6 +27,8 @@ import { EtapaPersonagem } from './EtapaPersonagem';
 /** 0 produto, 1 tema, 2 nome, 3 personagem e 4 desenho do personagem (só se o tema tem), 5 contato e pagamento */
 type Etapa = 0 | 1 | 2 | 3 | 4 | 5;
 const GUARDADO = 'livrinho:rascunho';
+/** o nome de cada passo, acima da barra de progresso (revisão de CRO, 25/10/2026) */
+const NOME_DA_ETAPA: Record<Etapa, string> = { 0: 'o livrinho', 1: 'o tema', 2: 'o nome', 3: 'o personagem', 4: 'aprovar o desenho', 5: 'pagar' };
 /** volta do Google e do link por e-mail: cai direto no pagamento, com o rascunho guardado */
 export const DESTINO_DEPOIS_DE_ENTRAR = '/criar?etapa=pagar';
 /** a conta agora costuma nascer antes do desenho do personagem */
@@ -86,6 +89,7 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
   const [erros, setErros] = useState<ErrosDoPedido>({});
   const [enviando, setEnviando] = useState(false);
   const [falha, setFalha] = useState<string | null>(null);
+  const [abriuDedicatoria, setAbriuDedicatoria] = useState(false);
   const topo = useRef<HTMLDivElement>(null);
   const viuPrevia = useRef(false);
 
@@ -155,6 +159,8 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
   const problema = r.nome.trim() ? problemaDoNome(r.nome) : null;
   const nomeNaCapa = problema === 'bloqueado' ? '' : nome;
   const temPersonagem = Boolean(r.tema && TEMAS[r.tema].comPersonagem);
+  // a dedicatória abre ao toque (etapa do nome mais curta); já escrita, fica aberta
+  const comDedicatoria = abriuDedicatoria || r.dedicatoria.trim() !== '';
   const ordem: Etapa[] = temPersonagem ? [0, 1, 2, 3, 4, 5] : [0, 1, 2, 5];
   // a ficha aprovada só vale para o desenho de agora: mudou cabelo ou idade, desenha de novo
   const fichaEmDia = r.fichaAprovada && r.fichaDoDesenho === chaveDoDesenho(r.personagem, r.idade);
@@ -255,7 +261,10 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
 
   return (
     <div ref={topo} style={{ scrollMarginTop: 90 }}>
-      <ol className="etapas" aria-label={`Etapa ${posicao + 1} de ${ordem.length}`}>
+      <p className="etapa-nome" aria-hidden="true">
+        Passo {posicao + 1} de {ordem.length}: <strong>{NOME_DA_ETAPA[etapa]}</strong>
+      </p>
+      <ol className="etapas" aria-label={`Etapa ${posicao + 1} de ${ordem.length}: ${NOME_DA_ETAPA[etapa]}`}>
         {ordem.map((e, i) => (
           <li key={e} className={i < posicao ? 'feita' : i === posicao ? 'atual' : ''} />
         ))}
@@ -316,10 +325,16 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
                   <CapaLivrinho id={`escolha-${t.id}`} tema={t.id} produto={r.produto === 'presente' ? 'presente' : 'lembrancinha'} nome={nomeNaCapa} idade={r.idade} />
                   <PaginaAmostra tema={t.id} nome={nomeNaCapa} pagina={1} />
                 </div>
+                {t.comPersonagem && <span className="selo-personagem">A criança vira personagem</span>}
                 <strong style={{ fontSize: '1.2rem', marginTop: 8 }}>
                   {t.emoji} {t.nome}
                 </strong>
                 <span className="letra-miuda">{t.descricao}</span>
+                {t.comPersonagem && (
+                  <span className="letra-miuda">
+                    <strong>{nomeNaCapa || 'A criança'} entra no time</strong> e joga com a turma, desenhada do jeitinho que você escolher.
+                  </span>
+                )}
               </button>
             ))}
           </div>
@@ -385,14 +400,12 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
                 ))}
               </select>
             </div>
-            <div className="campo">
-              <label htmlFor="data">
-                Data da festa <span className="letra-miuda">(opcional)</span>
-              </label>
-              <input id="data" type="date" value={r.dataDaFesta} onChange={(e) => muda('dataDaFesta', e.target.value)} />
-              <span className="ajuda">Para te lembrar do livrinho do ano que vem.</span>
-            </div>
-            {produto.temDedicatoria && (
+            {produto.temDedicatoria && !comDedicatoria && (
+              <button type="button" className="adicionar" onClick={() => setAbriuDedicatoria(true)}>
+                + Adicionar dedicatória <span className="letra-miuda">(opcional)</span>
+              </button>
+            )}
+            {produto.temDedicatoria && comDedicatoria && (
               <div className="campo">
                 <label htmlFor="dedicatoria">
                   Dedicatória <span className="letra-miuda">(opcional)</span>
@@ -423,10 +436,6 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
                 </div>
               </div>
             )}
-            <div className="selos">
-              <div>✅ Revisamos cada arquivo antes do envio</div>
-              <div>💛 Garantia: se não gostar, devolvemos o dinheiro</div>
-            </div>
           </div>
         </section>
       )}
@@ -568,6 +577,13 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
               </div>
             </div>
 
+            <div className="campo">
+              <label htmlFor="data">
+                Data da festa <span className="letra-miuda">(opcional)</span>
+              </label>
+              <input id="data" type="date" value={r.dataDaFesta} onChange={(e) => muda('dataDaFesta', e.target.value)} />
+              <span className="ajuda">Para te lembrar do livrinho do ano que vem.</span>
+            </div>
             {r.dataDaFesta && (
               <label className="marcar">
                 <input type="checkbox" checked={r.aceitaLembrete} onChange={(e) => muda('aceitaLembrete', e.target.checked)} />
@@ -579,6 +595,20 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
               <span>Quero receber ideias de festa e cupons.</span>
             </label>
 
+            <ul className="selos">
+              <li>
+                <span className="linha-icone tom-verde">
+                  <Icone nome="certo" />
+                </span>
+                Revisamos cada arquivo antes do envio
+              </li>
+              <li>
+                <span className="linha-icone tom-rosa">
+                  <Icone nome="coracao" />
+                </span>
+                Garantia: se não gostar, devolvemos o dinheiro
+              </li>
+            </ul>
             <div className="resumo">
               <span>Total</span>
               <span>

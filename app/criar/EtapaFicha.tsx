@@ -132,7 +132,7 @@ export function EtapaFicha({
 
   const titulo = (
     <h1 style={{ fontSize: 'clamp(1.8rem, 6vw, 2.4rem)' }}>
-      {situacao === 'pronta' && conta ? `Olha ${nome || 'o personagem'}!` : `Conheça ${nome || 'o personagem'}`}
+      {!conta ? `Onde guardamos o personagem${nome ? ` de ${nome}` : ''}?` : situacao === 'pronta' ? `Olha ${nome || 'o personagem'}!` : `Conheça ${nome || 'o personagem'}`}
     </h1>
   );
 
@@ -143,8 +143,8 @@ export function EtapaFicha({
       <section className="ficha-etapa">
         {titulo}
         <p className="letra-miuda">
-          Agora a gente desenha {quem} no traço da turma Little Paws para você aprovar antes de pagar. Para isso, entre ou crie sua conta: é
-          nela que o personagem fica guardado.
+          Agora a gente desenha {quem} no traço da turma Little Paws, e você aprova antes de pagar. Entre ou crie sua conta: é nela que o
+          personagem fica guardado, para você voltar quando quiser.
         </p>
         <FormularioDeConta destino="/criar?etapa=ficha" google={google} />
       </section>

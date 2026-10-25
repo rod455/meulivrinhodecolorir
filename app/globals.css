@@ -249,8 +249,9 @@ p { margin: 0 0 1em; }
 @media (min-width: 900px) { .criar-grade { grid-template-columns: 1fr 1fr; align-items: start; } .criar-capas { position: sticky; top: 90px; } }
 .sugestoes { display: flex; flex-direction: column; gap: 6px; }
 .sugestoes button { text-align: left; border: 1.5px dashed var(--grafite-suave); background: var(--branco); border-radius: 12px; padding: 8px 12px; font: inherit; font-size: 0.93rem; cursor: pointer; }
-.selos { display: grid; gap: 8px; margin: 16px 0; font-weight: 700; font-size: 0.95rem; }
-.selos div { display: flex; gap: 8px; align-items: center; }
+.selos { list-style: none; padding: 0; display: grid; gap: 10px; margin: 18px 0; font-weight: 700; font-size: 0.95rem; }
+.selos li { display: flex; gap: 12px; align-items: center; }
+.selos .linha-icone { width: 34px; height: 34px; border-radius: 10px; }
 .pagamentos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .pagamento { border: 2px solid var(--grafite); border-radius: 14px; padding: 12px; background: var(--branco); cursor: pointer; font: inherit; text-align: left; min-height: 64px; }
 .pagamento[aria-pressed='true'] { background: #e7f6e6; outline: 3px solid var(--verde); outline-offset: 1px; }
@@ -385,3 +386,9 @@ p { margin: 0 0 1em; }
 .resumo-personagem { margin: 0; display: grid; gap: 8px; padding: 12px; border-radius: 18px; background: #e3f3fc; }
 .resumo-personagem figcaption { display: grid; gap: 2px; }
 .resumo-preco { margin-top: 6px; font-family: var(--fonte-titulo), system-ui, sans-serif; font-weight: 800; font-size: 1.25rem; }
+
+.etapa-nome { margin: 0 0 8px; font-size: 0.9rem; color: var(--grafite-suave); }
+.etapa-nome strong { color: var(--grafite); }
+.selo-personagem { align-self: flex-start; margin-top: 10px; padding: 4px 12px; border-radius: 99px; background: var(--amarelo); border: 2px solid var(--grafite); font-weight: 800; font-size: 0.9rem; color: var(--grafite); }
+.adicionar { display: inline-flex; align-items: baseline; gap: 6px; margin: 4px 0 16px; padding: 10px 16px; border-radius: 99px; border: 2px dashed var(--contorno-suave); background: var(--branco); font: inherit; font-weight: 800; color: var(--grafite); cursor: pointer; }
+.adicionar:hover { border-color: var(--grafite); }

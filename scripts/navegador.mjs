@@ -54,11 +54,15 @@ await p.fill('#nome', 'merda');
 await p.getByRole('button', { name: 'Continuar' }).click();
 await p.getByText('Esse nome não pode ir para a capa').first().waitFor();
 await p.fill('#nome', 'Laura');
+// a dedicatória é opcional e abre ao toque, para a etapa do nome ficar curta
+assert.equal(await p.locator('#dedicatoria').count(), 0, 'dedicatória fechada até a pessoa pedir');
+await p.getByRole('button', { name: /Adicionar dedicatória/ }).click();
 await p.getByRole('button', { name: /Feliz aniversário/ }).click();
 await p.getByRole('button', { name: 'Continuar' }).click();
 
 // para comprar precisa de conta: sem ela, nem aparece o botão de pagar
 await p.getByRole('heading', { name: 'Falta pouco: sua conta' }).waitFor();
+assert.equal(await p.locator('.barra-fixa').count(), 0, 'sem botão, a barra fixa não cobre o formulário de conta');
 assert.equal(await p.getByRole('button', { name: /Pagar com/ }).count(), 0, 'sem conta, sem botão de pagar');
 assert.ok(await p.getByRole('button', { name: /com o Google/ }).isVisible(), 'Google aparece quando está ligado no Supabase');
 await p.fill('#conta-email', 'carla@exemplo.com.br');
@@ -93,6 +97,14 @@ assert.equal(pedido.email, 'carla@exemplo.com.br', 'e-mail do pedido é o da con
 assert.ok(pedido.user_id && pedido.user_id === carla, 'pedido ligado à conta');
 assert.match(pedido.dedicatoria, /^Feliz aniversário/);
 assert.equal(pedido.origem.utm_source, 'teste', 'UTM da primeira página chega no pedido');
+
+// o diferencial aparece já na escolha do tema: só o tema com personagem leva o selo
+const vitrine = await novaPagina();
+await vitrine.goto(`${SITE}/criar?produto=presente`);
+await vitrine.getByRole('heading', { name: 'Escolha o tema' }).waitFor();
+await vitrine.getByText('Passo 2 de').waitFor();
+assert.equal(await vitrine.locator('.selo-personagem').count(), 1, 'um tema com personagem, um selo');
+assert.ok(await vitrine.getByRole('button', { name: /A criança vira personagem/ }).filter({ hasText: 'Futebol' }).isVisible(), 'o selo está no Futebol');
 
 // futebol com foto, já com a conta aberta
 const foto = await sharp({ create: { width: 1200, height: 900, channels: 3, background: '#a86b48' } })
