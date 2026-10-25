@@ -9,7 +9,7 @@ import Image from 'next/image';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { FormularioDeConta, type ContaNoNavegador } from '@/components/FormularioDeConta';
 import { desenhosParaEscolher, LIMITE_DE_FICHAS, MINUTOS_PARA_DESISTIR, type DesenhoFeito } from '@/lib/ficha';
-import type { Personagem } from '@/lib/personagem';
+import { CABELO_CORES, CABELO_TIPOS, CORES, type Personagem } from '@/lib/personagem';
 
 type Situacao = 'parada' | 'pedindo' | 'gerando' | 'pronta' | 'falhou';
 
@@ -49,6 +49,7 @@ export function EtapaFicha({
   const [aprovando, setAprovando] = useState(false);
   const inicio = useRef(Date.now());
   const quem = nome || 'a criança';
+  const [fraseDaEspera, setFraseDaEspera] = useState(0);
 
   // quantos desenhos ainda dá para pedir hoje
   useEffect(() => {
@@ -92,6 +93,22 @@ export function EtapaFicha({
     }, 3000);
     return () => clearInterval(relogio);
   }, [situacao, fichaId, conferir]);
+
+  // o minuto da espera ganha frases sobre o próprio personagem (revisão de CRO): nada de barra falsa de progresso
+  const rotuloDe = (lista: readonly { id: string; rotulo: string }[], id: string) => lista.find((o) => o.id === id)?.rotulo.toLowerCase() ?? '';
+  const frasesDaEspera = [
+    'Pegando os lápis da turma Little Paws',
+    personagem.jeito === 'foto' ? 'Olhando a foto com carinho' : `Caprichando no cabelo ${rotuloDe(CABELO_TIPOS, personagem.cabeloTipo)} ${rotuloDe(CABELO_CORES, personagem.cabeloCor)}`.trim(),
+    `Pintando a roupa de ${rotuloDe(CORES, personagem.cor)}`,
+    'Conferindo o sorriso',
+    'Dando os últimos retoques',
+  ];
+  useEffect(() => {
+    if (situacao !== 'gerando') return;
+    setFraseDaEspera(0);
+    const troca = setInterval(() => setFraseDaEspera((i) => Math.min(i + 1, frasesDaEspera.length - 1)), 6000);
+    return () => clearInterval(troca);
+  }, [situacao, frasesDaEspera.length]);
 
   async function desenhar() {
     setAviso(null);
@@ -187,6 +204,17 @@ export function EtapaFicha({
             <strong>Desenhando {quem}…</strong>
           </p>
           <p className="letra-miuda">Leva cerca de 1 minuto. Pode ficar nesta tela.</p>
+          <p className="frase-da-espera" key={fraseDaEspera} aria-hidden="true">
+            {frasesDaEspera[fraseDaEspera]}…
+          </p>
+          <div className="enquanto-isso">
+            <strong>Enquanto isso, o que vem no livrinho</strong>
+            <ul>
+              <li>{quem} aparece na história, jogando com a turma</li>
+              <li>O arquivo chega na hora, por e-mail e WhatsApp</li>
+              <li>Você imprime quantas vezes quiser</li>
+            </ul>
+          </div>
         </div>
       )}
 

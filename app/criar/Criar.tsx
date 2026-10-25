@@ -22,7 +22,7 @@ import { lerPersonagem, PERSONAGEM_INICIAL, SUPERPODERES, type Personagem } from
 import { DESCONTO_PIX, ehProduto, emReais, LISTA_DE_PRODUTOS, PRODUTOS, totalDoPedido, type FormaDePagamento, type ProdutoId } from '@/lib/produtos';
 import { ehTema, LISTA_DE_TEMAS, TEMAS, type TemaId } from '@/lib/temas';
 import { EtapaFicha } from './EtapaFicha';
-import { EtapaPersonagem } from './EtapaPersonagem';
+import { EtapaPersonagem, partesDoPersonagem, type ParteDoPersonagem } from './EtapaPersonagem';
 
 /** 0 produto, 1 tema, 2 nome, 3 personagem e 4 desenho do personagem (só se o tema tem), 5 contato e pagamento */
 type Etapa = 0 | 1 | 2 | 3 | 4 | 5;
@@ -90,6 +90,7 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
   const [enviando, setEnviando] = useState(false);
   const [falha, setFalha] = useState<string | null>(null);
   const [abriuDedicatoria, setAbriuDedicatoria] = useState(false);
+  const [parte, setParte] = useState<ParteDoPersonagem>(0);
   const topo = useRef<HTMLDivElement>(null);
   const viuPrevia = useRef(false);
 
@@ -138,6 +139,8 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
 
   function irPara(nova: Etapa) {
     setEtapa(nova);
+    // o personagem sempre recomeça pela primeira telinha
+    if (nova === 3) setParte(0);
     setFalha(null);
     topo.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     if (nova === 2 && !viuPrevia.current) {
@@ -180,7 +183,22 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
   // sem o envio de foto ligado, um rascunho antigo no jeito foto volta para as características
   const personagemDoPedido: Personagem = fotoLigada ? r.personagem : { ...r.personagem, jeito: 'caracteristicas', foto: null };
 
+  function mudarParte(nova: ParteDoPersonagem) {
+    setParte(nova);
+    setErros((e) => ({ ...e, personagem: undefined }));
+    topo.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
   function validarPersonagem() {
+    // a foto é da primeira telinha: sem ela, não passa dali
+    if (parte === 0 && personagemDoPedido.jeito === 'foto' && !personagemDoPedido.foto) {
+      setErros((e) => ({ ...e, personagem: 'Envie a foto da criança.' }));
+      return;
+    }
+    if (parte < partesDoPersonagem(personagemDoPedido.jeito).length - 1) {
+      mudarParte(parte + 1);
+      return;
+    }
     const lido = lerPersonagem(personagemDoPedido);
     if (!lido.ok) {
       setErros((e) => ({ ...e, personagem: lido.erro }));
@@ -270,7 +288,7 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
         ))}
       </ol>
       {etapa > 0 && (
-        <button type="button" className="voltar" onClick={() => irPara(ordem[posicao - 1] ?? 0)}>
+        <button type="button" className="voltar" onClick={() => (etapa === 3 && parte > 0 ? mudarParte(parte - 1) : irPara(ordem[posicao - 1] ?? 0))}>
           ← Voltar
         </button>
       )}
@@ -447,6 +465,8 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
           nome={nomeNaCapa}
           fotoLigada={fotoLigada}
           erro={erros.personagem}
+          parte={parte}
+          onParte={mudarParte}
         />
       )}
 

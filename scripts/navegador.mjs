@@ -27,6 +27,21 @@ const novaPagina = async () => {
   pagina.on('pageerror', (e) => erros.push(e.message));
   return pagina;
 };
+// o personagem tem telinhas curtas (quem é, cabelo, roupa e cor, superpoder; pela foto, sem a do cabelo)
+const ateOCabelo = async (pg) => {
+  await pg.getByRole('heading', { name: 'Quem é' }).waitFor();
+  await pg.getByRole('button', { name: 'Continuar' }).click();
+  await pg.getByRole('heading', { name: 'Cabelo', exact: true }).waitFor();
+};
+const ateOSuperpoder = async (pg) => {
+  const titulo = pg.locator('h2.parte-titulo');
+  for (let i = 0; i < 4 && (await titulo.textContent()) !== 'Superpoder'; i++) {
+    const antes = await titulo.textContent();
+    await pg.getByRole('button', { name: 'Continuar' }).click();
+    await pg.waitForFunction((t) => document.querySelector('h2.parte-titulo')?.textContent !== t, antes);
+  }
+  assert.equal(await titulo.textContent(), 'Superpoder', 'chegou à telinha do superpoder');
+};
 const estado = async () => (await fetch(`${FALSO}/__estado`)).json();
 const ultimoAvisoAoN8n = () => JSON.parse(readFileSync(`${REGISTRO}.n8n`, 'utf8').trim().split('\n').at(-1));
 
@@ -124,6 +139,9 @@ await p.getByText(/Foto recebida/).waitFor();
 // o tom de pele começa "como na foto"; a família pode escolher, e o desenho segue a escolha
 assert.equal(await p.getByRole('button', { name: 'Como na foto' }).getAttribute('aria-pressed'), 'true', 'tom de pele começa como na foto');
 await p.getByRole('button', { name: 'Tom 2' }).click();
+await p.locator('.ficha-viva').getByText('Desenhado a partir da foto').waitFor();
+assert.equal(await p.getByRole('button', { name: 'Gentileza' }).count(), 0, 'o superpoder fica na última telinha, não na primeira');
+await ateOSuperpoder(p);
 await p.getByRole('button', { name: 'Gentileza' }).click();
 await p.getByRole('button', { name: 'Continuar' }).click();
 
@@ -162,6 +180,7 @@ assert.equal(troca.status, 404, 'ninguém troca a imagem de uma ficha pronta');
 // ajustar: volta às escolhas, desenha de novo e gasta uma tentativa
 await p.getByRole('button', { name: /Quero ajustar \(restam 2\)/ }).click();
 await p.getByRole('heading', { name: 'Crie o personagem' }).waitFor();
+await ateOSuperpoder(p);
 await p.getByRole('button', { name: 'Coragem' }).click();
 await p.getByRole('button', { name: 'Continuar' }).click();
 // só o superpoder mudou: o desenho é o mesmo, então a prévia continua e não gasta tentativa
@@ -169,8 +188,12 @@ await previa.waitFor();
 await p.getByRole('button', { name: 'Voltar' }).click();
 await p.getByRole('button', { name: /Por uma foto/ }).waitFor();
 await p.getByRole('button', { name: /Pelas características/ }).click();
+await ateOCabelo(p);
 await p.getByRole('button', { name: 'Cacheado' }).click();
+await p.locator('.ficha-viva').getByText(/Cabelo cacheado/).waitFor();
+await ateOSuperpoder(p);
 await p.getByRole('button', { name: 'Gentileza' }).click();
+await p.locator('.ficha-viva').getByText('Superpoder: Gentileza').waitFor();
 await p.getByRole('button', { name: 'Continuar' }).click();
 await p.getByRole('button', { name: 'Desenhar Bia' }).click();
 await previa.waitFor({ timeout: 20000 });
@@ -179,7 +202,9 @@ await p.getByRole('button', { name: /Quero ajustar \(resta 1\)/ }).waitFor();
 // uma falha do n8n não gasta tentativa
 await fetch(`${FALSO}/__n8n-falha?ligar=1`);
 await p.getByRole('button', { name: /Quero ajustar/ }).click();
+await ateOCabelo(p);
 await p.getByRole('button', { name: 'Ruivo' }).click();
+await ateOSuperpoder(p);
 await p.getByRole('button', { name: 'Continuar' }).click();
 await p.getByRole('button', { name: 'Desenhar Bia' }).click();
 await p.getByText('Não deu certo desta vez.').waitFor({ timeout: 20000 });
@@ -198,6 +223,7 @@ assert.equal(await p.locator(`.ficha-feitos img[src*="${ruivo.id}"]`).count(), 1
 await p.getByRole('button', { name: 'Voltar' }).click();
 await p.getByRole('heading', { name: 'Crie o personagem' }).waitFor();
 assert.equal(await p.getByRole('button', { name: /Por uma foto/ }).getAttribute('aria-pressed'), 'true', 'as escolhas voltam a ser as do desenho escolhido');
+await ateOSuperpoder(p);
 await p.getByRole('button', { name: 'Continuar' }).click();
 await p.locator(`img.ficha-previa[src*="${porFoto.id}"]`).waitFor();
 await p.locator('.ficha-feitos li').filter({ has: p.locator(`img[src*="${ruivo.id}"]`) }).getByRole('button', { name: 'Usar este' }).click();

@@ -28,6 +28,23 @@ import {
   type Personagem,
 } from '@/lib/personagem';
 
+/**
+ * O personagem em 3 telinhas (revisão de CRO, 25/10/2026): eram 12 grupos de
+ * escolhas numa rolagem só, sem nada mudando na tela. Cada telinha é curta, e
+ * a ficha no topo vai se montando com o que a família escolhe.
+ */
+const PARTES = [
+  { id: 'quem', titulo: 'Quem é' },
+  { id: 'cabelo', titulo: 'Cabelo' },
+  { id: 'roupa', titulo: 'Roupa e cor' },
+  { id: 'superpoder', titulo: 'Superpoder' },
+] as const;
+/** pela foto, o cabelo vem da foto: a telinha do cabelo some */
+export const partesDoPersonagem = (jeito: Personagem['jeito']) => PARTES.filter((p) => jeito !== 'foto' || p.id !== 'cabelo');
+export type ParteDoPersonagem = number;
+
+const rotulo = (lista: readonly { id: string; rotulo: string }[], id: string) => lista.find((o) => o.id === id)?.rotulo ?? '';
+
 type Lista = readonly { id: string; rotulo: string; cor?: string }[];
 
 function Escolha({ titulo, lista, valor, onEscolher }: { titulo: string; lista: Lista; valor: string; onEscolher: (id: string) => void }) {
@@ -55,12 +72,17 @@ export function EtapaPersonagem({
   nome,
   fotoLigada,
   erro,
+  parte,
+  onParte,
 }: {
   personagem: Personagem;
   onMudar: (p: Personagem) => void;
   nome: string;
   fotoLigada: boolean;
   erro?: string;
+  /** em que telinha do personagem estamos: rosto e cabelo, roupa e cor, superpoder */
+  parte: ParteDoPersonagem;
+  onParte: (parte: ParteDoPersonagem) => void;
 }) {
   const [consentiu, setConsentiu] = useState(Boolean(personagem.foto));
   const [enviando, setEnviando] = useState(false);
@@ -106,24 +128,64 @@ export function EtapaPersonagem({
   }
 
   const raspado = personagem.cabeloTipo === 'raspado';
+  const partes = partesDoPersonagem(jeito);
+  const atual = partes[Math.min(parte, partes.length - 1)].id;
+
+  const cabeloResumo =
+    personagem.jeito === 'foto'
+      ? 'Desenhado a partir da foto'
+      : raspado
+        ? `Cabelo raspado ${rotulo(CABELO_CORES, personagem.cabeloCor).toLowerCase()}`
+        : `Cabelo ${rotulo(CABELO_TIPOS, personagem.cabeloTipo).toLowerCase()} ${rotulo(CABELO_CORES, personagem.cabeloCor).toLowerCase()}`;
+  const resumo = [
+    personagem.aparencia === 'crianca' ? 'Criança' : rotulo(APARENCIAS, personagem.aparencia),
+    cabeloResumo,
+    personagem.jeito === 'foto' || personagem.oculos === 'nao' ? '' : rotulo(OCULOS, personagem.oculos),
+    `${rotulo(ROUPAS, personagem.roupa)} ${rotulo(CORES, personagem.cor).toLowerCase()}`,
+    `Superpoder: ${rotulo(SUPERPODERES, personagem.superpoder)}`,
+  ].filter(Boolean);
+
 
   return (
-    <section className="criar-grade">
-      <div className="personagem-lado">
-        <Image src="/marca/rabisco-desenhando.webp" alt="" width={302} height={368} className="personagem-rabisco" />
-        <p className="letra-miuda" style={{ textAlign: 'center' }}>
-          Com as suas escolhas, desenhamos {quem} no traço da turma Little Paws. Ninguém vê o personagem além de você.
-        </p>
+    <section className="personagem-etapa">
+      <h1 style={{ fontSize: 'clamp(1.8rem, 6vw, 2.4rem)' }}>Crie o personagem</h1>
+      <div className="ficha-viva" aria-live="polite">
+        <Image src="/marca/rabisco-desenhando.webp" alt="" width={302} height={368} className="ficha-viva-rabisco" />
+        <div>
+          <strong>Ficha {nome ? `de ${nome}` : 'do personagem'}</strong>
+          <ul>
+            {resumo.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+          <span className="letra-miuda">Com isso, desenhamos {quem} no traço da turma Little Paws. Só você vê.</span>
+        </div>
       </div>
+      <ol className="partes" aria-label="Partes do personagem">
+        {partes.map(({ titulo }, i) => (
+          <li key={titulo}>
+            <button
+              type="button"
+              aria-current={i === parte ? 'step' : undefined}
+              className={i < parte ? 'feita' : ''}
+              disabled={i > parte}
+              onClick={() => onParte(i)}
+            >
+              {i + 1}. {titulo}
+            </button>
+          </li>
+        ))}
+      </ol>
       <div>
-        <h1 style={{ fontSize: 'clamp(1.8rem, 6vw, 2.4rem)' }}>Crie o personagem</h1>
-        <p className="letra-miuda">{quem} vai entrar na história e jogar com o time.</p>
+        <h2 className="parte-titulo">{partes.find((p) => p.id === atual)?.titulo}</h2>
         {erro && (
           <div className="aviso-erro" role="alert">
             {erro}
           </div>
         )}
 
+        {atual === 'quem' && (
+          <>
         {fotoLigada && (
           <div className="pagamentos" role="group" aria-label="Como criar o personagem" style={{ marginBottom: 18 }}>
             <button type="button" className="pagamento" aria-pressed={jeito === 'caracteristicas'} onClick={() => onMudar({ ...personagem, jeito: 'caracteristicas', pele: personagem.pele === PELE_DA_FOTO ? PERSONAGEM_INICIAL.pele : personagem.pele })}>
@@ -185,6 +247,13 @@ export function EtapaPersonagem({
           <>
             <Escolha titulo="Altura para a idade" lista={ALTURAS} valor={personagem.altura} onEscolher={(v) => muda('altura', v)} />
             <Escolha titulo="Tom de pele" lista={PELES} valor={personagem.pele} onEscolher={(v) => muda('pele', v)} />
+          </>
+        )}
+          </>
+        )}
+
+        {atual === 'cabelo' && (
+          <>
             <Escolha titulo="Tipo de cabelo" lista={CABELO_TIPOS} valor={personagem.cabeloTipo} onEscolher={(v) => muda('cabeloTipo', v)} />
             {!raspado && (
               <>
@@ -218,10 +287,19 @@ export function EtapaPersonagem({
           </>
         )}
 
-        <Escolha titulo="Roupa favorita (nas primeiras páginas)" lista={ROUPAS} valor={personagem.roupa} onEscolher={(v) => muda('roupa', v)} />
-        <Escolha titulo="Cor favorita" lista={CORES} valor={personagem.cor} onEscolher={(v) => muda('cor', v)} />
-        <Escolha titulo={`O superpoder de ${quem}`} lista={SUPERPODERES} valor={personagem.superpoder} onEscolher={(v) => muda('superpoder', v as Personagem['superpoder'])} />
-        <p className="letra-miuda">O superpoder muda o que {quem} faz para ajudar o time no intervalo do jogo.</p>
+        {atual === 'roupa' && (
+          <>
+            <Escolha titulo="Roupa favorita (nas primeiras páginas)" lista={ROUPAS} valor={personagem.roupa} onEscolher={(v) => muda('roupa', v)} />
+            <Escolha titulo="Cor favorita" lista={CORES} valor={personagem.cor} onEscolher={(v) => muda('cor', v)} />
+          </>
+        )}
+
+        {atual === 'superpoder' && (
+          <>
+            <p className="letra-miuda">O superpoder muda o que {quem} faz para ajudar o time no intervalo do jogo.</p>
+            <Escolha titulo={`O superpoder de ${quem}`} lista={SUPERPODERES} valor={personagem.superpoder} onEscolher={(v) => muda('superpoder', v as Personagem['superpoder'])} />
+          </>
+        )}
       </div>
     </section>
   );
