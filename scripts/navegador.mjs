@@ -77,6 +77,7 @@ await p.getByText('Digite seu nome.').waitFor();
 await p.fill('#responsavel', 'Carla Teste');
 await p.fill('#whatsapp', '(11) 91234-5678');
 assert.ok(await p.getByText('R$ 23,65').first().isVisible(), 'total com desconto do Pix na tela');
+assert.ok(await p.locator('.barra-fixa').getByText('no Pix').isVisible(), 'a barra diz que o valor é o do Pix');
 await p.getByRole('button', { name: 'Pagar com Pix' }).click();
 await p.waitForURL(/\/obrigado\?pedido=/, { timeout: 15000 });
 await p.getByRole('heading', { name: 'Pedido recebido!' }).waitFor();
@@ -194,7 +195,11 @@ assert.ok(cacheado, 'três desenhos prontos no dia');
 const quarta = await p.request.post(`${SITE}/api/ficha`, { data: { personagem: { ...(await estado()).fichas.at(-1).personagem }, idade: 6 } });
 assert.equal(quarta.status(), 429, 'a quarta ficha do dia é recusada');
 
-await p.getByRole('button', { name: 'Aprovar e continuar' }).click();
+await p.getByRole('heading', { name: 'Olha Bia!' }).waitFor();
+await p.getByRole('button', { name: 'Amei, quero o livrinho' }).click();
+// o personagem aprovado aparece no resumo, junto do botão de pagar
+await p.getByText('Personagem aprovado por você').waitFor();
+assert.equal(await p.locator('.resumo-personagem img').getAttribute('src'), `/api/ficha/${ruivo.id}/previa`, 'o resumo mostra a ficha aprovada');
 await p.getByText('Superpoder: Gentileza').waitFor();
 await p.fill('#responsavel', 'Carla Teste');
 await p.fill('#whatsapp', '(11) 91234-5678');

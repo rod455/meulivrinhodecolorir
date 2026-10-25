@@ -236,6 +236,21 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
   }
 
   const total = r.produto ? totalDoPedido(r.produto, r.pagamento) : 0;
+  // a barra fixa só aparece quando tem botão: sem botão ela só cobria o formulário de conta
+  const acaoDaBarra =
+    etapa === 2 ? (
+      <button type="button" className="botao" onClick={() => validarPersonalizacao() && irPara(temPersonagem ? 3 : 5)}>
+        Continuar
+      </button>
+    ) : etapa === 3 ? (
+      <button type="button" className="botao" onClick={validarPersonagem}>
+        Continuar
+      </button>
+    ) : etapa === 5 && conta ? (
+      <button type="button" className="botao" disabled={enviando} onClick={enviar}>
+        {enviando ? 'Enviando…' : r.pagamento === 'pix' ? 'Pagar com Pix' : 'Pagar com cartão'}
+      </button>
+    ) : null;
   const whatsappAjuda = linkDoWhatsapp('Oi! Estou tentando fazer o pedido do livrinho e não consegui.');
 
   return (
@@ -454,22 +469,34 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
 
       {etapa === 5 && r.produto && r.tema && produto && (
         <section className="criar-grade">
-          <div className="cartao" style={{ display: 'grid', gridTemplateColumns: '110px 1fr', gap: 16, alignItems: 'center' }}>
-            <CapaLivrinho id="resumo-capa" tema={r.tema} produto={r.produto === 'presente' ? 'presente' : 'lembrancinha'} nome={nome} idade={r.idade} corte={0.7} />
-            <div>
-              <strong>
-                {produto.emoji} {produto.nome}
-              </strong>
-              <div className="letra-miuda">
-                {TEMAS[r.tema].nome} · {nome}, {r.idade} {r.idade === 1 ? 'ano' : 'anos'}
-              </div>
-              {temPersonagem && (
+          <div className="cartao resumo-pedido">
+            {temPersonagem && fichaEmDia && r.fichaId && (
+              // o momento de maior desejo fica junto do botão de pagar (revisão de CRO, 25/10/2026)
+              <figure className="resumo-personagem">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={`/api/ficha/${r.fichaId}/previa`} alt={`O personagem de ${nome} que você aprovou`} className="ficha-previa" />
+                <figcaption>
+                  <strong>Personagem aprovado por você</strong>
+                  <span className="letra-miuda">
+                    {nome}, {r.idade} {r.idade === 1 ? 'ano' : 'anos'} · Superpoder: {SUPERPODERES.find((s) => s.id === r.personagem.superpoder)?.rotulo}
+                  </span>
+                </figcaption>
+              </figure>
+            )}
+            <div style={{ display: 'grid', gridTemplateColumns: '110px 1fr', gap: 16, alignItems: 'center' }}>
+              <CapaLivrinho id="resumo-capa" tema={r.tema} produto={r.produto === 'presente' ? 'presente' : 'lembrancinha'} nome={nome} idade={r.idade} corte={0.7} />
+              <div>
+                <strong>
+                  {produto.emoji} {produto.nome}
+                </strong>
                 <div className="letra-miuda">
-                  Personagem {r.personagem.jeito === 'foto' ? 'pela foto' : 'pelas características'} · Superpoder:{' '}
-                  {SUPERPODERES.find((s) => s.id === r.personagem.superpoder)?.rotulo}
+                  {TEMAS[r.tema].nome} · {nome}, {r.idade} {r.idade === 1 ? 'ano' : 'anos'}
                 </div>
-              )}
-              <div className="letra-miuda">Arquivo para imprimir, por e-mail e WhatsApp</div>
+                <div className="letra-miuda">Arquivo para imprimir, por e-mail e WhatsApp</div>
+                <div className="resumo-preco">
+                  {emReais(total)} <span className="letra-miuda">{r.pagamento === 'pix' ? 'no Pix' : 'no cartão'}</span>
+                </div>
+              </div>
             </div>
           </div>
           <div>
@@ -569,26 +596,16 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
         </section>
       )}
 
-      {etapa >= 2 && produto && (
+      {acaoDaBarra && produto && (
         <div className="barra-fixa">
           <div className="miolo">
             <div>
               <div className="letra-miuda">{produto.nome}</div>
-              <strong style={{ fontFamily: 'var(--fonte-titulo)', fontSize: '1.4rem' }}>{emReais(total)}</strong>
+              {/* o valor da barra já tem o desconto do Pix: dizer, para não parecer erro (revisão de CRO) */}
+              <strong style={{ fontFamily: 'var(--fonte-titulo)', fontSize: '1.4rem' }}>{emReais(total)}</strong>{' '}
+              <span className="letra-miuda">{r.pagamento === 'pix' ? 'no Pix' : 'no cartão'}</span>
             </div>
-            {etapa === 2 ? (
-              <button type="button" className="botao" onClick={() => validarPersonalizacao() && irPara(temPersonagem ? 3 : 5)}>
-                Continuar
-              </button>
-            ) : etapa === 4 ? null : etapa === 3 ? (
-              <button type="button" className="botao" onClick={validarPersonagem}>
-                Continuar
-              </button>
-            ) : !conta ? null : (
-              <button type="button" className="botao" disabled={enviando} onClick={enviar}>
-                {enviando ? 'Enviando…' : r.pagamento === 'pix' ? 'Pagar com Pix' : 'Pagar com cartão'}
-              </button>
-            )}
+            {acaoDaBarra}
           </div>
         </div>
       )}

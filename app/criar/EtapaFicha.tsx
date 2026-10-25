@@ -130,7 +130,11 @@ export function EtapaFicha({
 
   const outros = situacao === 'gerando' || situacao === 'pedindo' ? [] : desenhosParaEscolher(desenhos, idade, fichaId);
 
-  const titulo = <h1 style={{ fontSize: 'clamp(1.8rem, 6vw, 2.4rem)' }}>Conheça {nome || 'o personagem'}</h1>;
+  const titulo = (
+    <h1 style={{ fontSize: 'clamp(1.8rem, 6vw, 2.4rem)' }}>
+      {situacao === 'pronta' && conta ? `Olha ${nome || 'o personagem'}!` : `Conheça ${nome || 'o personagem'}`}
+    </h1>
+  );
 
   if (carregandoConta) return <div style={{ minHeight: '50vh' }} />;
 
@@ -188,8 +192,15 @@ export function EtapaFicha({
 
       {situacao === 'pronta' && fichaId && (
         <div className="ficha-pronta">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={`/api/ficha/${fichaId}/previa`} alt={`Prévia do personagem de ${quem}`} className="ficha-previa" />
+          <p className="ficha-revelacao">É assim que {quem} vai aparecer na história, junto com a turma Little Paws.</p>
+          {/* a revelação ganha festa, uma vez só e sem movimento para quem pediu menos movimento (revisão de CRO) */}
+          <div className="ficha-palco">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={`/api/ficha/${fichaId}/previa`} alt={`Prévia do personagem de ${quem}`} className="ficha-previa" />
+            <Image src="/marca/estrela-giz.webp" alt="" width={64} height={69} className="ficha-enfeite ficha-enfeite-1" />
+            <Image src="/marca/coracao-giz.webp" alt="" width={56} height={66} className="ficha-enfeite ficha-enfeite-2" />
+            <Image src="/marca/estrela-giz.webp" alt="" width={44} height={47} className="ficha-enfeite ficha-enfeite-3" />
+          </div>
           <p className="letra-miuda">
             Esta é uma prévia, pequena e com marca d&apos;água. No livro, o desenho vem limpo, em todas as páginas.
           </p>
@@ -245,5 +256,5 @@ export function EtapaFicha({
 
 function aprovado(jaAprovada: boolean, aprovando: boolean): string {
   if (aprovando) return 'Um instante…';
-  return jaAprovada ? 'Continuar com este' : 'Aprovar e continuar';
+  return jaAprovada ? 'Continuar com este' : 'Amei, quero o livrinho';
 }

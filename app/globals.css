@@ -365,3 +365,23 @@ p { margin: 0 0 1em; }
 .ficha-feitos h2 { font-size: 1.3rem; margin-bottom: 4px; }
 .ficha-feitos ul { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
 .ficha-feitos li { display: grid; gap: 8px; }
+
+/* Revisão de CRO (25/10/2026): a revelação do personagem e o personagem no pagamento */
+.ficha-revelacao { margin: -4px 0 4px; font-size: 1.05rem; }
+.ficha-palco { position: relative; }
+.ficha-enfeite { position: absolute; height: auto; pointer-events: none; }
+.ficha-enfeite-1 { top: -22px; right: -2px; }
+.ficha-enfeite-2 { bottom: -18px; left: -10px; }
+.ficha-enfeite-3 { top: -14px; left: 18%; }
+@media (prefers-reduced-motion: no-preference) {
+  .ficha-palco .ficha-previa { animation: ficha-aparece 420ms ease-out both; }
+  .ficha-enfeite { animation: enfeite-pula 600ms cubic-bezier(.2, 1.4, .4, 1) both; }
+  .ficha-enfeite-2 { animation-delay: 120ms; }
+  .ficha-enfeite-3 { animation-delay: 220ms; }
+}
+@keyframes ficha-aparece { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: none; } }
+@keyframes enfeite-pula { from { opacity: 0; transform: scale(.3) rotate(-20deg); } to { opacity: 1; transform: none; } }
+.resumo-pedido { display: grid; gap: 14px; }
+.resumo-personagem { margin: 0; display: grid; gap: 8px; padding: 12px; border-radius: 18px; background: #e3f3fc; }
+.resumo-personagem figcaption { display: grid; gap: 2px; }
+.resumo-preco { margin-top: 6px; font-family: var(--fonte-titulo), system-ui, sans-serif; font-weight: 800; font-size: 1.25rem; }
