@@ -12,7 +12,8 @@ export const MINUTOS_PARA_DESISTIR = 10;
 
 /**
  * O tamanho e a qualidade que o fluxo "Meu Livrinho: gerar ficha" usa (o modelo,
- * gpt-image-1, fica fixo nos nós da OpenAI do fluxo). Mudou aqui, muda lá.
+ * gpt-image-2, fica fixo nos nós da OpenAI do fluxo; o gpt-image-1 já não gera
+ * imagem: "does not exist" no teste de 25/10/2026). Mudou aqui, muda lá.
  */
 export const PEDIDO_DE_IMAGEM = {
   tamanho: '1536x1024',
