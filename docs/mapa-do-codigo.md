@@ -19,7 +19,7 @@
 | a etapa "Crie o personagem" (só nos temas com `comPersonagem`) | `app/criar/EtapaPersonagem.tsx` |
 | o tratamento da foto (formato, tamanho, tirar metadados) | `lib/foto.ts` (confira com `npm run conferir:foto`) |
 | onde a foto mora e quando some (bucket privado, 7 dias) | `lib/servidor/fotos.ts`, `app/api/foto/route.ts`, `app/api/limpeza-fotos/route.ts` e o cron em `vercel.json` |
-| a ficha do personagem antes de pagar (limite, prévia com marca d'água, bilhete do n8n) | regras em `lib/ficha.ts` (confira com `npm run conferir:ficha`), marca d'água desenhada em traços em `lib/marca.ts` (nunca `<text>`: a Vercel não tem fonte), banco em `lib/servidor/fichas.ts`, rotas em `app/api/ficha/`, tela em `app/criar/EtapaFicha.tsx` |
+| a ficha do personagem antes de pagar (limite, prévia com marca d'água, bilhete do n8n) | regras em `lib/ficha.ts` (confira com `npm run conferir:ficha`), marca d'água desenhada em traços em `lib/marca.ts` (nunca `<text>`: a Vercel não tem fonte), banco em `lib/servidor/fichas.ts`, estilo vem da arte da turma em `public/artes/referencia-little-paws.png` (sempre a 1ª imagem para a OpenAI), rotas em `app/api/ficha/`, tela em `app/criar/EtapaFicha.tsx` |
 | login e conta (e-mail e senha, link por e-mail, Google) | `components/FormularioDeConta.tsx`, `lib/servidor/sessao.ts`, `middleware.ts`, volta em `app/auth/callback/route.ts` |
 | a área "Meus livrinhos" (pedidos, baixar, apagar fotos, excluir conta) | `app/conta/`, `app/api/conta/`, `app/api/livro/[id]/route.ts` |
 | endereço e chave pública do Supabase | `SUPABASE_PUBLICO` em `lib/config.ts` (públicos por natureza; a chave de serviço fica só na Vercel) |

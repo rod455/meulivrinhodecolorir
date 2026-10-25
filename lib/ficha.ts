@@ -21,6 +21,13 @@ export const PEDIDO_DE_IMAGEM = {
   formato: 'jpeg',
 } as const;
 
+/**
+ * A arte da turma Little Paws que vai SEMPRE como primeira imagem para a OpenAI:
+ * é dela que sai o estilo da ficha (o prompt diz "the FIRST attached image").
+ * Arquivo próprio, separado da arte da vitrine, para trocar a LP sem mudar a ficha.
+ */
+export const REFERENCIA_DE_ESTILO = '/artes/referencia-little-paws.png';
+
 export type FichaNoBanco = {
   id: string;
   criada_em: string;

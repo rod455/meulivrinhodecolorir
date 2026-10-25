@@ -237,16 +237,23 @@ export function roupaPropria(personagem: Personagem): string {
 export const ROUPA_DO_TIME =
   'the Little Paws soccer uniform: short-sleeve jersey with the outlined paw emblem, shorts, long socks and cleats, plus the same glasses and hair accessories from the sheet';
 
-/** Prompt da ficha do personagem (spec, seção 7.2), com as escolhas já traduzidas. */
+/**
+ * Prompt da ficha do personagem (spec, seção 7.2), com as escolhas já traduzidas.
+ * O modelo não conhece o "Little Paws" pelo nome: o estilo vem da arte da turma,
+ * que o fluxo do n8n anexa sempre como PRIMEIRA imagem (REFERENCIA_DE_ESTILO em
+ * lib/ficha.ts). Sem ela, a ficha saía um desenho animado genérico (25/10/2026).
+ */
 export function promptDaFicha(personagem: Personagem, idade: number): string {
-  const corpo = `${alturaNaCena(personagem).replace("of Bo's height", 'of the tallest teammate')}`;
+  const corpo = `${alturaNaCena(personagem).replace("of Bo's height", 'of the bear')}`;
   const linhas = [
-    `Create ONE character reference sheet of a child character for a children's coloring book, in the established "Little Paws" style: soft rounded cartoon proportions for a ${idade}-year-old child (${p(ALTURAS, personagem.altura) || 'average height'} for the age, ${corpo}), clean thick black outlines, friendly expression.`,
+    'The FIRST attached image is the STYLE REFERENCE: the Little Paws team (a bunny, a bear, a fox, a raccoon and a turtle). Create ONE character sheet of a NEW human child who looks like a new member of this team, drawn in EXACTLY the same art style as the reference.',
+    'Copy the style precisely: hand-drawn children\'s picture-book cartoon, slightly soft dark brown outlines of even medium-thick weight, big round head (about one third of the total height), short chunky body, short rounded arms and legs, small rounded hands, oversized chunky white sneakers. Same face style: large simple dark oval eyes with one small white highlight, tiny nose, wide open happy smile, small soft rosy cheeks. Soft flat crayon-like colors with very gentle shading, exactly like the reference.',
+    `The child is ${idade} years old, ${p(ALTURAS, personagem.altura) || 'average height'} for the age (${corpo}).`,
   ];
   if (personagem.jeito === 'foto') {
     linhas.push(
       `Appearance: a ${p(APARENCIAS, personagem.aparencia)} wearing ${p(ROUPAS, personagem.roupa)}.`,
-      'Use the attached photo ONLY as a loose reference for hairstyle, face shape and general features, turning the child into a simple, stylized cartoon character. Do not copy the photo realistically.',
+      'The SECOND attached image is a photo of the child. Use it ONLY as a loose reference for hairstyle, hair color, skin tone, glasses and general face shape, turning the child into a cartoon in the Little Paws style. Do not copy the photo realistically.',
     );
   } else {
     linhas.push(`Appearance: ${descreverCrianca(personagem, idade)}; wearing ${p(ROUPAS, personagem.roupa)}.`);
@@ -254,9 +261,9 @@ export function promptDaFicha(personagem: Personagem, idade: number): string {
   const pele = personagem.jeito === 'foto' ? 'skin tone as in the photo' : `skin ${p(PELES, personagem.pele)}`;
   const cabelo = personagem.jeito === 'foto' ? 'hair as in the photo' : `hair ${p(CABELO_CORES, personagem.cabeloCor)}`;
   linhas.push(
-    'Show the character twice: front view and three-quarter view, standing, full body, on a plain white background.',
-    `Version 1: full color (${pele}, ${cabelo}, outfit in ${p(CORES, personagem.cor)}).`,
-    'Version 2: black outlines only, every area white, no gray, no shading.',
+    'Show ONLY this child, twice, side by side, standing, full body, friendly happy pose, on a plain white background. Do not draw any of the animals and do not copy the park background.',
+    `Left: full color version, front view (${pele}, ${cabelo}, outfit in ${p(CORES, personagem.cor)}).`,
+    'Right: the same child in three-quarter view as coloring-book line art: the same outlines in black, every area white, no gray, no shading, no color.',
     'No text, no labels.',
   );
   return linhas.join('\n');

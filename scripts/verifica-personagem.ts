@@ -100,6 +100,8 @@ ok(presente.paginas.find((p) => p.pagina === 10)!.prompt.includes('Little Paws s
 const comFoto = planoDoLivro({ nome, idade: 6, produto: 'presente', personagem: { ...PERSONAGEM_INICIAL, jeito: 'foto', foto } });
 ok(comFoto.ficha.usaFoto && comFoto.ficha.caminhoDaFoto === foto.caminho, 'ficha recebe a foto');
 ok(comFoto.ficha.prompt.includes('ONLY as a loose reference'), 'ficha pede estilização, não cópia da foto');
+ok(/FIRST attached image is the STYLE REFERENCE/.test(comFoto.ficha.prompt) && /SECOND attached image is a photo/.test(comFoto.ficha.prompt), 'com foto: a turma é a primeira imagem, a foto a segunda');
+ok(/FIRST attached image is the STYLE REFERENCE/.test(presente.ficha.prompt) && !/SECOND attached/.test(presente.ficha.prompt), 'sem foto: o estilo vem da arte da turma, e não se fala de foto');
 ok(comFoto.paginas.every((p) => !/photo/i.test(p.prompt)), 'nenhuma página usa a foto');
 
 console.log(`personagem: ${casos} casos ok`);

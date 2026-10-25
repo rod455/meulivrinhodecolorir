@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { bilheteConfere, desistiu, ehUuid, PEDIDO_DE_IMAGEM } from '@/lib/ficha';
+import { SITE } from '@/lib/config';
+import { bilheteConfere, desistiu, ehUuid, PEDIDO_DE_IMAGEM, REFERENCIA_DE_ESTILO } from '@/lib/ficha';
 import { fichaPorId, linkDaFoto } from '@/lib/servidor/fichas';
 
 export const dynamic = 'force-dynamic';
@@ -18,7 +19,8 @@ export async function GET(req: Request) {
     ficha_id: ficha.id,
     prompt: ficha.prompt,
     ...PEDIDO_DE_IMAGEM,
-    // com foto, o n8n usa a edição de imagem; sem foto, a geração
+    // a arte da turma vai sempre (é dela que sai o estilo); a foto, quando houver, vai em segundo
+    referencia_url: `${SITE.url}${REFERENCIA_DE_ESTILO}`,
     foto_url: ficha.caminho_foto ? await linkDaFoto(ficha.caminho_foto) : null,
   });
 }
