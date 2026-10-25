@@ -24,6 +24,7 @@ const base = {
   whatsapp: '(11) 91234-5678',
   pagamento: 'pix',
   personagem: PERSONAGEM_INICIAL,
+  fichaId: '7d1c3e2a-5b4f-4a6e-9c8d-0e1f2a3b4c5d',
 };
 
 const lido = lerPedido(base);

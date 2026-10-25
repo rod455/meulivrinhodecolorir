@@ -16,16 +16,20 @@ import { supabaseNoNavegador } from '@/lib/supabase/navegador';
 import { linkDoWhatsapp } from '@/lib/config';
 import { arrumarNome, LIMITE_DO_NOME, MENSAGEM_DO_PROBLEMA, problemaDoNome } from '@/lib/nome';
 import { DEDICATORIAS_PRONTAS, LIMITE_DA_DEDICATORIA, lerPedido, type ErrosDoPedido } from '@/lib/pedido';
+import { chaveDoDesenho } from '@/lib/ficha';
 import { lerPersonagem, PERSONAGEM_INICIAL, SUPERPODERES, type Personagem } from '@/lib/personagem';
 import { DESCONTO_PIX, ehProduto, emReais, LISTA_DE_PRODUTOS, PRODUTOS, totalDoPedido, type FormaDePagamento, type ProdutoId } from '@/lib/produtos';
 import { ehTema, LISTA_DE_TEMAS, TEMAS, type TemaId } from '@/lib/temas';
+import { EtapaFicha } from './EtapaFicha';
 import { EtapaPersonagem } from './EtapaPersonagem';
 
-/** 0 produto, 1 tema, 2 nome, 3 personagem (só se o tema tem), 4 contato e pagamento */
-type Etapa = 0 | 1 | 2 | 3 | 4;
+/** 0 produto, 1 tema, 2 nome, 3 personagem e 4 desenho do personagem (só se o tema tem), 5 contato e pagamento */
+type Etapa = 0 | 1 | 2 | 3 | 4 | 5;
 const GUARDADO = 'livrinho:rascunho';
 /** volta do Google e do link por e-mail: cai direto no pagamento, com o rascunho guardado */
 export const DESTINO_DEPOIS_DE_ENTRAR = '/criar?etapa=pagar';
+/** a conta agora costuma nascer antes do desenho do personagem */
+export const DESTINO_DEPOIS_DE_ENTRAR_NA_FICHA = '/criar?etapa=ficha';
 
 type Rascunho = {
   produto: ProdutoId | null;
@@ -41,6 +45,10 @@ type Rascunho = {
   aceitaNovidades: boolean;
   aceitaLembrete: boolean;
   personagem: Personagem;
+  /** a última ficha desenhada, para que desenho ela foi feita e se a família aprovou */
+  fichaId: string | null;
+  fichaDoDesenho: string | null;
+  fichaAprovada: boolean;
 };
 
 const VAZIO: Rascunho = {
@@ -57,6 +65,9 @@ const VAZIO: Rascunho = {
   aceitaNovidades: false,
   aceitaLembrete: true,
   personagem: PERSONAGEM_INICIAL,
+  fichaId: null,
+  fichaDoDesenho: null,
+  fichaAprovada: false,
 };
 
 function primeiraEtapaQueFalta(r: Rascunho): Etapa {
@@ -101,8 +112,13 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
     };
     setR(inicial);
     const falta = primeiraEtapaQueFalta(inicial);
-    const voltouDoLogin = busca.get('etapa') === 'pagar' && falta === 2 && !problemaDoNome(inicial.nome);
-    setEtapa(voltouDoLogin ? 4 : falta);
+    const completo = falta === 2 && !problemaDoNome(inicial.nome);
+    const comPersonagem = Boolean(inicial.tema && TEMAS[inicial.tema].comPersonagem);
+    const fichaEmDia = inicial.fichaAprovada && inicial.fichaDoDesenho === chaveDoDesenho(inicial.personagem, inicial.idade);
+    const pediu = busca.get('etapa');
+    if (completo && pediu === 'ficha' && comPersonagem) setEtapa(4);
+    else if (completo && pediu === 'pagar') setEtapa(comPersonagem && !fichaEmDia ? 4 : 5);
+    else setEtapa(falta);
     setPronto(true);
     registrar('personalizacao_iniciada');
   }, [busca]);
@@ -124,7 +140,7 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
       viuPrevia.current = true;
       registrar('previa_vista', { tema: r.tema ?? '', produto: r.produto ?? '' });
     }
-    if (nova === 4) registrar('checkout_iniciado', { produto: r.produto ?? '' });
+    if (nova === 5) registrar('checkout_iniciado', { produto: r.produto ?? '' });
   }
 
   const muda = <K extends keyof Rascunho>(campo: K, valor: Rascunho[K]) => {
@@ -139,7 +155,9 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
   const problema = r.nome.trim() ? problemaDoNome(r.nome) : null;
   const nomeNaCapa = problema === 'bloqueado' ? '' : nome;
   const temPersonagem = Boolean(r.tema && TEMAS[r.tema].comPersonagem);
-  const ordem: Etapa[] = temPersonagem ? [0, 1, 2, 3, 4] : [0, 1, 2, 4];
+  const ordem: Etapa[] = temPersonagem ? [0, 1, 2, 3, 4, 5] : [0, 1, 2, 5];
+  // a ficha aprovada só vale para o desenho de agora: mudou cabelo ou idade, desenha de novo
+  const fichaEmDia = r.fichaAprovada && r.fichaDoDesenho === chaveDoDesenho(r.personagem, r.idade);
   const posicao = Math.max(0, ordem.indexOf(etapa));
 
   function validarPersonalizacao(): boolean {
@@ -162,16 +180,20 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
       setErros((e) => ({ ...e, personagem: lido.erro }));
       return;
     }
-    irPara(4);
+    irPara(fichaEmDia ? 5 : 4);
   }
 
   async function enviar() {
     if (!conta) return;
+    if (temPersonagem && !fichaEmDia) {
+      irPara(4);
+      return;
+    }
     const resultado = lerPedido({ ...r, email: conta.email, personagem: personagemDoPedido });
     if (!resultado.ok) {
       setErros(resultado.erros);
       if (resultado.erros.nome || resultado.erros.dedicatoria) irPara(2);
-      else if (resultado.erros.personagem) irPara(3);
+      else if (resultado.erros.personagem) irPara(r.fichaId ? 4 : 3);
       return;
     }
     setEnviando(true);
@@ -180,14 +202,16 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
       const resposta = await fetch('/api/pedido', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ ...r, email: conta.email, personagem: personagemDoPedido, origem: lerOrigem(), site: (document.getElementById('site') as HTMLInputElement | null)?.value ?? '' }),
+        body: JSON.stringify({ ...r, email: conta.email, personagem: personagemDoPedido, fichaId: temPersonagem ? r.fichaId : null, origem: lerOrigem(), site: (document.getElementById('site') as HTMLInputElement | null)?.value ?? '' }),
       });
       const dados = (await resposta.json().catch(() => ({}))) as { id?: string; pagar?: string | null; erros?: ErrosDoPedido; mensagem?: string };
       if (!resposta.ok || !dados.id) {
         if (dados.erros) setErros(dados.erros);
         if (dados.erros?.personagem) {
           setEnviando(false);
-          irPara(3);
+          // a ficha deixou de valer (mudou, ou já virou outro pedido): desenha e aprova de novo
+          setR((atual) => ({ ...atual, fichaAprovada: false }));
+          irPara(4);
           return;
         }
         setFalha(dados.mensagem ?? 'Não conseguimos registrar o pedido agora. Tente de novo em instantes.');
@@ -402,7 +426,26 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
         />
       )}
 
-      {etapa === 4 && r.produto && r.tema && produto && (
+      {etapa === 4 && temPersonagem && (
+        <EtapaFicha
+          personagem={personagemDoPedido}
+          idade={r.idade}
+          nome={nomeNaCapa}
+          conta={conta}
+          carregandoConta={carregandoConta}
+          google={google}
+          fichaId={r.fichaDoDesenho === chaveDoDesenho(r.personagem, r.idade) ? r.fichaId : null}
+          aprovada={fichaEmDia}
+          onNova={(id) => setR((atual) => ({ ...atual, fichaId: id, fichaDoDesenho: chaveDoDesenho(atual.personagem, atual.idade), fichaAprovada: false }))}
+          onAprovada={() => {
+            setR((atual) => ({ ...atual, fichaAprovada: true }));
+            irPara(5);
+          }}
+          onAjustar={() => irPara(3)}
+        />
+      )}
+
+      {etapa === 5 && r.produto && r.tema && produto && (
         <section className="criar-grade">
           <div className="cartao" style={{ display: 'grid', gridTemplateColumns: '110px 1fr', gap: 16, alignItems: 'center' }}>
             <CapaLivrinho id="resumo-capa" tema={r.tema} produto={r.produto === 'presente' ? 'presente' : 'lembrancinha'} nome={nome} idade={r.idade} corte={0.7} />
@@ -527,10 +570,10 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
               <strong style={{ fontFamily: 'var(--fonte-titulo)', fontSize: '1.4rem' }}>{emReais(total)}</strong>
             </div>
             {etapa === 2 ? (
-              <button type="button" className="botao" onClick={() => validarPersonalizacao() && irPara(temPersonagem ? 3 : 4)}>
+              <button type="button" className="botao" onClick={() => validarPersonalizacao() && irPara(temPersonagem ? 3 : 5)}>
                 Continuar
               </button>
-            ) : etapa === 3 ? (
+            ) : etapa === 4 ? null : etapa === 3 ? (
               <button type="button" className="botao" onClick={validarPersonagem}>
                 Continuar
               </button>

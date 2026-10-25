@@ -3,10 +3,11 @@
 // porque o ambiente de teste não alcança o de verdade:
 //
 //   npm i --no-save playwright
-//   node scripts/supabase-falso.mjs 4556 /tmp/sf.jsonl &
+//   node scripts/supabase-falso.mjs 4556 /tmp/sf.jsonl http://localhost:3100 &
 //   F=http://127.0.0.1:4556; NEXT_PUBLIC_SUPABASE_URL=$F NEXT_PUBLIC_SUPABASE_ANON_KEY=anon-falsa npx next build
 //   NEXT_PUBLIC_SUPABASE_URL=$F NEXT_PUBLIC_SUPABASE_ANON_KEY=anon-falsa SUPABASE_URL=$F \
-//     SUPABASE_SERVICE_ROLE_KEY=chave-de-servico-falsa N8N_WEBHOOK_PEDIDO=$F/n8n CRON_SECRET=teste npx next start -p 3100 &
+//     SUPABASE_SERVICE_ROLE_KEY=chave-de-servico-falsa N8N_WEBHOOK_PEDIDO=$F/n8n \
+//     N8N_WEBHOOK_FICHA=$F/n8n-ficha CRON_SECRET=teste npx next start -p 3100 &
 //   SITE=http://localhost:3100 FALSO=$F REGISTRO=/tmp/sf.jsonl npm run conferir:navegador
 import { existsSync, readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
@@ -95,7 +96,7 @@ const foto = await sharp({ create: { width: 1200, height: 900, channels: 3, back
   .toBuffer();
 await p.goto(`${SITE}/criar?produto=presente&tema=futebol&nome=Bia&idade=6`);
 await p.getByRole('heading', { name: 'Agora, o nome' }).waitFor();
-assert.equal(await p.locator('.etapas li').count(), 5, 'futebol tem cinco etapas');
+assert.equal(await p.locator('.etapas li').count(), 6, 'futebol tem seis etapas (com o desenho do personagem)');
 await p.getByRole('button', { name: 'Continuar' }).click();
 await p.getByRole('heading', { name: 'Crie o personagem' }).waitFor();
 await p.getByRole('button', { name: /Por uma foto/ }).click();
@@ -105,6 +106,67 @@ await p.setInputFiles('#foto', { name: 'bia.jpg', mimeType: 'image/jpeg', buffer
 await p.getByText(/Foto recebida/).waitFor();
 await p.getByRole('button', { name: 'Gentileza' }).click();
 await p.getByRole('button', { name: 'Continuar' }).click();
+
+// antes de pagar, a família vê só a ficha do personagem, pequena e com marca d'água
+await p.getByRole('heading', { name: 'Conheça Bia' }).waitFor();
+assert.equal(await p.getByRole('button', { name: /Pagar com/ }).count(), 0, 'sem ficha aprovada, sem pagar');
+await p.getByText('Você pode desenhar 3 vezes hoje.').waitFor();
+await p.getByRole('button', { name: 'Desenhar Bia' }).click();
+await p.getByText('Desenhando Bia…').waitFor();
+const previa = p.locator('img.ficha-previa');
+await previa.waitFor({ timeout: 20000 });
+await p.waitForFunction(() => document.querySelector('img.ficha-previa')?.complete && document.querySelector('img.ficha-previa').naturalWidth > 0);
+assert.equal(await previa.evaluate((img) => img.naturalWidth), 640, 'a prévia é pequena (640 px), não a imagem limpa');
+let agora = await estado();
+const primeira = agora.fichas.at(-1);
+assert.equal(primeira.user_id, carla, 'a ficha é da conta');
+assert.ok(!primeira.prompt.includes('Bia'), 'o nome não vai para o prompt da ficha');
+assert.equal(primeira.token, null, 'o bilhete do n8n morre quando a imagem chega');
+const trabalho = agora.trabalhosRecebidos.at(-1);
+assert.equal(trabalho.status, 200);
+assert.match(trabalho.foto_url ?? '', /\/storage\/v1\/object\/sign\/fotos-criancas\//, 'com foto, o n8n recebe um link assinado da foto');
+assert.equal(trabalho.tamanho, '1536x1024');
+assert.equal(agora.fotos.at(-1).user_id, carla, 'a foto passa a ser da conta já na ficha');
+
+// o bilhete não serve duas vezes, e sem ele o n8n não recebe nada
+const repetido = await fetch(`${SITE}/api/ficha/trabalho?id=${primeira.id}&token=${'0'.repeat(64)}`);
+assert.equal(repetido.status, 404, 'trabalho com bilhete errado é recusado');
+const troca = await fetch(`${SITE}/api/ficha/pronta`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ficha_id: primeira.id, token: 'x', imagem_base64: 'AAAA' }) });
+assert.equal(troca.status, 404, 'ninguém troca a imagem de uma ficha pronta');
+
+// ajustar: volta às escolhas, desenha de novo e gasta uma tentativa
+await p.getByRole('button', { name: /Quero ajustar \(restam 2\)/ }).click();
+await p.getByRole('heading', { name: 'Crie o personagem' }).waitFor();
+await p.getByRole('button', { name: 'Coragem' }).click();
+await p.getByRole('button', { name: 'Continuar' }).click();
+// só o superpoder mudou: o desenho é o mesmo, então a prévia continua e não gasta tentativa
+await previa.waitFor();
+await p.getByRole('button', { name: 'Voltar' }).click();
+await p.getByRole('button', { name: /Por uma foto/ }).waitFor();
+await p.getByRole('button', { name: /Pelas características/ }).click();
+await p.getByRole('button', { name: 'Cacheado' }).click();
+await p.getByRole('button', { name: 'Gentileza' }).click();
+await p.getByRole('button', { name: 'Continuar' }).click();
+await p.getByRole('button', { name: 'Desenhar Bia' }).click();
+await previa.waitFor({ timeout: 20000 });
+await p.getByRole('button', { name: /Quero ajustar \(resta 1\)/ }).waitFor();
+
+// uma falha do n8n não gasta tentativa
+await fetch(`${FALSO}/__n8n-falha?ligar=1`);
+await p.getByRole('button', { name: /Quero ajustar/ }).click();
+await p.getByRole('button', { name: 'Ruivo' }).click();
+await p.getByRole('button', { name: 'Continuar' }).click();
+await p.getByRole('button', { name: 'Desenhar Bia' }).click();
+await p.getByText('Não deu certo desta vez.').waitFor({ timeout: 20000 });
+await fetch(`${FALSO}/__n8n-falha?ligar=0`);
+await p.getByRole('button', { name: 'Tentar de novo' }).click();
+await previa.waitFor({ timeout: 20000 });
+await p.getByText('Você já usou os 3 desenhos de hoje.').waitFor();
+// o limite vale no servidor, não só na tela
+const quarta = await p.request.post(`${SITE}/api/ficha`, { data: { personagem: { ...(await estado()).fichas.at(-1).personagem }, idade: 6 } });
+assert.equal(quarta.status(), 429, 'a quarta ficha do dia é recusada');
+
+await p.getByRole('button', { name: 'Aprovar e continuar' }).click();
 await p.getByText('Superpoder: Gentileza').waitFor();
 await p.fill('#responsavel', 'Carla Teste');
 await p.fill('#whatsapp', '(11) 91234-5678');
@@ -115,13 +177,16 @@ await p.waitForURL(/\/obrigado\?pedido=/, { timeout: 15000 });
 assert.equal(pedido.modelo, 'futebol-little-paws-v1');
 assert.equal(pedido.plano.paginas.length, 16, 'Presente: dezesseis páginas no plano');
 assert.equal(pedido.plano.titulo, 'Bia entra em campo!');
-assert.ok(pedido.plano.ficha.usaFoto, 'a ficha usa a foto');
+agora = await estado();
+const aprovada = agora.fichas.find((f) => f.aprovada_em);
+assert.equal(pedido.plano.ficha.aprovada?.id, aprovada.id, 'o livro usa a ficha aprovada');
+assert.equal(pedido.personagem.cabeloCor, 'ruivo', 'o personagem do pedido é o da ficha aprovada');
+assert.equal(pedido.personagem.superpoder, 'gentileza', 'o superpoder vem da escolha');
+assert.equal(aprovada.pedido_id, pedido.id, 'a ficha fica presa ao pedido');
 const prompts = [pedido.plano.ficha.prompt, ...pedido.plano.paginas.map((pg) => pg.prompt)];
 assert.ok(prompts.every((t) => !t.includes('Bia')), 'o nome não vai para o prompt de imagem');
 assert.ok(pedido.plano.paginas.some((pg) => pg.prompt.includes("Bo's arm")), 'página 13 com a ação da gentileza');
-let agora = await estado();
-const fotoGuardada = agora.fotos.at(-1);
-assert.equal(fotoGuardada.user_id, carla, 'a foto passa a ser da conta que comprou');
+agora = await estado();
 assert.equal(agora.consentimentos.at(-1).user_id, carla, 'o aceite fica ligado à conta');
 assert.ok(!readFileSync(`${REGISTRO}.ultima.jpg`).includes(Buffer.from('CelularDaFamilia')), 'a foto guardada não tem o EXIF do aparelho');
 
@@ -155,6 +220,8 @@ await intrusa.waitForURL(/\/conta/);
 await intrusa.getByText('Nenhum livrinho por aqui ainda.').waitFor();
 const roubo = await intrusa.request.get(`${SITE}/api/livro/${pedido.id}`, { maxRedirects: 0 });
 assert.equal(roubo.status(), 404, 'pedido de outra conta não existe para quem não é dono');
+const previaAlheia = await intrusa.request.get(`${SITE}/api/ficha/${aprovada.id}/previa`);
+assert.equal(previaAlheia.status(), 404, 'a prévia do personagem de outra conta não abre');
 
 // sair e entrar de novo com a senha; senha errada avisa em português
 await intrusa.getByRole('button', { name: 'Sair da conta' }).click();
@@ -195,6 +262,8 @@ const daCarla = agora.pedidos.filter((x) => x.whatsapp === '(apagado)');
 assert.equal(daCarla.length, 2, 'os dois pedidos da Carla foram anonimizados');
 assert.ok(daCarla.every((x) => x.nome_crianca === '(apagado)' && x.email === '(apagado)' && x.plano === null && x.total_centavos > 0), 'fica só a venda');
 assert.ok(!agora.arquivos.some((a) => a.startsWith('livros/')), 'o PDF saiu do armazenamento');
+assert.ok(!agora.arquivos.some((a) => a.startsWith('fichas/')), 'as fichas do personagem saíram do armazenamento');
+assert.ok(!agora.fichas.some((f) => f.user_id === carla), 'nenhuma ficha da Carla sobrou no banco');
 
 // as rotas da limpeza não abrem sem o segredo
 const limpeza = await fetch(`${SITE}/api/limpeza-fotos`);

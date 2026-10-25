@@ -3,22 +3,47 @@
 // senha, link por e-mail, sessão), REST com a regra de RLS "cada conta lê o
 // que é dela", a função anonimizar_conta, o Storage e o webhook do n8n.
 //
-//   node scripts/supabase-falso.mjs 4556 /caminho/registro.jsonl
+//   node scripts/supabase-falso.mjs 4556 /caminho/registro.jsonl http://localhost:3100
+//
+// O terceiro argumento é o site: o n8n falso (POST /n8n-ficha) faz o que o
+// fluxo "Meu Livrinho: gerar ficha" faz, buscando o trabalho com o bilhete e
+// devolvendo uma imagem em /api/ficha/pronta.
 //
 // Cada pedido de rede vira uma linha no registro, para a suíte conferir o que
 // o site mandou. GET /__estado devolve o que está guardado.
 import { createHmac, randomUUID } from 'node:crypto';
 import { appendFileSync, writeFileSync } from 'node:fs';
 import http from 'node:http';
+import sharp from 'sharp';
 
-const [porta = '4556', registro = '/tmp/supabase-falso.jsonl'] = process.argv.slice(2);
+const [porta = '4556', registro = '/tmp/supabase-falso.jsonl', site = 'http://localhost:3100'] = process.argv.slice(2);
 const CHAVE_DE_SERVICO = 'chave-de-servico-falsa';
 const usuarios = new Map(); // email -> { id, email, senha, confirmado }
 const pedidos = [];
 const fotos = new Map(); // caminho -> linha
 const consentimentos = [];
-const arquivos = new Map(); // "bucket/caminho" -> tamanho
+const arquivos = new Map(); // "bucket/caminho" -> bytes
+const fichas = [];
 let confirmarEmail = false;
+let n8nFalha = false;
+const trabalhosRecebidos = [];
+
+// o que o fluxo do n8n faz, sem a OpenAI: busca o trabalho e devolve um desenho
+async function n8nFicha({ ficha_id, token }) {
+  const t = await fetch(`${site}/api/ficha/trabalho?id=${ficha_id}&token=${token}`);
+  const trabalho = await t.json();
+  trabalhosRecebidos.push({ status: t.status, ...trabalho });
+  if (!t.ok) return;
+  await new Promise((r) => setTimeout(r, 1500));
+  const corpo = n8nFalha
+    ? { ficha_id, token, erro: 'moderação recusou a imagem (teste)' }
+    : {
+        ficha_id,
+        token,
+        imagem_base64: (await sharp({ create: { width: 1536, height: 1024, channels: 3, background: '#ffd23f' } }).jpeg().toBuffer()).toString('base64'),
+      };
+  await fetch(`${site}/api/ficha/pronta`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(corpo) });
+}
 
 const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');
 function jwt(usuario) {
@@ -48,6 +73,7 @@ function filtrar(linhas, busca) {
   return linhas.filter((l) =>
     [...busca.entries()].every(([k, v]) => {
       if (['select', 'order', 'limit'].includes(k)) return true;
+      if (v.startsWith('gte.')) return l[k] >= v.slice(4);
       if (v.startsWith('eq.')) return String(l[k]) === v.slice(3);
       if (v === 'is.null') return l[k] == null;
       if (v.startsWith('lte.')) return l[k] <= v.slice(4);
@@ -76,9 +102,11 @@ http
       appendFileSync(registro, `${JSON.stringify({ m: q.method, p: u.pathname, s: u.search, quem: quem === 'servico' ? 'servico' : quem?.email ?? null, corpo: q.headers['content-type']?.includes('json') ? corpo.toString() : corpo.length })}\n`);
 
       // controle da suíte
-      if (u.pathname === '/__estado') return responder(r, 200, { usuarios: [...usuarios.values()].map((x) => x.email), pedidos, fotos: [...fotos.values()], consentimentos, arquivos: [...arquivos.keys()] });
+      if (u.pathname === '/__estado') return responder(r, 200, { usuarios: [...usuarios.values()].map((x) => x.email), pedidos, fotos: [...fotos.values()], consentimentos, fichas, trabalhosRecebidos, arquivos: [...arquivos.keys()] });
+      if (u.pathname === '/__n8n-falha') { n8nFalha = u.searchParams.get('ligar') === '1'; return responder(r, 200, { n8nFalha }); }
+      if (u.pathname === '/n8n-ficha') { n8nFicha(json()).catch((e) => console.error('n8n falso', e)); return responder(r, 200, { recebido: true }); }
       if (u.pathname === '/__confirmar-email') { confirmarEmail = u.searchParams.get('ligar') === '1'; return responder(r, 200, { confirmarEmail }); }
-      if (u.pathname === '/__pdf') { const p = pedidos.find((x) => x.id === u.searchParams.get('pedido')); if (p) { p.link_pdf = `${p.id}.pdf`; p.status = 'entregue'; arquivos.set(`livros/${p.id}.pdf`, 10); } return responder(r, 200, { ok: Boolean(p) }); }
+      if (u.pathname === '/__pdf') { const p = pedidos.find((x) => x.id === u.searchParams.get('pedido')); if (p) { p.link_pdf = `${p.id}.pdf`; p.status = 'entregue'; arquivos.set(`livros/${p.id}.pdf`, Buffer.from('%PDF')); } return responder(r, 200, { ok: Boolean(p) }); }
       if (u.pathname === '/n8n') { appendFileSync(`${registro}.n8n`, `${corpo.toString()}\n`); return responder(r, 200, { ok: true }); }
 
       // Auth
@@ -116,9 +144,17 @@ http
       }
       if (u.pathname.startsWith('/storage/v1/object/') && q.method === 'POST') {
         if (quem !== 'servico') return responder(r, 403, {});
-        arquivos.set(u.pathname.replace('/storage/v1/object/', ''), corpo.length);
-        writeFileSync(`${registro}.ultima.jpg`, corpo);
+        const chave = u.pathname.replace('/storage/v1/object/', '');
+        arquivos.set(chave, corpo);
+        if (chave.startsWith('fotos-criancas/')) writeFileSync(`${registro}.ultima.jpg`, corpo);
         return responder(r, 200, {});
+      }
+      if (u.pathname.startsWith('/storage/v1/object/') && q.method === 'GET') {
+        if (quem !== 'servico') return responder(r, 403, {});
+        const bytes = arquivos.get(u.pathname.replace('/storage/v1/object/', ''));
+        if (!bytes) return responder(r, 404, { message: 'not found' });
+        r.writeHead(200, { 'content-type': 'application/octet-stream' });
+        return r.end(bytes);
       }
       if (u.pathname.startsWith('/storage/v1/object/') && q.method === 'DELETE') {
         if (quem !== 'servico') return responder(r, 403, {});
@@ -129,7 +165,7 @@ http
 
       // REST: a chave de serviço vê tudo; uma conta só vê o que tem o user_id dela (RLS)
       const tabela = u.pathname.replace('/rest/v1/', '');
-      const fontes = { pedidos, fotos: [...fotos.values()], consentimentos };
+      const fontes = { pedidos, fotos: [...fotos.values()], consentimentos, fichas };
       if (tabela === 'rpc/anonimizar_conta') {
         if (quem !== 'servico') return responder(r, 401, {});
         const { uid } = json();
@@ -138,12 +174,15 @@ http
           ...pedidos.filter((p) => p.user_id === uid && p.link_pdf).map((p) => ({ bucket: 'livros', caminho: p.link_pdf })),
         ];
         for (const f of fotos.values()) if (f.user_id === uid) Object.assign(f, { apagada_em: f.apagada_em ?? new Date().toISOString(), user_id: null });
+        devolver.push(...fichas.filter((f) => f.user_id === uid && f.caminho_imagem).map((f) => ({ bucket: 'fichas', caminho: f.caminho_imagem })));
+        for (let i = fichas.length - 1; i >= 0; i--) if (fichas[i].user_id === uid) fichas.splice(i, 1);
         for (const p of pedidos) if (p.user_id === uid) Object.assign(p, { nome_crianca: '(apagado)', email: '(apagado)', whatsapp: '(apagado)', responsavel: '(apagado)', personagem: null, plano: null, link_pdf: null, dedicatoria: null, user_id: null });
         return responder(r, 200, devolver);
       }
       if (!(tabela in fontes)) return responder(r, 404, {});
       if (!quem) return responder(r, 401, { message: 'sem chave' });
-      const visiveis = quem === 'servico' ? fontes[tabela] : fontes[tabela].filter((l) => l.user_id === quem.id && tabela !== 'consentimentos');
+      // como a RLS de verdade: conta lê o que é dela em pedidos e fotos; fichas e consentimentos, só o servidor
+      const visiveis = quem === 'servico' ? fontes[tabela] : fontes[tabela].filter((l) => l.user_id === quem.id && (tabela === 'pedidos' || tabela === 'fotos'));
       if (q.method === 'GET' || q.method === 'HEAD') {
         const linhas = filtrar(visiveis, u.searchParams);
         return responder(r, 200, q.method === 'HEAD' ? undefined : linhas, { 'content-range': `0-${Math.max(0, linhas.length - 1)}/${linhas.length}` });
@@ -154,6 +193,7 @@ http
         if (tabela === 'pedidos') pedidos.push(linha);
         if (tabela === 'fotos') fotos.set(linha.caminho, { enviada_em: new Date().toISOString(), apagada_em: null, user_id: null, pedido_id: null, ...linha });
         if (tabela === 'consentimentos') consentimentos.push({ user_id: null, ...linha });
+        if (tabela === 'fichas') fichas.push({ criada_em: new Date().toISOString(), caminho_imagem: null, erro: null, aprovada_em: null, pedido_id: null, ...linha });
         return responder(r, 201);
       }
       if (q.method === 'PATCH') {

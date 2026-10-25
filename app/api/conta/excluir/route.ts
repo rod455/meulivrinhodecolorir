@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { imagensDasFichas } from '@/lib/servidor/fichas';
 import { apagarDoBucket, comChaveDeServico, fotoLigada } from '@/lib/servidor/fotos';
 import { PALAVRA_DE_CONFIRMACAO } from '@/lib/conta';
 import { contaDaSessao, supabaseNoServidor } from '@/lib/servidor/sessao';
@@ -19,6 +20,8 @@ export async function POST(req: Request) {
   if (!fotoLigada()) return NextResponse.json({ mensagem: 'Não conseguimos agora. Tente de novo em instantes.' }, { status: 503 });
 
   try {
+    // a ficha deriva do rosto da criança: lida antes, porque a conta some depois
+    const fichas = await imagensDasFichas(conta.id);
     const r = await comChaveDeServico('/rest/v1/rpc/anonimizar_conta', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
@@ -26,8 +29,9 @@ export async function POST(req: Request) {
     });
     if (!r.ok) throw new Error(`anonimizar ${r.status}: ${await r.text()}`);
     const arquivos = (await r.json()) as { bucket: string; caminho: string }[];
-    for (const bucket of ['fotos-criancas', 'livros']) {
-      await apagarDoBucket(arquivos.filter((a) => a.bucket === bucket).map((a) => a.caminho), bucket);
+    for (const bucket of ['fotos-criancas', 'livros', 'fichas']) {
+      const caminhos = arquivos.filter((a) => a.bucket === bucket).map((a) => a.caminho);
+      await apagarDoBucket([...new Set(bucket === 'fichas' ? [...caminhos, ...fichas] : caminhos)], bucket);
     }
     const fim = await comChaveDeServico(`/auth/v1/admin/users/${conta.id}`, { method: 'DELETE' });
     if (!fim.ok) throw new Error(`auth ${fim.status}: ${await fim.text()}`);

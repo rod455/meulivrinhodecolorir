@@ -3,6 +3,7 @@
 
 import { arrumarNome, MENSAGEM_DO_PROBLEMA, problemaDoNome } from './nome.ts';
 import { ehProduto, PRODUTOS, totalDoPedido, type FormaDePagamento, type ProdutoId } from './produtos.ts';
+import { ehUuid } from './ficha.ts';
 import { lerPersonagem, type Personagem } from './personagem.ts';
 import { ehTema, TEMAS, type TemaId } from './temas.ts';
 
@@ -29,6 +30,8 @@ export type Pedido = {
   aceitaLembrete: boolean;
   /** só nos temas com personagem (futebol); null nos outros */
   personagem: Personagem | null;
+  /** a ficha que a família aprovou; obrigatória nos temas com personagem */
+  fichaId: string | null;
   total: number;
 };
 
@@ -100,10 +103,13 @@ export function lerPedido(entrada: Record<string, unknown>):
   if (!whatsapp) erros.whatsapp = 'Confira o WhatsApp, com DDD.';
 
   let personagem: Personagem | null = null;
+  let fichaId: string | null = null;
   if (ehTema(tema) && TEMAS[tema].comPersonagem) {
     const lido = lerPersonagem(entrada.personagem);
     if (lido.ok) personagem = lido.personagem;
     else erros.personagem = lido.erro;
+    if (ehUuid(entrada.fichaId)) fichaId = entrada.fichaId;
+    else erros.personagem ??= 'Aprove o desenho do personagem antes de pagar.';
   }
 
   const pagamento = entrada.pagamento === 'cartao' ? 'cartao' : 'pix';
@@ -129,6 +135,7 @@ export function lerPedido(entrada: Record<string, unknown>):
       // o lembrete de aniversário só faz sentido com a data da festa
       aceitaLembrete: entrada.aceitaLembrete === true && Boolean(dataBruta),
       personagem,
+      fichaId,
       total: totalDoPedido(produto, pagamento),
     },
   };

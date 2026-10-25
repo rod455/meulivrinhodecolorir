@@ -305,3 +305,15 @@ p { margin: 0 0 1em; }
 .conta-acoes h2 { font-size: 1.25rem; margin: 28px 0 8px; }
 .conta-acoes .campo { max-width: 420px; }
 .botao-perigo { background: var(--branco); border-color: var(--erro); color: var(--erro); box-shadow: 0 3px 0 var(--erro); }
+
+/* Conheça o personagem (a ficha antes de pagar) */
+.ficha-etapa { max-width: 640px; margin: 0 auto; }
+.ficha-caixa { display: grid; justify-items: center; gap: 10px; text-align: center; padding: 8px 0 24px; }
+.ficha-rabisco { width: min(180px, 46vw); height: auto; }
+.ficha-desenhando { animation: ficha-balanca 1.4s ease-in-out infinite; transform-origin: 50% 90%; }
+@keyframes ficha-balanca { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(6deg); } }
+@media (prefers-reduced-motion: reduce) { .ficha-desenhando { animation: none; } }
+.ficha-pronta { display: grid; gap: 12px; }
+.ficha-previa { width: 100%; height: auto; border: 2px solid var(--grafite); border-radius: var(--raio); background: var(--branco); user-select: none; -webkit-user-drag: none; }
+.ficha-botoes { display: grid; gap: 10px; }
+@media (min-width: 560px) { .ficha-botoes { grid-template-columns: 1fr 1fr; } }

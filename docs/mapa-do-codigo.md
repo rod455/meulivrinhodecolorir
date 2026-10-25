@@ -19,11 +19,12 @@
 | a etapa "Crie o personagem" (só nos temas com `comPersonagem`) | `app/criar/EtapaPersonagem.tsx` |
 | o tratamento da foto (formato, tamanho, tirar metadados) | `lib/foto.ts` (confira com `npm run conferir:foto`) |
 | onde a foto mora e quando some (bucket privado, 7 dias) | `lib/servidor/fotos.ts`, `app/api/foto/route.ts`, `app/api/limpeza-fotos/route.ts` e o cron em `vercel.json` |
+| a ficha do personagem antes de pagar (limite, prévia com marca d'água, bilhete do n8n) | regras em `lib/ficha.ts` (confira com `npm run conferir:ficha`), banco em `lib/servidor/fichas.ts`, rotas em `app/api/ficha/`, tela em `app/criar/EtapaFicha.tsx` |
 | login e conta (e-mail e senha, link por e-mail, Google) | `components/FormularioDeConta.tsx`, `lib/servidor/sessao.ts`, `middleware.ts`, volta em `app/auth/callback/route.ts` |
 | a área "Meus livrinhos" (pedidos, baixar, apagar fotos, excluir conta) | `app/conta/`, `app/api/conta/`, `app/api/livro/[id]/route.ts` |
 | endereço e chave pública do Supabase | `SUPABASE_PUBLICO` em `lib/config.ts` (públicos por natureza; a chave de serviço fica só na Vercel) |
 | para onde vai o pedido (Supabase, n8n, link de pagamento) | `lib/servidor/pedidos.ts` e `app/api/pedido/route.ts` |
-| a tabela de pedidos | `supabase/migrations/0001_pedidos.sql`; personagem, plano, fotos e consentimentos em `0002_personagem_e_fotos.sql`; contas, RLS de leitura e bucket `livros` em `0004_contas.sql`; todas aplicadas no projeto `meulivrinhodecolorir` (ref nkqxydwnarxjfypbeqji) em 18/10/2026 |
+| a tabela de pedidos | `supabase/migrations/0001_pedidos.sql`; personagem, plano, fotos e consentimentos em `0002_personagem_e_fotos.sql`; contas, RLS de leitura e bucket `livros` em `0004_contas.sql`; fichas em `0005_fichas.sql`; todas aplicadas no projeto `meulivrinhodecolorir` (ref nkqxydwnarxjfypbeqji) em 18/10/2026 |
 | eventos de medição (GA4, Meta Pixel) | `lib/analytics.ts` |
 | UTM e QR code que acompanham o pedido | `components/GuardaOrigem.tsx` |
 | WhatsApp, e-mail, CNPJ do rodapé | variáveis `NEXT_PUBLIC_*` (veja `.env.example`) |
@@ -39,7 +40,16 @@
    Para pagar, precisa de conta (decisão do dono, 18/10/2026): a etapa final mostra
    o cadastro ou a entrada; o rascunho fica no localStorage para sobreviver à volta
    do Google e do link por e-mail (`/criar?etapa=pagar`).
-2. `POST /api/pedido` exige a sessão (401 sem ela), usa o e-mail da conta, grava o
+   No futebol, depois do personagem vem "Conheça {nome}" (decisão do dono, 25/10/2026):
+   com conta, o site pede a ficha (`POST /api/ficha`, até 3 por 24 horas; falha e ficha
+   que virou pedido não contam) e avisa o n8n só com o id e um bilhete de uso único.
+   O fluxo "Meu Livrinho: gerar ficha" busca o prompt em `/api/ficha/trabalho` com o
+   bilhete, chama a OpenAI e devolve a imagem em `/api/ficha/pronta`; aí o bilhete
+   morre. A família vê só `/api/ficha/<id>/previa` (640 px, marca d'água) e aprova ou
+   ajusta. O livro nunca aparece antes do pagamento.
+2. `POST /api/pedido` exige a sessão (401 sem ela) e, no futebol, a ficha aprovada
+   da própria conta: o personagem do livro é o da ficha (do navegador só vale o
+   superpoder) e a ficha fica presa ao pedido (`plano.ficha.aprovada`), usa o e-mail da conta, grava o
    `user_id` e valida de novo, recalcula o preço, confere que a foto existe
    e não venceu, monta o plano do livro (`lib/geracao.ts`) e grava no Supabase e/ou
    avisa o n8n (`N8N_WEBHOOK_PEDIDO`). O plano vai no campo `plano` da linha. Sem nenhum dos dois ligado, a rota recusa

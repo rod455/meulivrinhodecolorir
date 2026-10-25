@@ -2,7 +2,9 @@ import { NextResponse } from 'next/server';
 import { CAMPOS_DE_ORIGEM } from '@/lib/origem';
 import { planoDoLivro } from '@/lib/geracao';
 import { lerPedido } from '@/lib/pedido';
-import { fotoDisponivel, fotoLigada, ligarFotoAoPedido } from '@/lib/servidor/fotos';
+import type { Personagem } from '@/lib/personagem';
+import { fichaPorId, mudarFicha } from '@/lib/servidor/fichas';
+import { ligarFotoAoPedido } from '@/lib/servidor/fotos';
 import { destinosLigados, guardarPedido, linkDePagamento } from '@/lib/servidor/pedidos';
 import { contaDaSessao } from '@/lib/servidor/sessao';
 
@@ -52,34 +54,46 @@ export async function POST(req: Request) {
     }
   }
 
-  // a foto tem que ser uma que a rota /api/foto guardou e que ainda não venceu
   const { pedido } = lido;
-  const foto = pedido.personagem?.foto ?? null;
-  if (foto) {
-    let disponivel = false;
-    try {
-      disponivel = fotoLigada() && (await fotoDisponivel(foto.caminho));
-    } catch (e) {
-      console.error('[pedido] não conferiu a foto', e);
-    }
-    if (!disponivel) {
+
+  // o personagem do livro é o da ficha aprovada, não o que o navegador mandou;
+  // do navegador só vale o superpoder, que não muda o desenho
+  let personagem: Personagem | null = pedido.personagem;
+  let fichaAprovada: { id: string; caminho: string } | null = null;
+  if (pedido.personagem && pedido.fichaId) {
+    const ficha = await fichaPorId(pedido.fichaId).catch(() => null);
+    const valida =
+      ficha &&
+      ficha.user_id === conta.id &&
+      ficha.status === 'pronta' &&
+      ficha.aprovada_em &&
+      ficha.caminho_imagem &&
+      !ficha.pedido_id &&
+      // a idade entra no desenho: mudou depois de aprovar, precisa de ficha nova
+      ficha.idade === pedido.idade;
+    if (!valida) {
       return NextResponse.json(
-        { erros: { personagem: 'A foto expirou. Envie de novo ou crie pelas características.' }, mensagem: 'Confira o personagem.' },
+        { erros: { personagem: 'Aprove o desenho do personagem de novo antes de pagar.' }, mensagem: 'Confira o personagem.' },
         { status: 422 },
       );
     }
+    personagem = { ...ficha.personagem, superpoder: pedido.personagem.superpoder };
+    fichaAprovada = { id: ficha.id, caminho: ficha.caminho_imagem! };
   }
 
   const id = crypto.randomUUID();
-  const plano = pedido.personagem
-    ? planoDoLivro({ nome: pedido.nome, idade: pedido.idade, produto: pedido.produto, personagem: pedido.personagem })
-    : null;
-  const { guardado } = await guardarPedido({ ...pedido, id, criadoEm: new Date().toISOString(), origem, plano, userId: conta.id });
+  const plano = personagem ? planoDoLivro({ nome: pedido.nome, idade: pedido.idade, produto: pedido.produto, personagem }) : null;
+  if (plano) plano.ficha.aprovada = fichaAprovada;
+  // a foto só serviu para a ficha; fica ligada ao pedido para sumir no prazo dela
+  const foto = personagem?.foto ?? null;
+  const { guardado } = await guardarPedido({ ...pedido, personagem, id, criadoEm: new Date().toISOString(), origem, plano, userId: conta.id });
   if (!guardado) {
     return NextResponse.json({ mensagem: 'Não conseguimos registrar o pedido agora. Tente de novo em instantes.' }, { status: 502 });
   }
   // a foto passa a pertencer ao pedido (continua vencendo em 7 dias do envio)
   if (foto) await ligarFotoAoPedido(foto.caminho, id, conta.id).catch((e) => console.error('[pedido] foto sem pedido', id, e));
+  // a ficha passa a ser deste pedido: não serve para outro e sai do limite diário
+  if (fichaAprovada) await mudarFicha(fichaAprovada.id, { pedido_id: id }).catch((e) => console.error('[pedido] ficha sem pedido', id, e));
 
   return NextResponse.json({ id, pagar: linkDePagamento(pedido) });
 }

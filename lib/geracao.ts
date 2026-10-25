@@ -31,7 +31,8 @@ export type PlanoDoLivro = {
   modelo: string;
   titulo: string;
   subtitulo: string;
-  ficha: { prompt: string; usaFoto: boolean; caminhoDaFoto: string | null };
+  /** aprovada: a ficha que a família aprovou antes de pagar; o livro usa ela e não gera outra */
+  ficha: { prompt: string; usaFoto: boolean; caminhoDaFoto: string | null; aprovada: { id: string; caminho: string } | null };
   capa: { cenaBase: string; cenaBaseColorida: string; prompt: string; promptColorido: string };
   paginas: PaginaDoPlano[];
   /** quais páginas entram em cada arquivo do pedido */
@@ -88,6 +89,7 @@ export function planoDoLivro(entrada: { nome: string; idade: number; produto: Pr
       prompt: promptDaFicha(personagem, idade),
       usaFoto: personagem.jeito === 'foto',
       caminhoDaFoto: personagem.foto?.caminho ?? null,
+      aprovada: null,
     },
     capa: {
       cenaBase: CAPA.cenaBase,
