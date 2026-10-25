@@ -34,6 +34,10 @@ const p = await novaPagina();
 
 // LP: a prévia muda a capa enquanto digita, e o botão leva o nome para o fluxo
 await p.goto(`${SITE}/?utm_source=teste&utm_campaign=suite`);
+// quem já tem conta acha o "Entrar" no cabeçalho, também no celular, onde o menu some
+const entrarNoTopo = p.locator('header').getByRole('link', { name: 'Entrar', exact: true });
+assert.ok(await entrarNoTopo.isVisible(), 'Entrar à vista no cabeçalho do celular');
+assert.equal(await entrarNoTopo.getAttribute('href'), '/entrar?next=/conta', 'Entrar leva ao login e volta para os livrinhos');
 await p.fill('#nome-lp', 'joão pedro');
 await p.locator('a[href*="nome=Jo%C3%A3o+Pedro"]').first().waitFor();
 await p.getByRole('button', { name: /Natal/ }).first().click();
@@ -196,7 +200,10 @@ assert.ok(!readFileSync(`${REGISTRO}.ultima.jpg`).includes(Buffer.from('CelularD
 
 // Meus livrinhos: os dois pedidos, o PDF só baixa quando existe, e as fotos apagam na hora
 await fetch(`${FALSO}/__pdf?pedido=${pedido.id}`);
-await p.goto(`${SITE}/conta`);
+await p.goto(`${SITE}/`);
+await p.locator('header').getByRole('link', { name: 'Meus livrinhos', exact: true }).click();
+assert.equal(await p.locator('header').getByRole('link', { name: 'Entrar', exact: true }).count(), 0, 'com a conta aberta, o topo não pede para entrar');
+await p.waitForURL(/\/conta$/);
 await p.getByRole('heading', { name: 'Meus livrinhos' }).waitFor();
 assert.equal(await p.locator('.pedidos-da-conta li').count(), 2, 'a conta vê os dois pedidos dela');
 assert.equal(await p.getByRole('link', { name: 'Baixar' }).count(), 1, 'só o pedido entregue tem botão de baixar');

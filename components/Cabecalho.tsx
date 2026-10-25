@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { LinkDaConta } from './LinkDaConta';
 import { Logo } from './Logo';
 
 export function Cabecalho({ semMenu = false }: { semMenu?: boolean }) {
@@ -9,9 +10,7 @@ export function Cabecalho({ semMenu = false }: { semMenu?: boolean }) {
           <Logo />
         </Link>
         {semMenu ? (
-          <Link href="/conta" className="link-conta">
-            Meus livrinhos
-          </Link>
+          <LinkDaConta />
         ) : (
           <>
             <nav aria-label="Seções">
@@ -19,11 +18,13 @@ export function Cabecalho({ semMenu = false }: { semMenu?: boolean }) {
               <a href="#produtos">Preços</a>
               <a href="#temas">Temas</a>
               <a href="#duvidas">Dúvidas</a>
-              <Link href="/conta">Meus livrinhos</Link>
             </nav>
-            <Link href="/criar" className="botao botao-pequeno">
-              Criar meu livrinho
-            </Link>
+            <div className="cabecalho-acoes">
+              <LinkDaConta />
+              <Link href="/criar" className="botao botao-pequeno">
+                Criar meu livrinho
+              </Link>
+            </div>
           </>
         )}
       </div>

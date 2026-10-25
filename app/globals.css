@@ -297,6 +297,14 @@ p { margin: 0 0 1em; }
 .link-botao { background: none; border: none; padding: 0; font: inherit; color: var(--grafite); text-decoration: underline; cursor: pointer; }
 .aviso-ok { background: #e7f6e6; border: 2px solid var(--verde); border-radius: 14px; padding: 12px 14px; font-weight: 700; margin-bottom: 14px; }
 .link-conta { margin-left: auto; font-weight: 800; color: var(--grafite); }
+.cabecalho-acoes { display: flex; align-items: center; gap: 18px; }
+.cabecalho-acoes .link-conta { margin-left: 0; }
+.cabecalho-acoes .botao { white-space: nowrap; }
+@media (max-width: 479px) {
+  .cabecalho-acoes { gap: 12px; }
+  .cabecalho-acoes .botao-pequeno { padding: 8px 14px; font-size: 0.92rem; }
+  .cabecalho a.logo { min-width: 0; flex-shrink: 1; }
+}
 .conta-atual { margin-top: -6px; margin-bottom: 14px; }
 .pedidos-da-conta { list-style: none; padding: 0; display: grid; gap: 12px; margin: 18px 0 32px; }
 .pedidos-da-conta li { display: flex; gap: 12px; align-items: center; justify-content: space-between; }
