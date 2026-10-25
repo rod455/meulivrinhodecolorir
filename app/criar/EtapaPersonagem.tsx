@@ -16,8 +16,11 @@ import {
   CORES,
   DETALHES,
   OCULOS,
+  PELE_DA_FOTO,
   PELES,
+  PELES_COM_FOTO,
   PENTEADOS,
+  PERSONAGEM_INICIAL,
   ROUPAS,
   SUPERPODERES,
   TEXTO_DO_CONSENTIMENTO,
@@ -123,11 +126,11 @@ export function EtapaPersonagem({
 
         {fotoLigada && (
           <div className="pagamentos" role="group" aria-label="Como criar o personagem" style={{ marginBottom: 18 }}>
-            <button type="button" className="pagamento" aria-pressed={jeito === 'caracteristicas'} onClick={() => muda('jeito', 'caracteristicas')}>
+            <button type="button" className="pagamento" aria-pressed={jeito === 'caracteristicas'} onClick={() => onMudar({ ...personagem, jeito: 'caracteristicas', pele: personagem.pele === PELE_DA_FOTO ? PERSONAGEM_INICIAL.pele : personagem.pele })}>
               <strong>Pelas características</strong>
               <div className="letra-miuda">cabelo, pele, óculos…</div>
             </button>
-            <button type="button" className="pagamento" aria-pressed={jeito === 'foto'} onClick={() => muda('jeito', 'foto')}>
+            <button type="button" className="pagamento" aria-pressed={jeito === 'foto'} onClick={() => onMudar({ ...personagem, jeito: 'foto', pele: personagem.jeito === 'foto' ? personagem.pele : PELE_DA_FOTO })}>
               <strong>Por uma foto</strong>
               <div className="letra-miuda">a gente desenha</div>
             </button>
@@ -175,6 +178,8 @@ export function EtapaPersonagem({
               </span>
             )}
             {falhaDaFoto && <span className="erro">{falhaDaFoto}</span>}
+            <Escolha titulo="Tom de pele" lista={PELES_COM_FOTO} valor={personagem.pele} onEscolher={(v) => muda('pele', v)} />
+            <span className="ajuda">Se quiser, escolha o tom: luz e sombra da foto podem enganar o desenho.</span>
           </div>
         ) : (
           <>

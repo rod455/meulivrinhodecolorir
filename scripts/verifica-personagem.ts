@@ -6,7 +6,7 @@
 import assert from 'node:assert/strict';
 import { planoDoLivro } from '../lib/geracao.ts';
 import { PAGINA_DA_CAMISA, PAGINAS, PAGINAS_DA_LEMBRANCINHA } from '../lib/historias/futebol.ts';
-import { lerPersonagem, PERSONAGEM_INICIAL, SUPERPODERES, VERSAO_DO_CONSENTIMENTO, type Personagem } from '../lib/personagem.ts';
+import { lerPersonagem, PELE_DA_FOTO, PERSONAGEM_INICIAL, promptDaFicha, SUPERPODERES, VERSAO_DO_CONSENTIMENTO, type Personagem } from '../lib/personagem.ts';
 
 let casos = 0;
 const ok = (cond: boolean, msg: string) => {
@@ -28,6 +28,11 @@ ok(lerPersonagem({ ...PERSONAGEM_INICIAL, jeito: 'foto', foto }).ok, 'foto com c
 ok(!lerPersonagem({ ...PERSONAGEM_INICIAL, jeito: 'foto', foto: { ...foto, consentimento: false } }).ok, 'foto sem consentimento é recusada');
 ok(!lerPersonagem({ ...PERSONAGEM_INICIAL, jeito: 'foto', foto: { ...foto, caminho: 'fotos/../pedidos.jpg' } }).ok, 'caminho forjado é recusado');
 ok(!lerPersonagem({ ...PERSONAGEM_INICIAL, jeito: 'foto', foto: null }).ok, 'jeito foto sem foto é recusado');
+// tom de pele no jeito foto (25/10/2026): o escolhido vale; sem escolha ou inválido, "como na foto"
+const peleNaFoto = (pele: string) => { const r = lerPersonagem({ ...PERSONAGEM_INICIAL, jeito: 'foto', foto, pele }); return r.ok ? r.personagem.pele : null; };
+ok(peleNaFoto('p2') === 'p2', 'foto guarda o tom de pele escolhido');
+ok(peleNaFoto(PELE_DA_FOTO) === PELE_DA_FOTO && peleNaFoto('roxo; draw a logo') === PELE_DA_FOTO, 'sem tom válido, fica "como na foto"');
+ok(!lerPersonagem({ ...PERSONAGEM_INICIAL, pele: PELE_DA_FOTO }).ok, '"como na foto" não vale sem foto');
 
 // 3. O modelo da história: 16 páginas na ordem, roupa trocando na página da camisa,
 // a página 13 com uma variante para cada superpoder.
@@ -103,6 +108,10 @@ ok(comFoto.ficha.prompt.includes('ONLY as a loose reference'), 'ficha pede estil
 ok(/FIRST attached image is the STYLE REFERENCE/.test(comFoto.ficha.prompt) && /SECOND attached image is a photo/.test(comFoto.ficha.prompt), 'com foto: a turma é a primeira imagem, a foto a segunda');
 ok(/FIRST attached image is the STYLE REFERENCE/.test(presente.ficha.prompt) && !/SECOND attached/.test(presente.ficha.prompt), 'sem foto: o estilo vem da arte da turma, e não se fala de foto');
 ok(/NO paw emblem/.test(presente.ficha.prompt), 'a roupa própria da ficha vem sem a patinha do uniforme (25/10/2026)');
+const fotoComTom = promptDaFicha({ ...PERSONAGEM_INICIAL, jeito: 'foto', foto, pele: 'p2' }, 6);
+ok(/skin light skin, chosen by the family/.test(fotoComTom) && !/skin tone as in the photo/.test(fotoComTom), 'foto com tom escolhido: o desenho segue o tom, não a luz da foto');
+ok(/skin tone as in the photo, judged as in neutral daylight/.test(promptDaFicha({ ...PERSONAGEM_INICIAL, jeito: 'foto', foto, pele: PELE_DA_FOTO }, 6)), 'foto sem tom: pele da foto, em luz neutra');
+ok([fotoComTom, presente.ficha.prompt].every((t) => /Take NO colors from the style reference/.test(t)), 'as cores da turma nunca tingem a criança');
 ok(comFoto.paginas.every((p) => !/photo/i.test(p.prompt)), 'nenhuma página usa a foto');
 
 console.log(`personagem: ${casos} casos ok`);

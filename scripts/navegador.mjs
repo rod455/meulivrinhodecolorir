@@ -108,6 +108,9 @@ assert.ok(await p.locator('#foto').isDisabled(), 'sem o aceite, não dá para es
 await p.locator('.consentimento input').check();
 await p.setInputFiles('#foto', { name: 'bia.jpg', mimeType: 'image/jpeg', buffer: foto });
 await p.getByText(/Foto recebida/).waitFor();
+// o tom de pele começa "como na foto"; a família pode escolher, e o desenho segue a escolha
+assert.equal(await p.getByRole('button', { name: 'Como na foto' }).getAttribute('aria-pressed'), 'true', 'tom de pele começa como na foto');
+await p.getByRole('button', { name: 'Tom 2' }).click();
 await p.getByRole('button', { name: 'Gentileza' }).click();
 await p.getByRole('button', { name: 'Continuar' }).click();
 
@@ -123,6 +126,7 @@ await p.waitForFunction(() => document.querySelector('img.ficha-previa')?.comple
 assert.equal(await previa.evaluate((img) => img.naturalWidth), 640, 'a prévia é pequena (640 px), não a imagem limpa');
 let agora = await estado();
 const primeira = agora.fichas.at(-1);
+assert.ok(primeira.personagem.pele === 'p2' && primeira.prompt.includes('light skin, chosen by the family'), 'a ficha por foto leva o tom escolhido');
 assert.equal(primeira.user_id, carla, 'a ficha é da conta');
 assert.ok(!primeira.prompt.includes('Bia'), 'o nome não vai para o prompt da ficha');
 assert.equal(primeira.token, null, 'o bilhete do n8n morre quando a imagem chega');

@@ -34,6 +34,14 @@ export const PELES = [
   { id: 'p8', rotulo: 'Tom 8', prompt: 'deep dark brown skin', cor: '#4A2A1C' },
 ] as const;
 
+/**
+ * No jeito "foto", a família também pode escolher o tom de pele (25/10/2026):
+ * na primeira ficha por foto, o modelo estimou sozinho e escureceu a pele.
+ * "Como na foto" fica de padrão, para quem não quiser escolher.
+ */
+export const PELE_DA_FOTO = 'foto';
+export const PELES_COM_FOTO = [{ id: PELE_DA_FOTO, rotulo: 'Como na foto', prompt: '' }, ...PELES] as const;
+
 export const CABELO_TIPOS = opcoes([
   { id: 'liso', rotulo: 'Liso', prompt: 'straight' },
   { id: 'ondulado', rotulo: 'Ondulado', prompt: 'wavy' },
@@ -173,7 +181,7 @@ export function lerPersonagem(entrada: unknown): { ok: true; personagem: Persona
     foto = { caminho, consentimento: VERSAO_DO_CONSENTIMENTO };
     return {
       ok: true,
-      personagem: { ...PERSONAGEM_INICIAL, jeito, aparencia: aparencia.id, roupa: roupa.id, cor: cor.id, superpoder: superpoder.id, foto },
+      personagem: { ...PERSONAGEM_INICIAL, jeito, aparencia: aparencia.id, pele: acha(PELES, e.pele)?.id ?? PELE_DA_FOTO, roupa: roupa.id, cor: cor.id, superpoder: superpoder.id, foto },
     };
   }
 
@@ -253,14 +261,21 @@ export function promptDaFicha(personagem: Personagem, idade: number): string {
   if (personagem.jeito === 'foto') {
     linhas.push(
       `Appearance: a ${p(APARENCIAS, personagem.aparencia)} wearing ${p(ROUPAS, personagem.roupa)}.`,
-      'The SECOND attached image is a photo of the child. Use it ONLY as a loose reference for hairstyle, hair color, skin tone, glasses and general face shape, turning the child into a cartoon in the Little Paws style. Do not copy the photo realistically.',
+      'The SECOND attached image is a photo of the child. Use it ONLY as a loose reference for hairstyle, hair color, skin tone, glasses and general face shape, turning the child into a cartoon in the Little Paws style. Do not copy the photo realistically. If other people appear in the photo, ignore them.',
     );
   } else {
     linhas.push(`Appearance: ${descreverCrianca(personagem, idade)}; wearing ${p(ROUPAS, personagem.roupa)}.`);
   }
-  const pele = personagem.jeito === 'foto' ? 'skin tone as in the photo' : `skin ${p(PELES, personagem.pele)}`;
+  const peleEscolhida = p(PELES, personagem.pele);
+  const pele =
+    personagem.jeito !== 'foto'
+      ? `skin ${peleEscolhida}`
+      : peleEscolhida
+        ? `skin ${peleEscolhida}, chosen by the family: follow it exactly, even if the photo lighting looks different`
+        : 'skin tone as in the photo, judged as in neutral daylight: do not darken it because of shadows, cold or warm light';
   const cabelo = personagem.jeito === 'foto' ? 'hair as in the photo' : `hair ${p(CABELO_CORES, personagem.cabeloCor)}`;
   linhas.push(
+    'Take NO colors from the style reference for the child: the animals\' brown, orange and gray fur must never tint the skin, hair or clothes. The child\'s colors come only from this description.',
     'The outfit is the child\'s own clothes: plain, with NO paw emblem, logo or print (the paw emblem belongs only to the team uniform).',
     'Show ONLY this child, twice, side by side, standing, full body, friendly happy pose, on a plain white background. Do not draw any of the animals and do not copy the park background.',
     `Left: full color version, front view (${pele}, ${cabelo}, outfit in ${p(CORES, personagem.cor)}).`,
