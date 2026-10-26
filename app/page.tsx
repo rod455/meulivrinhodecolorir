@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Cabecalho } from '@/components/Cabecalho';
 import { COR } from '@/components/desenho/formas';
 import { ALapis, Confete, Estrelinha, Grifo } from '@/components/Enfeites';
-import { GaleriaDeTemas } from '@/components/GaleriaDeTemas';
+import { TemasDaTurma } from '@/components/TemasDaTurma';
 import { PreviaNaLp } from '@/components/PreviaNaLp';
 import { Rodape } from '@/components/Rodape';
 import { FAMILIAS_ATENDIDAS, SITE } from '@/lib/config';
@@ -79,7 +79,7 @@ export default function Inicio() {
                   <Link href="/criar" className="botao">
                     Criar meu livrinho
                   </Link>
-                  <Link href="#temas" className="botao botao-secundario">
+                  <Link href="#previa" className="botao botao-secundario">
                     Ver um exemplo
                   </Link>
                 </div>
@@ -217,9 +217,9 @@ export default function Inicio() {
           <div className="miolo">
             <div className="titulo-secao">
               <h2 className="titulo-rabisco titulo-coracao">Temas exclusivos</h2>
-              <p>Toque numa capa para ver as páginas por dentro.</p>
+              <p>As histórias da turma Little Paws, prontas para ler e pintar. Ou crie uma em que seu filho é o personagem.</p>
             </div>
-            <GaleriaDeTemas />
+            <TemasDaTurma />
           </div>
         </section>
 
@@ -237,7 +237,7 @@ export default function Inicio() {
               {LIVROS_PUBLICADOS.map((l) => {
                 const capa = l.edicoes.find((e) => e.capa)?.capa;
                 return (
-                  <article key={l.id} className="livro-publicado">
+                  <article key={l.id} id={`livro-${l.id}`} className="livro-publicado">
                     {capa && <Image src={capa.src} alt={`Capa do livro ${l.titulo}`} width={capa.largura} height={capa.altura} className="livro-publicado-capa" />}
                     <span className="selo-ingles">Em inglês</span>
                     <h3 lang="en">{l.titulo}</h3>

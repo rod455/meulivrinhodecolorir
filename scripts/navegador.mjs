@@ -49,6 +49,12 @@ const p = await novaPagina();
 
 // LP: a prévia muda a capa enquanto digita, e o botão leva o nome para o fluxo
 await p.goto(`${SITE}/?utm_source=teste&utm_campaign=suite`);
+// "Temas exclusivos": os livros da turma com a capa e, por último, personalizar a história completa
+const temas = p.locator('#temas .tema-cartao');
+assert.equal(await temas.count(), 4, 'três livros e o personalizado');
+assert.equal(await p.locator('#temas img[alt^="Capa do livro"]').count(), 3, 'cada livro com a capa de verdade');
+assert.equal(await temas.last().getByRole('link').evaluateAll((as) => as.map((a) => new URL(a.href).search).join()), '?produto=lembrancinha,?produto=presente,?produto=combo', 'o último leva aos três livrinhos personalizados');
+assert.equal(await p.locator('#little-paws img[alt^="Capa do livro"]').count(), 3, 'a seção dos livros também mostra as capas');
 // os livros publicados da turma, em inglês: os três aparecem, e sem link de verdade não há botão
 const publicados = p.locator('#little-paws article');
 assert.equal(await publicados.count(), 3, 'os três livros publicados da turma aparecem na LP');

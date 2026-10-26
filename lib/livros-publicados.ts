@@ -26,6 +26,8 @@ export type LivroPublicado = {
   id: string;
   titulo: string;
   subtitulo: string | null;
+  /** como o livro aparece em "Temas exclusivos" na LP */
+  tema: string;
   /** o que a criança vive na história, em português */
   historia: string;
   edicoes: Edicao[];
@@ -34,34 +36,37 @@ export type LivroPublicado = {
 export const LIVROS_PUBLICADOS: LivroPublicado[] = [
   {
     id: 'big-game',
+    tema: 'Basquete com a turma',
     titulo: 'Little Paws, Big Game',
     subtitulo: 'A Story About Teamwork',
     historia:
       'No basquete, Pip quer fazer a cesta decisiva sozinho. Descobrindo o que cada amigo faz de melhor, aprende a jogar em equipe, e o time termina unido, ganhando ou perdendo.',
     edicoes: [
-      { id: 'big-game-ilustrado', tipo: 'Livro ilustrado', capa: null, kindle: 'https://www.amazon.com/dp/B0HKW6ZHSD' },
+      { id: 'big-game-ilustrado', tipo: 'Livro ilustrado', capa: { src: '/livros/big-game-ilustrado.webp', largura: 800, altura: 1280 }, kindle: 'https://www.amazon.com/dp/B0HKW6ZHSD' },
       { id: 'big-game-colorir', tipo: 'Livro de colorir', capa: null, kindle: null },
     ],
   },
   {
     id: 'big-play',
+    tema: 'Flag football com a turma',
     titulo: 'Little Paws, Big Play',
     subtitulo: 'A Story About Gentle Strength',
     historia:
       'Bo é o maior do time, mas no flag football ninguém derruba ninguém: é preciso puxar a bandeirinha com jeito. Com a ajuda dos amigos e da Vovó Ursa, ele descobre o que é força de verdade.',
     edicoes: [
-      { id: 'big-play-ilustrado', tipo: 'Livro ilustrado', capa: null, kindle: 'https://www.amazon.com/dp/B0HMHXCS84' },
+      { id: 'big-play-ilustrado', tipo: 'Livro ilustrado', capa: { src: '/livros/big-play-ilustrado.webp', largura: 800, altura: 1280 }, kindle: 'https://www.amazon.com/dp/B0HMHXCS84' },
       { id: 'big-play-colorir', tipo: 'Livro de colorir', capa: null, kindle: null },
     ],
   },
   {
     id: 'big-christmas',
+    tema: 'Natal com a turma',
     titulo: 'Little Paws, Big Christmas',
     subtitulo: 'A Christmas Story About Patience',
     historia:
       'Dot é a mais devagar da turma e pede ao Papai Noel para ser rápida. Mas, quando o vento leva a estrela da árvore de Natal, é ela quem para, olha com calma e encontra o caminho.',
     edicoes: [
-      { id: 'big-christmas-ilustrado', tipo: 'Livro ilustrado', capa: null, kindle: 'https://www.amazon.com/dp/B0HNP3RTXB' },
+      { id: 'big-christmas-ilustrado', tipo: 'Livro ilustrado', capa: { src: '/livros/big-christmas-ilustrado.webp', largura: 800, altura: 1280 }, kindle: 'https://www.amazon.com/dp/B0HNP3RTXB' },
       { id: 'big-christmas-colorir', tipo: 'Livro de colorir e atividades', capa: null, kindle: null },
     ],
   },

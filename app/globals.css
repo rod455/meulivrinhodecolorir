@@ -180,9 +180,15 @@ p { margin: 0 0 1em; }
 .galeria { display: grid; grid-auto-flow: column; grid-auto-columns: 78%; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 6px 4px 18px; }
 .galeria > * { scroll-snap-align: start; }
 .tema-cartao { display: flex; flex-direction: column; gap: 12px; text-align: left; cursor: pointer; font: inherit; color: inherit; }
-.tema-vitrine { display: grid; place-items: center; height: 340px; background: var(--papel); border-radius: 18px; overflow: hidden; }
-.tema-vitrine img { height: 310px; width: auto; max-width: 100%; object-fit: contain; filter: drop-shadow(0 8px 12px rgba(43, 45, 66, 0.14)); }
-.tema-vitrine img[src*='turma'] { height: 100%; width: 100%; object-fit: cover; filter: none; }
+.tema-cartao { text-decoration: none; }
+.tema-capa { display: grid; place-items: center; height: 340px; background: var(--papel); border-radius: 18px; overflow: hidden; }
+.tema-capa img { height: 310px; width: auto; max-width: 100%; object-fit: contain; border-radius: 8px; filter: drop-shadow(0 8px 12px rgba(43, 45, 66, 0.18)); }
+.tema-personalizar { cursor: default; }
+.tema-personalizar .tema-capa { background: #fff3c9; }
+.tema-personalizar .tema-capa img { height: 230px; border-radius: 0; filter: none; }
+.tema-produtos { display: grid; gap: 8px; }
+.tema-produtos .botao { width: 100%; justify-content: space-between; gap: 10px; text-align: left; font-size: 0.92rem; }
+.tema-produtos .botao span:last-child { white-space: nowrap; }
 .janela-vitrine { display: grid; place-items: center; margin: 14px 0; }
 .janela-vitrine img { max-height: 60vh; width: auto; height: auto; }
 .em-breve { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 22px; }
@@ -190,7 +196,8 @@ p { margin: 0 0 1em; }
 .em-breve span:nth-of-type(4n+2) { background: #ffe0ee; }
 .em-breve span:nth-of-type(4n+3) { background: #d8effb; }
 .em-breve span:nth-of-type(4n+4) { background: #def2dd; }
-@media (min-width: 760px) { .galeria { grid-auto-flow: row; grid-template-columns: repeat(3, 1fr); overflow: visible; } }
+@media (min-width: 760px) { .galeria { grid-auto-flow: row; grid-template-columns: repeat(2, 1fr); overflow: visible; } }
+@media (min-width: 1040px) { .galeria { grid-template-columns: repeat(4, 1fr); } }
 
 .janela-fundo { position: fixed; inset: 0; background: rgba(43, 45, 66, 0.55); z-index: 50; display: grid; place-items: center; padding: 16px; }
 .janela { background: var(--papel); border: 2px solid var(--grafite); border-radius: var(--raio); max-width: 760px; width: 100%; max-height: 92vh; overflow: auto; padding: 20px; }
@@ -432,7 +439,7 @@ p { margin: 0 0 1em; }
 .edicao { border-top: 2px solid var(--nuvem); padding-top: 10px; margin-top: 4px; display: grid; gap: 8px; }
 .edicao-botoes { display: flex; flex-wrap: wrap; gap: 8px; }
 .livro-publicado-sub { font-style: italic; color: var(--grafite-suave); }
-.livro-publicado-capa { width: 100%; height: auto; border-radius: 12px; border: 2px solid var(--grafite); }
+.livro-publicado-capa { width: 100%; max-width: 260px; height: auto; align-self: center; border-radius: 12px; border: 2px solid var(--grafite); }
 .selo-ingles { align-self: flex-start; padding: 2px 10px; border-radius: 99px; background: #e3f3fc; border: 2px solid var(--grafite); font-weight: 800; font-size: 0.85rem; }
 .turma-compra { max-width: 640px; margin: 0 auto; display: grid; gap: 20px; }
 .turma-resumo { display: grid; gap: 14px; }
