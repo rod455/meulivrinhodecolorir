@@ -429,7 +429,16 @@ p { margin: 0 0 1em; }
 .livro-publicado { background: var(--branco); border: 1.5px solid var(--contorno-suave); border-radius: var(--raio); padding: 18px; display: flex; flex-direction: column; gap: 8px; }
 .livro-publicado h3 { margin: 0; font-size: 1.25rem; }
 .livro-publicado p { margin: 0; }
-.livro-publicado-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.edicao { border-top: 2px solid var(--nuvem); padding-top: 10px; margin-top: 4px; display: grid; gap: 8px; }
+.edicao-botoes { display: flex; flex-wrap: wrap; gap: 8px; }
 .livro-publicado-sub { font-style: italic; color: var(--grafite-suave); }
 .livro-publicado-capa { width: 100%; height: auto; border-radius: 12px; border: 2px solid var(--grafite); }
 .selo-ingles { align-self: flex-start; padding: 2px 10px; border-radius: 99px; background: #e3f3fc; border: 2px solid var(--grafite); font-weight: 800; font-size: 0.85rem; }
+.turma-compra { max-width: 640px; margin: 0 auto; display: grid; gap: 20px; }
+.turma-resumo { display: grid; gap: 14px; }
+.turma-resumo h1 { font-size: clamp(1.6rem, 6vw, 2.1rem); margin: 6px 0 0; }
+.turma-resumo img { width: 100%; max-width: 280px; height: auto; border-radius: 12px; border: 2px solid var(--grafite); }
+@media (min-width: 640px) { .turma-resumo { grid-template-columns: 200px 1fr; align-items: start; } }
+.endereco { border: none; padding: 0; margin: 0; }
+.endereco legend { font-family: var(--fonte-titulo), system-ui, sans-serif; font-weight: 800; font-size: 1.25rem; margin-bottom: 8px; }
+.endereco-linha { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }

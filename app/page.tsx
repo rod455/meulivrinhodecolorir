@@ -8,7 +8,7 @@ import { PreviaNaLp } from '@/components/PreviaNaLp';
 import { Rodape } from '@/components/Rodape';
 import { FAMILIAS_ATENDIDAS, SITE } from '@/lib/config';
 import { PERGUNTAS } from '@/lib/faq';
-import { LIVROS_PUBLICADOS, linkValido } from '@/lib/livros-publicados';
+import { LIVROS_PUBLICADOS, linkValido, PRECO_DO_FORMATO } from '@/lib/livros-publicados';
 import { emReais, MENOR_PRECO, PRODUTOS } from '@/lib/produtos';
 
 // Caixas de tamanhos e cores diferentes (referência: BLOOMIE no Behance); ícones e Rabisco do kit.
@@ -234,36 +234,45 @@ export default function Inicio() {
               </p>
             </div>
             <div className="livros-publicados">
-              {LIVROS_PUBLICADOS.map((l) => (
-                <article key={l.id} className="livro-publicado">
-                  {l.capa && (
-                    <Image src={l.capa.src} alt={`Capa do livro ${l.titulo}`} width={l.capa.largura} height={l.capa.altura} className="livro-publicado-capa" />
-                  )}
-                  <span className="selo-ingles">Em inglês</span>
-                  <h3 lang="en">{l.titulo}</h3>
-                  {l.subtitulo && (
-                    <p className="livro-publicado-sub" lang="en">
-                      {l.subtitulo}
-                    </p>
-                  )}
-                  <p>{l.historia}</p>
-                  <p className="letra-miuda">{l.formatos}</p>
-                  {l.links.some((x) => linkValido(x.url)) && (
-                    <div className="livro-publicado-links">
-                      {l.links
-                        .filter((x) => linkValido(x.url))
-                        .map((x) => (
-                          <a key={x.url} className="botao botao-secundario botao-pequeno" href={x.url} target="_blank" rel="noopener noreferrer">
-                            {x.formato} na Amazon
-                          </a>
-                        ))}
-                    </div>
-                  )}
-                </article>
-              ))}
+              {LIVROS_PUBLICADOS.map((l) => {
+                const capa = l.edicoes.find((e) => e.capa)?.capa;
+                return (
+                  <article key={l.id} className="livro-publicado">
+                    {capa && <Image src={capa.src} alt={`Capa do livro ${l.titulo}`} width={capa.largura} height={capa.altura} className="livro-publicado-capa" />}
+                    <span className="selo-ingles">Em inglês</span>
+                    <h3 lang="en">{l.titulo}</h3>
+                    {l.subtitulo && (
+                      <p className="livro-publicado-sub" lang="en">
+                        {l.subtitulo}
+                      </p>
+                    )}
+                    <p>{l.historia}</p>
+                    {l.edicoes.map((e) => (
+                      <div key={e.id} className="edicao">
+                        <strong>{e.tipo}</strong>
+                        <div className="edicao-botoes">
+                          {e.kindle && linkValido(e.kindle) && (
+                            <a className="botao botao-secundario botao-pequeno" href={e.kindle} target="_blank" rel="noopener noreferrer">
+                              Kindle na Amazon
+                            </a>
+                          )}
+                          <Link className="botao botao-pequeno" href={`/turma/comprar?edicao=${e.id}&formato=impresso`}>
+                            Impresso {emReais(PRECO_DO_FORMATO.impresso)}
+                          </Link>
+                          <Link className="botao botao-secundario botao-pequeno" href={`/turma/comprar?edicao=${e.id}&formato=pdf`}>
+                            PDF {emReais(PRECO_DO_FORMATO.pdf)}
+                          </Link>
+                        </div>
+                      </div>
+                    ))}
+                  </article>
+                );
+              })}
             </div>
             <p className="letra-miuda" style={{ textAlign: 'center', marginTop: 18 }}>
-              O livrinho personalizado do Meu Livrinho de Colorir vem em português, com o nome do seu filho e a turma junto.
+              Impresso com tiragem sob medida: imprimimos o seu exemplar quando você pede (frete à parte). O PDF é para imprimir em casa quantas
+              vezes quiser. O Kindle é vendido pela Amazon. E o livrinho personalizado do Meu Livrinho de Colorir vem em português, com o nome
+              do seu filho e a turma junto.
             </p>
           </div>
         </section>

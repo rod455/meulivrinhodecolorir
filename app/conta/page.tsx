@@ -4,7 +4,8 @@ import { redirect } from 'next/navigation';
 import { Cabecalho } from '@/components/Cabecalho';
 import { Icone } from '@/components/Icone';
 import { linkDoWhatsapp, SITE } from '@/lib/config';
-import { STATUS_DO_PEDIDO } from '@/lib/conta';
+import { STATUS_DO_PEDIDO, STATUS_DO_PEDIDO_DA_TURMA } from '@/lib/conta';
+import { acharEdicao, ROTULO_DO_FORMATO } from '@/lib/livros-publicados';
 import { emReais, ehProduto, PRODUTOS } from '@/lib/produtos';
 import { contaDaSessao, supabaseNoServidor } from '@/lib/servidor/sessao';
 import { ehTema, TEMAS } from '@/lib/temas';
@@ -37,10 +38,12 @@ export default async function PaginaConta() {
 
   // a RLS só devolve as linhas desta conta (migração 0004)
   const supabase = supabaseNoServidor();
-  const [{ data: pedidos }, { count: fotos }] = await Promise.all([
+  const [{ data: pedidos }, { count: fotos }, { data: daTurma }] = await Promise.all([
     supabase.from('pedidos').select('id, criado_em, produto, tema, nome_crianca, status, total_centavos, link_pdf').order('criado_em', { ascending: false }),
     supabase.from('fotos').select('caminho', { count: 'exact', head: true }).is('apagada_em', null),
+    supabase.from('pedidos_turma').select('id, criado_em, edicao, formato, preco_centavos, status').order('criado_em', { ascending: false }),
   ]);
+  const livrosDaTurma = (daTurma ?? []) as { id: string; criado_em: string; edicao: string; formato: 'impresso' | 'pdf'; preco_centavos: number; status: string }[];
   const lista = (pedidos ?? []) as Linha[];
   const whatsapp = linkDoWhatsapp('Oi! Tenho uma dúvida sobre o meu livrinho.');
   const faleComAGente = whatsapp ?? (SITE.email ? `mailto:${SITE.email}` : null);
@@ -100,6 +103,31 @@ export default async function PaginaConta() {
               </li>
             ))}
           </ul>
+        )}
+
+        {livrosDaTurma.length > 0 && (
+          <>
+            <h2 className="grupo-rotulo">Livros da turma</h2>
+            <ul className="grupo pedidos-da-turma">
+              {livrosDaTurma.map((p) => {
+                const achado = acharEdicao(p.edicao);
+                return (
+                  <li key={p.id} className="linha">
+                    <span className="linha-icone tom-azul">
+                      <Icone nome="livro" />
+                    </span>
+                    <span className="linha-texto">
+                      <strong lang="en">{achado ? achado.livro.titulo : p.edicao}</strong>
+                      <small>
+                        {achado?.edicao.tipo} · {ROTULO_DO_FORMATO[p.formato]} · {new Date(p.criado_em).toLocaleDateString('pt-BR')} · {emReais(p.preco_centavos)}
+                      </small>
+                      <span className={`status status-${p.status}`}>{STATUS_DO_PEDIDO_DA_TURMA[p.status] ?? p.status}</span>
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
         )}
 
         <AcoesDaConta fotosGuardadas={fotos ?? 0} entrouCom={conta.entrouCom ?? 'email'} />

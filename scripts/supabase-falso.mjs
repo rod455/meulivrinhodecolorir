@@ -20,6 +20,7 @@ const [porta = '4556', registro = '/tmp/supabase-falso.jsonl', site = 'http://lo
 const CHAVE_DE_SERVICO = 'chave-de-servico-falsa';
 const usuarios = new Map(); // email -> { id, email, senha, confirmado }
 const pedidos = [];
+const pedidosTurma = [];
 const fotos = new Map(); // caminho -> linha
 const consentimentos = [];
 const arquivos = new Map(); // "bucket/caminho" -> bytes
@@ -106,7 +107,7 @@ http
       appendFileSync(registro, `${JSON.stringify({ m: q.method, p: u.pathname, s: u.search, quem: quem === 'servico' ? 'servico' : quem?.email ?? null, corpo: q.headers['content-type']?.includes('json') ? corpo.toString() : corpo.length })}\n`);
 
       // controle da suíte
-      if (u.pathname === '/__estado') return responder(r, 200, { usuarios: [...usuarios.values()].map((x) => x.email), pedidos, fotos: [...fotos.values()], consentimentos, fichas, trabalhosRecebidos, arquivos: [...arquivos.keys()] });
+      if (u.pathname === '/__estado') return responder(r, 200, { usuarios: [...usuarios.values()].map((x) => x.email), pedidos, pedidosTurma, fotos: [...fotos.values()], consentimentos, fichas, trabalhosRecebidos, arquivos: [...arquivos.keys()] });
       if (u.pathname === '/__n8n-falha') { n8nFalha = u.searchParams.get('ligar') === '1'; return responder(r, 200, { n8nFalha }); }
       if (u.pathname === '/n8n-ficha') { n8nFicha(json()).catch((e) => console.error('n8n falso', e)); return responder(r, 200, { recebido: true }); }
       if (u.pathname === '/__confirmar-email') { confirmarEmail = u.searchParams.get('ligar') === '1'; return responder(r, 200, { confirmarEmail }); }
@@ -169,7 +170,7 @@ http
 
       // REST: a chave de serviço vê tudo; uma conta só vê o que tem o user_id dela (RLS)
       const tabela = u.pathname.replace('/rest/v1/', '');
-      const fontes = { pedidos, fotos: [...fotos.values()], consentimentos, fichas };
+      const fontes = { pedidos, pedidos_turma: pedidosTurma, fotos: [...fotos.values()], consentimentos, fichas };
       if (tabela === 'rpc/anonimizar_conta') {
         if (quem !== 'servico') return responder(r, 401, {});
         const { uid } = json();
@@ -186,7 +187,7 @@ http
       if (!(tabela in fontes)) return responder(r, 404, {});
       if (!quem) return responder(r, 401, { message: 'sem chave' });
       // como a RLS de verdade: conta lê o que é dela em pedidos e fotos; fichas e consentimentos, só o servidor
-      const visiveis = quem === 'servico' ? fontes[tabela] : fontes[tabela].filter((l) => l.user_id === quem.id && (tabela === 'pedidos' || tabela === 'fotos'));
+      const visiveis = quem === 'servico' ? fontes[tabela] : fontes[tabela].filter((l) => l.user_id === quem.id && (tabela === 'pedidos' || tabela === 'pedidos_turma' || tabela === 'fotos'));
       if (q.method === 'GET' || q.method === 'HEAD') {
         const linhas = filtrar(visiveis, u.searchParams);
         return responder(r, 200, q.method === 'HEAD' ? undefined : linhas, { 'content-range': `0-${Math.max(0, linhas.length - 1)}/${linhas.length}` });
@@ -195,6 +196,7 @@ http
       if (q.method === 'POST') {
         const linha = json();
         if (tabela === 'pedidos') pedidos.push(linha);
+        if (tabela === 'pedidos_turma') pedidosTurma.push({ criado_em: new Date().toISOString(), status: 'aguardando_pagamento', ...linha });
         if (tabela === 'fotos') fotos.set(linha.caminho, { enviada_em: new Date().toISOString(), apagada_em: null, user_id: null, pedido_id: null, ...linha });
         if (tabela === 'consentimentos') consentimentos.push({ user_id: null, ...linha });
         if (tabela === 'fichas') fichas.push({ criada_em: new Date().toISOString(), caminho_imagem: null, erro: null, aprovada_em: null, pedido_id: null, ...linha });

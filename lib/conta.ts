@@ -9,3 +9,12 @@ export const STATUS_DO_PEDIDO: Record<string, string> = {
   reembolsado: 'Reembolsado',
   cancelado: 'Cancelado',
 };
+
+/** Os pedidos dos livros da turma (migração 0006). */
+export const STATUS_DO_PEDIDO_DA_TURMA: Record<string, string> = {
+  aguardando_pagamento: 'Aguardando pagamento',
+  pago: 'Pago, preparando',
+  enviado: 'Enviado',
+  entregue: 'Entregue',
+  cancelado: 'Cancelado',
+};

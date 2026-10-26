@@ -44,6 +44,10 @@ export default function Privacidade() {
         <ul>
           <li>Nome, e-mail e WhatsApp: para entregar o arquivo, tirar dúvidas e mandar o recado de pós-venda.</li>
           <li>
+            Nos livros impressos da turma Little Paws, guardamos também o <strong>endereço de entrega</strong>, só para enviar o livro. Ao excluir a
+            conta, o endereço é apagado junto.
+          </li>
+          <li>
             Para comprar e baixar, você cria uma conta com e-mail e senha, link por e-mail ou Google. A senha fica guardada cifrada pelo
             nosso provedor de login; nem a gente consegue ler. Do Google, recebemos só o seu e-mail.
           </li>

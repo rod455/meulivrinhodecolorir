@@ -3,6 +3,7 @@ import { imagensDasFichas } from '@/lib/servidor/fichas';
 import { apagarDoBucket, comChaveDeServico, fotoLigada } from '@/lib/servidor/fotos';
 import { PALAVRA_DE_CONFIRMACAO } from '@/lib/conta';
 import { contaDaSessao, supabaseNoServidor } from '@/lib/servidor/sessao';
+import { anonimizarPedidosDaTurma } from '@/lib/servidor/turma';
 
 export const dynamic = 'force-dynamic';
 
@@ -33,6 +34,8 @@ export async function POST(req: Request) {
       const caminhos = arquivos.filter((a) => a.bucket === bucket).map((a) => a.caminho);
       await apagarDoBucket([...new Set(bucket === 'fichas' ? [...caminhos, ...fichas] : caminhos)], bucket);
     }
+    // os livros da turma: some quem comprou e o endereço; fica a venda
+    await anonimizarPedidosDaTurma(conta.id);
     const fim = await comChaveDeServico(`/auth/v1/admin/users/${conta.id}`, { method: 'DELETE' });
     if (!fim.ok) throw new Error(`auth ${fim.status}: ${await fim.text()}`);
   } catch (e) {

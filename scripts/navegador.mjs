@@ -53,7 +53,11 @@ await p.goto(`${SITE}/?utm_source=teste&utm_campaign=suite`);
 const publicados = p.locator('#little-paws article');
 assert.equal(await publicados.count(), 3, 'os três livros publicados da turma aparecem na LP');
 assert.equal(await publicados.filter({ hasText: 'Em inglês' }).count(), 3, 'cada livro diz que é em inglês');
-assert.equal(await p.locator('#little-paws a[href]').evaluateAll((as) => as.filter((a) => !a.href.startsWith('https://www.amazon.')).length), 0, 'só link da Amazon');
+const kindles = p.locator('#little-paws a[target="_blank"]');
+assert.equal(await kindles.count(), 3, 'um Kindle por livro ilustrado');
+assert.equal(await kindles.evaluateAll((as) => as.filter((a) => !/^https:\/\/www\.amazon\.com\/dp\/[A-Z0-9]{10}$/.test(a.href)).length), 0, 'Kindle só com link da Amazon');
+assert.equal(await p.locator('#little-paws').getByRole('link', { name: 'Impresso R$ 79,90' }).count(), 6, 'cada edição tem o impresso a R$ 79,90');
+assert.equal(await p.locator('#little-paws').getByRole('link', { name: 'PDF R$ 29,90' }).count(), 6, 'cada edição tem o PDF a R$ 29,90');
 // quem já tem conta acha o "Entrar" no cabeçalho, também no celular, onde o menu some
 const entrarNoTopo = p.locator('header').getByRole('link', { name: 'Entrar', exact: true });
 assert.ok(await entrarNoTopo.isVisible(), 'Entrar à vista no cabeçalho do celular');
@@ -266,6 +270,30 @@ agora = await estado();
 assert.equal(agora.consentimentos.at(-1).user_id, carla, 'o aceite fica ligado à conta');
 assert.ok(!readFileSync(`${REGISTRO}.ultima.jpg`).includes(Buffer.from('CelularDaFamilia')), 'a foto guardada não tem o EXIF do aparelho');
 
+// livros da turma: o impresso pede endereço, o preço é o do servidor e o pedido aparece na conta
+await p.goto(`${SITE}/`);
+await p.locator('#little-paws article').filter({ hasText: 'Big Game' }).getByRole('link', { name: 'Impresso R$ 79,90' }).first().click();
+await p.getByRole('heading', { name: 'Little Paws, Big Game' }).waitFor();
+await p.fill('#responsavel', 'Carla Teste');
+await p.fill('#whatsapp', '(11) 91234-5678');
+await p.getByRole('button', { name: 'Pedir o impresso' }).click();
+await p.getByText('O CEP tem 8 números.').waitFor();
+await p.fill('#end-cep', '01532-001');
+await p.fill('#end-rua', 'Rua das Flores');
+await p.fill('#end-numero', '10');
+await p.fill('#end-bairro', 'Centro');
+await p.fill('#end-cidade', 'São Paulo');
+await p.selectOption('#end-uf', 'SP');
+await p.getByRole('button', { name: 'Pedir o impresso' }).click();
+await p.getByText('Pedido registrado!').waitFor();
+let turma = (await estado()).pedidosTurma;
+assert.ok(turma.length === 1 && turma[0].preco_centavos === 7990 && turma[0].edicao === 'big-game-ilustrado' && turma[0].endereco.cep === '01532001' && turma[0].user_id === carla, 'impresso gravado com o preço do servidor, o endereço e a conta');
+const barato = await p.request.post(`${SITE}/api/turma/pedido`, { data: { edicao: 'big-play-colorir', formato: 'pdf', responsavel: 'Carla', whatsapp: '11912345678', precoCentavos: 1, endereco: { cep: '01532001' } } });
+assert.equal(barato.status(), 200);
+turma = (await estado()).pedidosTurma;
+assert.ok(turma[1].preco_centavos === 2990 && turma[1].endereco === null, 'PDF a R$ 29,90 mesmo pedindo R$ 0,01, e sem endereço');
+assert.equal((await p.request.post(`${SITE}/api/turma/pedido`, { data: { edicao: 'big-game-ilustrado', formato: 'kindle', responsavel: 'Carla', whatsapp: '11912345678' } })).status(), 422, 'Kindle não se vende pelo site');
+
 // Meus livrinhos: os dois pedidos, o PDF só baixa quando existe, e as fotos apagam na hora
 await fetch(`${FALSO}/__pdf?pedido=${pedido.id}`);
 await p.goto(`${SITE}/`);
@@ -274,6 +302,7 @@ assert.equal(await p.locator('header').getByRole('link', { name: 'Entrar', exact
 await p.waitForURL(/\/conta$/);
 await p.getByRole('heading', { name: 'Meus livrinhos' }).waitFor();
 assert.equal(await p.locator('.pedidos-da-conta li').count(), 2, 'a conta vê os dois pedidos dela');
+assert.equal(await p.locator('.pedidos-da-turma li').count(), 2, 'e os dois livros da turma');
 assert.equal(await p.getByRole('link', { name: 'Baixar' }).count(), 1, 'só o pedido entregue tem botão de baixar');
 const baixar = await p.request.get(`${SITE}/api/livro/${pedido.id}`, { maxRedirects: 0 });
 assert.equal(baixar.status(), 307);
@@ -345,6 +374,7 @@ assert.ok(daCarla.every((x) => x.nome_crianca === '(apagado)' && x.email === '(a
 assert.ok(!agora.arquivos.some((a) => a.startsWith('livros/')), 'o PDF saiu do armazenamento');
 assert.ok(!agora.arquivos.some((a) => a.startsWith('fichas/')), 'as fichas do personagem saíram do armazenamento');
 assert.ok(!agora.fichas.some((f) => f.user_id === carla), 'nenhuma ficha da Carla sobrou no banco');
+assert.ok(agora.pedidosTurma.every((x) => x.responsavel === '(apagado)' && x.endereco === null && x.user_id === null && x.preco_centavos > 0), 'livros da turma: some quem comprou e o endereço, fica a venda');
 
 // as rotas da limpeza não abrem sem o segredo
 const limpeza = await fetch(`${SITE}/api/limpeza-fotos`);
