@@ -49,6 +49,11 @@ const p = await novaPagina();
 
 // LP: a prévia muda a capa enquanto digita, e o botão leva o nome para o fluxo
 await p.goto(`${SITE}/?utm_source=teste&utm_campaign=suite`);
+// os livros publicados da turma, em inglês: os três aparecem, e sem link de verdade não há botão
+const publicados = p.locator('#little-paws article');
+assert.equal(await publicados.count(), 3, 'os três livros publicados da turma aparecem na LP');
+assert.equal(await publicados.filter({ hasText: 'Em inglês' }).count(), 3, 'cada livro diz que é em inglês');
+assert.equal(await p.locator('#little-paws a[href]').evaluateAll((as) => as.filter((a) => !a.href.startsWith('https://www.amazon.')).length), 0, 'só link da Amazon');
 // quem já tem conta acha o "Entrar" no cabeçalho, também no celular, onde o menu some
 const entrarNoTopo = p.locator('header').getByRole('link', { name: 'Entrar', exact: true });
 assert.ok(await entrarNoTopo.isVisible(), 'Entrar à vista no cabeçalho do celular');

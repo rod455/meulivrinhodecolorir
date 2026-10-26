@@ -422,3 +422,14 @@ p { margin: 0 0 1em; }
   .ficha-viva ul { margin-bottom: 0; }
   .ficha-viva li { font-size: 0.8rem; }
 }
+
+/* Os livros publicados da turma, em inglês */
+.livros-publicados { display: grid; gap: 18px; }
+@media (min-width: 760px) { .livros-publicados { grid-template-columns: repeat(3, 1fr); } }
+.livro-publicado { background: var(--branco); border: 1.5px solid var(--contorno-suave); border-radius: var(--raio); padding: 18px; display: flex; flex-direction: column; gap: 8px; }
+.livro-publicado h3 { margin: 0; font-size: 1.25rem; }
+.livro-publicado p { margin: 0; }
+.livro-publicado-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.livro-publicado-sub { font-style: italic; color: var(--grafite-suave); }
+.livro-publicado-capa { width: 100%; height: auto; border-radius: 12px; border: 2px solid var(--grafite); }
+.selo-ingles { align-self: flex-start; padding: 2px 10px; border-radius: 99px; background: #e3f3fc; border: 2px solid var(--grafite); font-weight: 800; font-size: 0.85rem; }

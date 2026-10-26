@@ -8,6 +8,7 @@ import { PreviaNaLp } from '@/components/PreviaNaLp';
 import { Rodape } from '@/components/Rodape';
 import { FAMILIAS_ATENDIDAS, SITE } from '@/lib/config';
 import { PERGUNTAS } from '@/lib/faq';
+import { LIVROS_PUBLICADOS, linkValido } from '@/lib/livros-publicados';
 import { emReais, MENOR_PRECO, PRODUTOS } from '@/lib/produtos';
 
 // Caixas de tamanhos e cores diferentes (referência: BLOOMIE no Behance); ícones e Rabisco do kit.
@@ -219,6 +220,51 @@ export default function Inicio() {
               <p>Toque numa capa para ver as páginas por dentro.</p>
             </div>
             <GaleriaDeTemas />
+          </div>
+        </section>
+
+        {/* 5b. Os livros publicados da turma, em inglês (pedido do dono, 26/10/2026) */}
+        <section className="secao" id="little-paws">
+          <div className="miolo">
+            <div className="titulo-secao">
+              <h2 className="titulo-rabisco titulo-estrela">Os livros da turma Little Paws</h2>
+              <p>
+                Pip, Bo, Luna, Milo e Dot já são personagens de livros publicados, em inglês. Histórias curtas, com frases que se repetem e que as
+                crianças adoram falar junto: um jeito leve de ajudar seu filho a aprender inglês desde cedo, com uma turma que ele já conhece.
+              </p>
+            </div>
+            <div className="livros-publicados">
+              {LIVROS_PUBLICADOS.map((l) => (
+                <article key={l.id} className="livro-publicado">
+                  {l.capa && (
+                    <Image src={l.capa.src} alt={`Capa do livro ${l.titulo}`} width={l.capa.largura} height={l.capa.altura} className="livro-publicado-capa" />
+                  )}
+                  <span className="selo-ingles">Em inglês</span>
+                  <h3 lang="en">{l.titulo}</h3>
+                  {l.subtitulo && (
+                    <p className="livro-publicado-sub" lang="en">
+                      {l.subtitulo}
+                    </p>
+                  )}
+                  <p>{l.historia}</p>
+                  <p className="letra-miuda">{l.formatos}</p>
+                  {l.links.some((x) => linkValido(x.url)) && (
+                    <div className="livro-publicado-links">
+                      {l.links
+                        .filter((x) => linkValido(x.url))
+                        .map((x) => (
+                          <a key={x.url} className="botao botao-secundario botao-pequeno" href={x.url} target="_blank" rel="noopener noreferrer">
+                            {x.formato} na Amazon
+                          </a>
+                        ))}
+                    </div>
+                  )}
+                </article>
+              ))}
+            </div>
+            <p className="letra-miuda" style={{ textAlign: 'center', marginTop: 18 }}>
+              O livrinho personalizado do Meu Livrinho de Colorir vem em português, com o nome do seu filho e a turma junto.
+            </p>
           </div>
         </section>
 
