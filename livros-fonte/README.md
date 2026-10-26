@@ -11,7 +11,7 @@ Servem de base para gerar novas histórias, inclusive as versões personalizadas
 | `02-little-paws-big-play/ilustrado-8x10-e-ebook.md` | Little Paws, Big Play | Ilustrado colorido 8 × 10" + eBook | Publicado |
 | `03-little-paws-big-christmas/colorir-e-atividades-8.5x11.md` | Little Paws, Big Christmas | Colorir + atividades 8,5 × 11" | Publicado |
 | `03-little-paws-big-christmas/ilustrado-8x10-e-ebook.md` | Little Paws, Big Christmas | Ilustrado colorido 8 × 10" + eBook | Em produção |
-| `04-little-paws-futebol/ilustrado-8x10-brasil.md` | Little Paws: O Grande Gol (futebol, protagonista Milo, entra o Kiko) | Ilustrado colorido 8 × 10", português, impresso sob medida e PDF no site; inglês depois | Pronto para gerar as imagens |
+| `04-little-paws-futebol/ilustrado-8x10-brasil.md` | Little Paws: A Grande Final de Futebol (protagonista Milo, entra o Kiko) | Ilustrado colorido 8 × 10", português, impresso sob medida e PDF no site; inglês depois | Pronto para gerar as imagens |
 | `99-rascunhos/the-saturday-team-beisebol.md` | The Saturday Team (beisebol) | Colorir 8,5 × 8,5" | Não publicado |
 
 ## Elementos que se repetem em todos os pacotes

@@ -1,13 +1,15 @@
-# Little Paws: O Grande Gol (livro ilustrado, edição brasileira)
+# Little Paws: A Grande Final de Futebol (livro ilustrado, edição brasileira)
 ## História completa e pacote de produção (imagens no ChatGPT, montagem e impressão sob medida)
 
-**Série:** Little Team Tales (Livro 4) · **Público:** 4 a 8 anos · **Esporte:** futebol, num festival de bairro · **Protagonista:** Milo
+**Série:** Little Team Tales (Livro 4) · **Público:** 4 a 8 anos · **Esporte:** futebol, na final do festival do bairro · **Protagonista:** Milo
 **Idioma:** português do Brasil. A versão em inglês vem depois, com as mesmas imagens (seção 11).
 
 **Produtos (decisão do dono, 26/10/2026):**
 1. **Impresso sob medida:** R$ 79,90, vendido no site (`/turma/comprar`). A gráfica imprime cada exemplar quando a pessoa pede.
 2. **PDF para imprimir em casa:** R$ 29,90, vendido no site.
 3. **Depois:** paperback 8 × 10" e eBook Kindle em inglês, na KDP.
+
+**Nome (decisão do dono, 26/10/2026):** *Little Paws: A Grande Final de Futebol*, com o subtítulo *Uma história sobre prestar atenção*. Os livros infantis de futebol que vendem no Brasil dizem "futebol" no título (*Uma história de futebol*, *Maluquinho por futebol*, *É dia de futebol*), e "O Grande Jogo" já é o nome da edição brasileira do livro de basquete. O grito "Olho na bola!" vai na capa como chamada. Não há medição de volume de busca por trás da escolha: o Semrush estava sem créditos de API no dia.
 
 **Formato:** 8 × 10" retrato (203 × 254 mm), 32 páginas, colorido. É o mesmo formato do Big Game, do Big Play e do Big Christmas ilustrados, para a arte servir sem mudança na versão em inglês.
 
@@ -17,7 +19,7 @@ As imagens são geradas SEM nenhum texto: título, frases e nomes entram depois,
 
 ## A história desta versão
 
-**Em uma frase:** a turma precisa de seis jogadores para o Festival de Futebol da Praça, mas só tem cinco. Milo, que repara em tudo menos no que devia, descobre alguém espiando atrás da árvore: o Kiko, o porco-espinho novo do bairro, que quer jogar mas tem medo de furar a bola com os espinhos. No futebol a bola é no pé, então ele entra no time. No jogo, Milo se distrai com uma borboleta e o time leva um gol; no segundo tempo, ele aprende a olhar para a bola, rouba a bola da Zuzu e começa a jogada que termina com o gol do Kiko.
+**Em uma frase:** a turma precisa de seis jogadores para entrar no Festival de Futebol da Praça, que termina numa grande final, mas só tem cinco. Milo, que repara em tudo menos no que devia, descobre alguém espiando atrás da árvore: o Kiko, o porco-espinho novo do bairro, que quer jogar mas tem medo de furar a bola com os espinhos. No futebol a bola é no pé, então ele entra no time. Na final, Milo se distrai com uma borboleta e o time leva um gol; no segundo tempo, ele aprende a olhar para a bola, rouba a bola da Zuzu e começa a jogada que termina com o gol de empate do Kiko. A final termina empatada, e o festival declara os dois times campeões.
 
 **A lição: prestar atenção.** Sem bronca: reparar em tudo é bom (foi assim que o Milo achou o Kiko), mas cada coisa tem a sua hora. Na última página, com o jogo acabado, o Milo finalmente olha a borboleta com calma.
 
@@ -36,7 +38,7 @@ As imagens são geradas SEM nenhum texto: título, frases e nomes entram depois,
 **Estrutura em três atos:**
 1. **Páginas 3 a 10, o time de seis:** o cartaz, falta um jogador, o Milo vê alguém atrás da árvore, o Kiko e o medo de furar a bola, "a bola é no pé", as camisas.
 2. **Páginas 11 a 17, o treino:** a bola vai e volta, o Milo distraído, a bola na árvore, a conversa com a Dot, o grito do time e a semana de treino.
-3. **Páginas 18 a 32, o festival:** os Stripes, a borboleta e o gol deles, o intervalo, a borboleta ignorada, o desarme, a jogada do time, o gol do Kiko, o empate, a pipoca juntos, a borboleta no nariz do Milo e o convite para o beisebol.
+3. **Páginas 18 a 32, a grande final:** os Stripes, a borboleta e o gol deles, o intervalo, a borboleta ignorada, o desarme, a jogada do time, o gol do Kiko, o empate e os dois campeões, a pipoca juntos, a borboleta no nariz do Milo e o convite para o beisebol.
 
 São cerca de **900 palavras**, com duas a quatro frases por página, para leitura em voz alta.
 
@@ -124,7 +126,7 @@ A numeração segue o livro impresso: a página 01 fica à direita, as páginas 
 ### Página 1, folha de rosto
 
 **Texto da página (inserido na montagem, NÃO desenhar):**
-> Little Paws: O Grande Gol · Uma história sobre prestar atenção · Rodrigo Moraes & Luana David
+> Little Paws: A Grande Final de Futebol · Uma história sobre prestar atenção · Rodrigo Moraes & Luana David
 
 **Área do texto:** metade superior
 
@@ -152,13 +154,13 @@ Illustrate page 03 only. Five friends in their soccer uniforms stand in a friend
 ### Página 4, o cartaz
 
 **Texto da página (inserido na montagem, NÃO desenhar):**
-> Num sábado de sol, Pip encontrou um cartaz na praça. O Festival de Futebol ia começar! Mas tinha uma regra: cada time precisava de seis jogadores.
+> Num sábado de sol, Pip encontrou um cartaz na praça: o Festival de Futebol ia começar, com uma grande final no fim do mês! Mas tinha uma regra: cada time precisava de seis jogadores.
 
 **Área do texto:** faixa superior
 
 **Prompt:**
 ```
-Illustrate page 04 only. In the neighborhood square, Pip, in a plain pastel T-shirt, stands on tiptoe pointing excitedly at a wooden notice board with a picture-only poster: a soccer ball and six small paw prints, no writing. The big round-crowned tree stands at the right side. Pip alone in the foreground, small houses far behind. Text zone: TOP. Follow the master prompt and the approved character sheets. No lettering of any kind.
+Illustrate page 04 only. In the neighborhood square, Pip, in a plain pastel T-shirt, stands on tiptoe pointing excitedly at a wooden notice board with a picture-only poster: a soccer ball, six small paw prints and a simple shining trophy shape, no writing. The big round-crowned tree stands at the right side. Pip alone in the foreground, small houses far behind. Text zone: TOP. Follow the master prompt and the approved character sheets. No lettering of any kind.
 ```
 
 ### Página 5, falta um!
@@ -317,16 +319,16 @@ Illustrate page 16 only. Funny bedtime moment in Milo's small cozy bathroom at h
 Illustrate page 17 only. Golden after-school light on the practice field: Bo dives sideways in front of a small goal and the soccer ball sneaks just past his fingertips into the net, his face surprised and funny; Kiko, who kicked it, cheers with his quills puffed up; Milo, in the middle, concentrates hard on a second practice ball at his feet; Pip and Luna laugh nearby. Text zone: BOTTOM. Follow the master prompt and the approved character sheets. No lettering of any kind.
 ```
 
-### Página 18, dia de festival
+### Página 18, dia da grande final
 
 **Texto da página (inserido na montagem, NÃO desenhar):**
-> Chegou o sábado! A praça estava cheia de bandeirinhas, pipoca e famílias. Na primeira fila, a Vovó Ursa balançava um pompom laranja.
+> Chegou o sábado da grande final! A praça estava cheia de bandeirinhas, pipoca e famílias. Na primeira fila, a Vovó Ursa balançava um pompom laranja.
 
 **Área do texto:** faixa superior
 
 **Prompt:**
 ```
-Illustrate page 18 only. Festival day: the six Little Paws players walk onto the field in uniform, Pip bouncing ahead, Bo with his gloves, Luna, Dot, Kiko and Milo. One string of plain colored pennant flags crosses the scene below the text band; at the edge, a simple popcorn cart with no writing. In the front row of the crowd, Grandma Bear waves an orange pom-pom; a few simple animal families sit behind her on picnic blankets. Text zone: TOP. Follow the master prompt and the approved character sheets. No lettering of any kind.
+Illustrate page 18 only. Final day of the festival: the six Little Paws players walk onto the field in uniform, Pip bouncing ahead, Bo with his gloves, Luna, Dot, Kiko and Milo. One string of plain colored pennant flags crosses the scene below the text band; at the edge, a simple popcorn cart with no writing. In the front row of the crowd, Grandma Bear waves an orange pom-pom; a few simple animal families sit behind her on picnic blankets. Text zone: TOP. Follow the master prompt and the approved character sheets. No lettering of any kind.
 ```
 
 ### Página 19, os Stripes
@@ -344,7 +346,7 @@ Illustrate page 19 only. Medium shot at the center of the field: Pip shakes paws
 ### Página 20, a borboleta
 
 **Texto da página (inserido na montagem, NÃO desenhar):**
-> Priii! O jogo começou. Pip correu, Luna organizou, Dot cuidou da defesa. E o Milo… o Milo viu a borboleta amarela pousar bem em cima da trave.
+> Priii! A final começou. Pip correu, Luna organizou, Dot cuidou da defesa. E o Milo… o Milo viu a borboleta amarela pousar bem em cima da trave.
 
 **Área do texto:** faixa superior
 
@@ -449,16 +451,16 @@ Illustrate page 27 only. Kiko kicks the soccer ball with a balanced, careful kic
 Illustrate page 28 only. Explosion of joy: Kiko jumps with both arms up, all his rounded quills standing up in a fluffy fan; Milo, Pip, Luna and Dot run toward him cheering; Bo celebrates far back by his goal with gloves raised. The soccer ball rests in the Stripes' net. In the crowd, Grandma Bear jumps with her orange pom-pom. Pennant flags above. Text zone: BOTTOM. Follow the master prompt and the approved character sheets. No lettering of any kind.
 ```
 
-### Página 29, empate
+### Página 29, dois campeões
 
 **Texto da página (inserido na montagem, NÃO desenhar):**
-> Priii! O jogo terminou empatado. Mas ninguém ficou triste: Stripes e Little Paws comemoraram juntos, pulando e rindo. E abraçando o Kiko com cuidado.
+> Priii! A final terminou empatada. E o festival anunciou: “Dois times campeões!” Stripes e Little Paws comemoraram juntos, pulando e rindo. E abraçando o Kiko com cuidado.
 
 **Área do texto:** faixa superior
 
 **Prompt:**
 ```
-Illustrate page 29 only. End of the match: the two teams celebrate together in the middle of the field, players of both colors jumping and laughing; Zuzu and Milo high-five; several friends give Kiko a very careful group hug, paws placed gently around his quills, everyone smiling. No scoreboard. Text zone: TOP. Follow the master prompt and the approved character sheets. No lettering of any kind.
+Illustrate page 29 only. End of the final: the two teams celebrate together in the middle of the field, every player wearing a simple gold medal on a ribbon (no writing), players of both colors jumping and laughing; Zuzu and Milo high-five; several friends give Kiko a very careful group hug, paws placed gently around his quills, everyone smiling. No scoreboard. Text zone: TOP. Follow the master prompt and the approved character sheets. No lettering of any kind.
 ```
 
 ### Página 30, pipoca para todo mundo
@@ -504,7 +506,7 @@ Illustrate page 32 only. Warm sunset on a neighborhood sidewalk: Kiko, still in 
 A capa impressa é montada a partir de duas imagens separadas, frente e verso. A lombada é uma faixa de cor e não precisa ser gerada.
 
 ### Capa frontal
-**Texto aplicado depois:** "Little Team Tales" (topo) · **LITTLE PAWS** · **O GRANDE GOL** · "Uma história sobre prestar atenção" · "Rodrigo Moraes & Luana David" (rodapé).
+**Texto aplicado depois:** "Little Team Tales" (topo) · **LITTLE PAWS** · **A GRANDE FINAL DE FUTEBOL** · "Uma história sobre prestar atenção" · chamada num selo redondo: **"Olho na bola!"** · "Rodrigo Moraes & Luana David" (rodapé).
 
 ```
 Create the FRONT COVER ART ONLY for the picture book, portrait 2:3 canvas (1024x1536), full color, same style as the master prompt and the approved character sheets. Milo stands in the center of the sunny soccer field with one foot on a soccer ball, a big proud grin and eyes on the ball, while a tiny yellow butterfly flutters just above his head. Around him, Pip, Luna, Dot and Kiko cheer in their coral soccer uniforms, and Bo stands in the small goal behind them with his orange gloves raised. Pennant flags and the big round-crowned tree in the background, small houses far behind. Keep the upper 35% of the canvas as simple bright sky (reserved for the title) and the bottom 12% as plain grass (reserved for the author names). Keep every character away from the edges. No text, letters, logos or numbers anywhere.
@@ -519,7 +521,7 @@ Create the BACK COVER ART ONLY, portrait 2:3 canvas (1024x1536), full color, sam
 
 **Texto da contracapa:**
 > **Seis amigos. Uma bola. Uma borboleta muito distraente.**
-> O Milo repara em tudo: nas nuvens, nos passarinhos, no carrinho de pipoca. Foi assim que ele achou o Kiko, o porco-espinho novo do bairro, que queria jogar mas tinha medo de furar a bola. Agora o time tem seis jogadores para o Festival de Futebol da Praça. Só falta o Milo aprender a olhar para a bola na hora certa.
+> O Milo repara em tudo: nas nuvens, nos passarinhos, no carrinho de pipoca. Foi assim que ele achou o Kiko, o porco-espinho novo do bairro, que queria jogar mas tinha medo de furar a bola. Agora o time tem seis jogadores para a grande final do Festival de Futebol da Praça. Só falta o Milo aprender a olhar para a bola na hora certa.
 > Uma história engraçada e carinhosa sobre prestar atenção, fazer amigos novos e jogar em time, com um grito para a criança repetir junto: *"Olho na bola, pé na bola, passa a bola!"*
 > meulivrinhodecolorir.com.br
 
@@ -527,7 +529,7 @@ Create the BACK COVER ART ONLY, portrait 2:3 canvas (1024x1536), full color, sam
 
 ## 6. Página de créditos (página 02)
 
-> Little Paws: O Grande Gol · Uma história sobre prestar atenção
+> Little Paws: A Grande Final de Futebol · Uma história sobre prestar atenção
 > Texto © 2026 Rodrigo Moraes e Luana David. Todos os direitos reservados.
 > Nenhuma parte deste livro pode ser reproduzida sem autorização por escrito dos autores.
 > Série Little Team Tales
@@ -550,6 +552,7 @@ Create the BACK COVER ART ONLY, portrait 2:3 canvas (1024x1536), full color, sam
 - Ninguém encosta em ninguém nas disputas de bola? Só os goleiros usam as mãos?
 - Há só uma bola, branca com pentágonos pretos e sem escrita? (A página 17 é a única com duas bolas.)
 - Não há nenhuma letra, número, placar ou texto?
+- Na página 29, as medalhas são lisas, sem número nem escrita? O cartaz da página 04 mostra só o desenho do troféu?
 - **A área do texto ficou calma e livre?**
 - O topo e a base mostram só fundo? Nenhum personagem encosta nas bordas?
 
@@ -600,7 +603,7 @@ Create the BACK COVER ART ONLY, portrait 2:3 canvas (1024x1536), full color, sam
 
 As imagens não mudam: só o texto é trocado na montagem.
 
-- **Título provisório:** *Little Paws, Big Goal* · *A Story About Paying Attention*
+- **Título provisório:** *Little Paws, Big Final* · *A Story About Paying Attention* (no padrão Big Game, Big Play, Big Christmas)
 - **Refrãos:** "Eyes on the ball, feet on the ball, pass the ball!" e "The ball goes, the ball comes back. Nobody plays alone."
 - **Formatos:** paperback 8 × 10" (Premium Color, como os outros) e eBook Kindle de layout fixo, na série Little Team Tales.
 - **A fazer quando chegar a hora:** traduzir as 32 páginas (texto em inglês americano, como os outros livros), a contracapa, os créditos e preencher os campos da KDP (título, série como Main content, categorias de futebol e de amizade, palavras-chave, preço e descrição), seguindo o modelo do `02-little-paws-big-play/ilustrado-8x10-e-ebook.md`.
