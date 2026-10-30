@@ -5,8 +5,10 @@ import 'server-only';
 //   PAGAMENTO_LINK_TURMA_IMPRESSO e PAGAMENTO_LINK_TURMA_PDF: os links de
 //   pagamento que o dono cria (um por formato, porque o preço é o mesmo para
 //   todos os livros). Sem eles, o pedido fica registrado e o dono cobra.
+//   N8N_WEBHOOK_TURMA: o fluxo "Meu Livrinho | pedido da turma", que manda
+//   um e-mail para o dono a cada pedido novo (sem ele, o pedido só fica na tabela).
 
-import type { FormatoDaTurma, PedidoDaTurma } from '@/lib/livros-publicados';
+import { acharEdicao, ROTULO_DO_FORMATO, type FormatoDaTurma, type PedidoDaTurma } from '@/lib/livros-publicados';
 import { comChaveDeServico, fotoLigada } from './fotos';
 
 export const turmaLigada = fotoLigada;
@@ -43,4 +45,29 @@ export async function anonimizarPedidosDaTurma(userId: string): Promise<void> {
     body: JSON.stringify({ responsavel: '(apagado)', email: '(apagado)', whatsapp: '(apagado)', endereco: null, user_id: null }),
   });
   if (!r.ok) throw new Error(`pedidos_turma ${r.status}`);
+}
+
+/** Avisa o dono do pedido novo. Falhar aqui não derruba o pedido: ele já está gravado. */
+export async function avisarDonoDaTurma(id: string, pedido: PedidoDaTurma, conta: { email: string }): Promise<void> {
+  const destino = process.env.N8N_WEBHOOK_TURMA;
+  if (!destino) return;
+  const achado = acharEdicao(pedido.edicao);
+  const r = await fetch(destino, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      pedido_id: id,
+      livro: achado ? `${achado.livro.titulo} (${achado.edicao.tipo})` : pedido.edicao,
+      formato: ROTULO_DO_FORMATO[pedido.formato],
+      valor: (pedido.precoCentavos / 100).toFixed(2).replace('.', ','),
+      responsavel: pedido.responsavel,
+      email: conta.email,
+      whatsapp: pedido.whatsapp,
+      endereco: pedido.endereco
+        ? `${pedido.endereco.rua}, ${pedido.endereco.numero}${pedido.endereco.complemento ? `, ${pedido.endereco.complemento}` : ''}, ${pedido.endereco.bairro}, ${pedido.endereco.cidade}/${pedido.endereco.uf}, CEP ${pedido.endereco.cep}`
+        : null,
+    }),
+    cache: 'no-store',
+  });
+  if (!r.ok) throw new Error(`n8n turma ${r.status}`);
 }

@@ -7,7 +7,7 @@
 //   F=http://127.0.0.1:4556; NEXT_PUBLIC_SUPABASE_URL=$F NEXT_PUBLIC_SUPABASE_ANON_KEY=anon-falsa npx next build
 //   NEXT_PUBLIC_SUPABASE_URL=$F NEXT_PUBLIC_SUPABASE_ANON_KEY=anon-falsa SUPABASE_URL=$F \
 //     SUPABASE_SERVICE_ROLE_KEY=chave-de-servico-falsa N8N_WEBHOOK_PEDIDO=$F/n8n \
-//     N8N_WEBHOOK_FICHA=$F/n8n-ficha CRON_SECRET=teste npx next start -p 3100 &
+//     N8N_WEBHOOK_FICHA=$F/n8n-ficha N8N_WEBHOOK_TURMA=$F/n8n-turma CRON_SECRET=teste npx next start -p 3100 &
 //   SITE=http://localhost:3100 FALSO=$F REGISTRO=/tmp/sf.jsonl npm run conferir:navegador
 import { existsSync, readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
@@ -294,6 +294,8 @@ await p.selectOption('#end-uf', 'SP');
 await p.getByRole('button', { name: 'Pedir o impresso' }).click();
 await p.getByText('Pedido registrado!').waitFor();
 let turma = (await estado()).pedidosTurma;
+const aviso = JSON.parse(readFileSync(`${REGISTRO}.turma`, 'utf8').trim().split('\n').at(-1));
+assert.ok(aviso.valor === '79,90' && aviso.formato === 'Impresso sob medida' && aviso.endereco.includes('CEP 01532001') && /Big Game/.test(aviso.livro), 'o dono recebe o aviso do pedido com valor, formato e endereço');
 assert.ok(turma.length === 1 && turma[0].preco_centavos === 7990 && turma[0].edicao === 'big-game-ilustrado' && turma[0].endereco.cep === '01532001' && turma[0].user_id === carla, 'impresso gravado com o preço do servidor, o endereço e a conta');
 const barato = await p.request.post(`${SITE}/api/turma/pedido`, { data: { edicao: 'big-play-colorir', formato: 'pdf', responsavel: 'Carla', whatsapp: '11912345678', precoCentavos: 1, endereco: { cep: '01532001' } } });
 assert.equal(barato.status(), 200);

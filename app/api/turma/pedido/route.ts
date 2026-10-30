@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { lerPedidoDaTurma } from '@/lib/livros-publicados';
 import { contaDaSessao } from '@/lib/servidor/sessao';
-import { guardarPedidoDaTurma, linkDePagamentoDaTurma, turmaLigada } from '@/lib/servidor/turma';
+import { avisarDonoDaTurma, guardarPedidoDaTurma, linkDePagamentoDaTurma, turmaLigada } from '@/lib/servidor/turma';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,5 +27,6 @@ export async function POST(req: Request) {
     console.error('[turma] pedido não gravou', e);
     return NextResponse.json({ mensagem: 'Não conseguimos registrar o pedido agora. Tente de novo em instantes.' }, { status: 502 });
   }
+  await avisarDonoDaTurma(id, lido.pedido, conta).catch((e) => console.error('[turma] aviso ao dono falhou', id, e));
   return NextResponse.json({ id, pagar: linkDePagamentoDaTurma(lido.pedido.formato) });
 }

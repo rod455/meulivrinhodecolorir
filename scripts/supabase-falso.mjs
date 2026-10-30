@@ -112,6 +112,7 @@ http
       if (u.pathname === '/n8n-ficha') { n8nFicha(json()).catch((e) => console.error('n8n falso', e)); return responder(r, 200, { recebido: true }); }
       if (u.pathname === '/__confirmar-email') { confirmarEmail = u.searchParams.get('ligar') === '1'; return responder(r, 200, { confirmarEmail }); }
       if (u.pathname === '/__pdf') { const p = pedidos.find((x) => x.id === u.searchParams.get('pedido')); if (p) { p.link_pdf = `${p.id}.pdf`; p.status = 'entregue'; arquivos.set(`livros/${p.id}.pdf`, Buffer.from('%PDF')); } return responder(r, 200, { ok: Boolean(p) }); }
+      if (u.pathname === '/n8n-turma') { appendFileSync(`${registro}.turma`, `${corpo.toString()}\n`); return responder(r, 200, { ok: true }); }
       if (u.pathname === '/n8n') { appendFileSync(`${registro}.n8n`, `${corpo.toString()}\n`); return responder(r, 200, { ok: true }); }
 
       // Auth
