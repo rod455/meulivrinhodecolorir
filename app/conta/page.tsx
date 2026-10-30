@@ -117,7 +117,7 @@ export default async function PaginaConta() {
                       <Icone nome="livro" />
                     </span>
                     <span className="linha-texto">
-                      <strong lang="en">{achado ? achado.livro.titulo : p.edicao}</strong>
+                      <strong lang={achado?.livro.idioma === 'en' ? 'en' : undefined}>{achado ? achado.livro.titulo : p.edicao}</strong>
                       <small>
                         {achado?.edicao.tipo} · {ROTULO_DO_FORMATO[p.formato]} · {new Date(p.criado_em).toLocaleDateString('pt-BR')} · {emReais(p.preco_centavos)}
                       </small>

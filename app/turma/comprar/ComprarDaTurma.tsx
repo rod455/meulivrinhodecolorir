@@ -74,8 +74,8 @@ export function ComprarDaTurma({ edicaoId, formatoInicial, google }: { edicaoId:
       <div className="cartao turma-resumo">
         {edicao.capa && <Image src={edicao.capa.src} alt={`Capa do livro ${livro.titulo}`} width={edicao.capa.largura} height={edicao.capa.altura} />}
         <div>
-          <span className="selo-ingles">Em inglês</span>
-          <h1 lang="en">{livro.titulo}</h1>
+          <span className="selo-ingles">{livro.idioma === 'pt' ? 'Em português' : 'Em inglês'}</span>
+          <h1 lang={livro.idioma === 'en' ? 'en' : undefined}>{livro.titulo}</h1>
           <p className="letra-miuda">{edicao.tipo}</p>
           <p>{livro.historia}</p>
         </div>

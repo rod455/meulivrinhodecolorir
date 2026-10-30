@@ -51,19 +51,20 @@ const p = await novaPagina();
 await p.goto(`${SITE}/?utm_source=teste&utm_campaign=suite`);
 // "Temas exclusivos": os livros da turma com a capa e, por último, personalizar a história completa
 const temas = p.locator('#temas .tema-cartao');
-assert.equal(await temas.count(), 4, 'três livros e o personalizado');
-assert.equal(await p.locator('#temas img[alt^="Capa do livro"]').count(), 3, 'cada livro com a capa de verdade');
+assert.equal(await temas.count(), 5, 'quatro livros e o personalizado');
+assert.equal(await p.locator('#temas img[alt^="Capa do livro"]').count(), 4, 'cada livro com a capa de verdade');
 assert.equal(await temas.last().getByRole('link').evaluateAll((as) => as.map((a) => new URL(a.href).search).join()), '?produto=lembrancinha,?produto=presente,?produto=combo', 'o último leva aos três livrinhos personalizados');
-assert.equal(await p.locator('#little-paws img[alt^="Capa do livro"]').count(), 3, 'a seção dos livros também mostra as capas');
+assert.equal(await p.locator('#little-paws img[alt^="Capa do livro"]').count(), 4, 'a seção dos livros também mostra as capas');
 // os livros publicados da turma, em inglês: os três aparecem, e sem link de verdade não há botão
 const publicados = p.locator('#little-paws article');
-assert.equal(await publicados.count(), 3, 'os três livros publicados da turma aparecem na LP');
-assert.equal(await publicados.filter({ hasText: 'Em inglês' }).count(), 3, 'cada livro diz que é em inglês');
+assert.equal(await publicados.count(), 4, 'os quatro livros publicados da turma aparecem na LP');
+assert.equal(await publicados.filter({ hasText: 'Em inglês' }).count(), 3, 'os três primeiros dizem que são em inglês');
+assert.equal(await publicados.filter({ hasText: 'Em português' }).count(), 1, 'o de futebol diz que é em português');
 const kindles = p.locator('#little-paws a[target="_blank"]');
 assert.equal(await kindles.count(), 3, 'um Kindle por livro ilustrado');
 assert.equal(await kindles.evaluateAll((as) => as.filter((a) => !/^https:\/\/www\.amazon\.com\/dp\/[A-Z0-9]{10}$/.test(a.href)).length), 0, 'Kindle só com link da Amazon');
-assert.equal(await p.locator('#little-paws').getByRole('link', { name: 'Impresso R$ 79,90' }).count(), 6, 'cada edição tem o impresso a R$ 79,90');
-assert.equal(await p.locator('#little-paws').getByRole('link', { name: 'PDF R$ 29,90' }).count(), 6, 'cada edição tem o PDF a R$ 29,90');
+assert.equal(await p.locator('#little-paws').getByRole('link', { name: 'Impresso R$ 79,90' }).count(), 7, 'cada edição tem o impresso a R$ 79,90');
+assert.equal(await p.locator('#little-paws').getByRole('link', { name: 'PDF R$ 29,90' }).count(), 7, 'cada edição tem o PDF a R$ 29,90');
 // quem já tem conta acha o "Entrar" no cabeçalho, também no celular, onde o menu some
 const entrarNoTopo = p.locator('header').getByRole('link', { name: 'Entrar', exact: true });
 assert.ok(await entrarNoTopo.isVisible(), 'Entrar à vista no cabeçalho do celular');

@@ -229,8 +229,9 @@ export default function Inicio() {
             <div className="titulo-secao">
               <h2 className="titulo-rabisco titulo-estrela">Os livros da turma Little Paws</h2>
               <p>
-                Pip, Bo, Luna, Milo e Dot já são personagens de livros publicados, em inglês. Histórias curtas, com frases que se repetem e que as
-                crianças adoram falar junto: um jeito leve de ajudar seu filho a aprender inglês desde cedo, com uma turma que ele já conhece.
+                Pip, Bo, Luna, Milo e Dot já são personagens de livros publicados. Os três primeiros são em inglês, com histórias curtas e frases que
+                se repetem, que as crianças adoram falar junto: um jeito leve de ajudar seu filho a aprender inglês desde cedo, com uma turma que ele já
+                conhece. E o mais novo, A Grande Final de Futebol, chegou primeiro em português.
               </p>
             </div>
             <div className="livros-publicados">
@@ -239,10 +240,10 @@ export default function Inicio() {
                 return (
                   <article key={l.id} id={`livro-${l.id}`} className="livro-publicado">
                     {capa && <Image src={capa.src} alt={`Capa do livro ${l.titulo}`} width={capa.largura} height={capa.altura} className="livro-publicado-capa" />}
-                    <span className="selo-ingles">Em inglês</span>
-                    <h3 lang="en">{l.titulo}</h3>
+                    <span className="selo-ingles">{l.idioma === 'pt' ? 'Em português' : 'Em inglês'}</span>
+                    <h3 lang={l.idioma === 'en' ? 'en' : undefined}>{l.titulo}</h3>
                     {l.subtitulo && (
-                      <p className="livro-publicado-sub" lang="en">
+                      <p className="livro-publicado-sub" lang={l.idioma === 'en' ? 'en' : undefined}>
                         {l.subtitulo}
                       </p>
                     )}

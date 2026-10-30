@@ -22,6 +22,7 @@ ok(edicoes.every((e) => e.kindle === null || linkValido(e.kindle)), 'todo Kindle
 ok(edicoes.filter((e) => e.kindle).every((e) => e.tipo === 'Livro ilustrado'), 'Kindle só nos ilustrados');
 ok(!linkValido('https://golpe.example/dp/B0HKW6ZHSD') && !linkValido('http://www.amazon.com/dp/B0HKW6ZHSD'), 'link de fora da Amazon ou sem https não passa');
 ok(acharEdicao('big-play-colorir')?.livro.id === 'big-play' && acharEdicao('qualquer') === null, 'acha a edição pelo id');
+ok(LIVROS_PUBLICADOS.filter((l) => l.idioma === 'pt').every((l) => l.edicoes.every((e) => e.kindle === null)), 'livro em português não tem Kindle (o Kindle é da versão em inglês)');
 
 // 3. o pedido
 const endereco = { cep: '01532-001', rua: 'Rua das Flores', numero: '10', complemento: '', bairro: 'Centro', cidade: 'São Paulo', uf: 'sp' };

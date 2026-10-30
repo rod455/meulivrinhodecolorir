@@ -22,7 +22,7 @@ export function TemasDaTurma() {
             <span>
               <strong style={{ fontSize: '1.15rem' }}>{l.tema}</strong>
               <br />
-              <span className="letra-miuda" lang="en">
+              <span className="letra-miuda" lang={l.idioma === 'en' ? 'en' : undefined}>
                 {l.titulo}
               </span>
               <br />

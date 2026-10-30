@@ -26,6 +26,8 @@ export type LivroPublicado = {
   id: string;
   titulo: string;
   subtitulo: string | null;
+  /** o idioma do texto: os três primeiros saíram em inglês; o de futebol, primeiro em português */
+  idioma: 'pt' | 'en';
   /** como o livro aparece em "Temas exclusivos" na LP */
   tema: string;
   /** o que a criança vive na história, em português */
@@ -35,7 +37,19 @@ export type LivroPublicado = {
 
 export const LIVROS_PUBLICADOS: LivroPublicado[] = [
   {
+    // Livro 4 (livros-fonte/04-little-paws-futebol): saiu primeiro em português; o Kindle entra com a versão em inglês
+    id: 'grande-final',
+    idioma: 'pt',
+    tema: 'Futebol com a turma',
+    titulo: 'Little Paws: A Grande Final de Futebol',
+    subtitulo: 'Uma história sobre prestar atenção',
+    historia:
+      'O Milo repara em tudo, menos na bola. Foi assim que ele achou o Kiko, o porco-espinho novo do bairro, que completou o time para a grande final. Agora só falta o Milo aprender a olhar para a bola na hora certa.',
+    edicoes: [{ id: 'grande-final-ilustrado', tipo: 'Livro ilustrado', capa: { src: '/livros/grande-final-ilustrado.webp', largura: 800, altura: 1001 }, kindle: null }],
+  },
+  {
     id: 'big-game',
+    idioma: 'en',
     tema: 'Basquete com a turma',
     titulo: 'Little Paws, Big Game',
     subtitulo: 'A Story About Teamwork',
@@ -48,6 +62,7 @@ export const LIVROS_PUBLICADOS: LivroPublicado[] = [
   },
   {
     id: 'big-play',
+    idioma: 'en',
     tema: 'Flag football com a turma',
     titulo: 'Little Paws, Big Play',
     subtitulo: 'A Story About Gentle Strength',
@@ -60,6 +75,7 @@ export const LIVROS_PUBLICADOS: LivroPublicado[] = [
   },
   {
     id: 'big-christmas',
+    idioma: 'en',
     tema: 'Natal com a turma',
     titulo: 'Little Paws, Big Christmas',
     subtitulo: 'A Christmas Story About Patience',
