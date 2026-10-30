@@ -12,6 +12,11 @@ Servem de base para gerar novas histórias, inclusive as versões personalizadas
 | `03-little-paws-big-christmas/colorir-e-atividades-8.5x11.md` | Little Paws, Big Christmas | Colorir + atividades 8,5 × 11" | Publicado |
 | `03-little-paws-big-christmas/ilustrado-8x10-e-ebook.md` | Little Paws, Big Christmas | Ilustrado colorido 8 × 10" + eBook | Em produção |
 | `04-little-paws-futebol/ilustrado-8x10-brasil.md` | Little Paws: A Grande Final de Futebol (protagonista Milo, entra o Kiko) | Ilustrado colorido 8 × 10", português, impresso sob medida e PDF no site; inglês depois | Pronto para gerar as imagens |
+| `10-personalizados/README.md` | Receita para virar qualquer livro da turma um tema personalizado | Guia | Pronto |
+| `10-personalizados/futebol-little-paws.md` | {NOME} entra em campo! (futebol) | Personalizado, modelo completo | No site; faltam as cenas base |
+| `10-personalizados/basquete-little-paws.md` | {NOME} entra na quadra! (basquete, do Big Game) | Personalizado | Pronto para gerar as cenas base |
+| `10-personalizados/flag-football-little-paws.md` | {NOME} e a grande jogada (flag football, do Big Play) | Personalizado | Pronto para gerar as cenas base |
+| `10-personalizados/natal-little-paws.md` | O Natal de {NOME} com a turma (do Big Christmas) | Personalizado | Pronto para gerar as cenas base |
 | `99-rascunhos/the-saturday-team-beisebol.md` | The Saturday Team (beisebol) | Colorir 8,5 × 8,5" | Não publicado |
 
 ## Elementos que se repetem em todos os pacotes
