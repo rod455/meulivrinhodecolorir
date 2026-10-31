@@ -8,15 +8,17 @@ export type Amigo = {
   jeito: string;
   /** id do livro em lib/livros-publicados.ts em que é protagonista; null se ainda não tem */
   livro: string | null;
+  /** retrato de perfil em public/artes/turma/ (gerado em 31/10/2026; original em docs/artes/marca/site/turma/) */
+  retrato: string;
   /** cor de apoio do cartão (classe tom-*) */
   tom: 'amarelo' | 'laranja' | 'verde' | 'azul' | 'rosa' | 'nuvem';
 };
 
 export const TURMA: Amigo[] = [
-  { nome: 'Pip', bicho: 'coelho', jeito: 'Pequeno e rapidinho. Queria fazer a cesta da vitória sozinho, até descobrir o time.', livro: 'big-game', tom: 'amarelo' },
-  { nome: 'Bo', bicho: 'urso', jeito: 'Grandão e gentil como um abraço. Aprendeu com a Vovó Ursa que patas grandes podem ser patas gentis.', livro: 'big-play', tom: 'laranja' },
-  { nome: 'Dot', bicho: 'tartaruga', jeito: 'A mais devagar da turma, e por isso a que mais repara. Foi ela quem achou a estrela do Natal.', livro: 'big-christmas', tom: 'verde' },
-  { nome: 'Milo', bicho: 'guaxinim', jeito: 'Repara em tudo, menos na bola. Na grande final de futebol, aprendeu a olhar na hora certa.', livro: 'grande-final', tom: 'azul' },
-  { nome: 'Luna', bicho: 'raposa', jeito: 'Sempre tem um plano na prancheta. O livro dela ainda está por vir.', livro: null, tom: 'rosa' },
-  { nome: 'Kiko', bicho: 'porco-espinho', jeito: 'O novo do bairro. Tinha medo de furar a bola com os espinhos, até descobrir que no futebol a bola é no pé.', livro: 'grande-final', tom: 'nuvem' },
+  { nome: 'Pip', retrato: '/artes/turma/pip.webp', bicho: 'coelho', jeito: 'Pequeno e rapidinho. Queria fazer a cesta da vitória sozinho, até descobrir o time.', livro: 'big-game', tom: 'amarelo' },
+  { nome: 'Bo', retrato: '/artes/turma/bo.webp', bicho: 'urso', jeito: 'Grandão e gentil como um abraço. Aprendeu com a Vovó Ursa que patas grandes podem ser patas gentis.', livro: 'big-play', tom: 'laranja' },
+  { nome: 'Dot', retrato: '/artes/turma/dot.webp', bicho: 'tartaruga', jeito: 'A mais devagar da turma, e por isso a que mais repara. Foi ela quem achou a estrela do Natal.', livro: 'big-christmas', tom: 'verde' },
+  { nome: 'Milo', retrato: '/artes/turma/milo.webp', bicho: 'guaxinim', jeito: 'Repara em tudo, menos na bola. Na grande final de futebol, aprendeu a olhar na hora certa.', livro: 'grande-final', tom: 'azul' },
+  { nome: 'Luna', retrato: '/artes/turma/luna.webp', bicho: 'raposa', jeito: 'Sempre tem um plano na prancheta. O livro dela ainda está por vir.', livro: null, tom: 'rosa' },
+  { nome: 'Kiko', retrato: '/artes/turma/kiko.webp', bicho: 'porco-espinho', jeito: 'O novo do bairro. Tinha medo de furar a bola com os espinhos, até descobrir que no futebol a bola é no pé.', livro: 'grande-final', tom: 'nuvem' },
 ];

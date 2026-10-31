@@ -57,6 +57,8 @@ assert.equal(await caminhos.nth(0).getAttribute('href'), '/criar?caminho=turma&t
 assert.equal(await caminhos.nth(1).getAttribute('href'), '/criar?caminho=sob-medida', 'a sob medida leva ao caminho dela');
 assert.equal(await p.locator('a[href*="caminho=zero"]').count(), 0, 'o caminho do zero saiu da página (o objetivo são os dois caminhos)');
 assert.equal(await p.locator('#turma .amigo-cartao').count(), 6, 'a turma inteira se apresenta');
+const retratos = await p.locator('#turma .amigo-cartao img.amigo-retrato').evaluateAll((imgs) => imgs.map((i) => i.getAttribute('src') ?? ''));
+assert.equal(new Set(retratos).size, 6, 'cada amigo tem o próprio retrato, inclusive o Kiko');
 assert.equal(await p.locator('#little-paws').getByText(/R\$/).filter({ visible: true }).count(), 0, 'preço só aparece se a pessoa abrir o livro original');
 const colocar = p.locator('#little-paws').getByRole('link', { name: 'Colocar meu filho' });
 assert.equal(await colocar.count(), 1, 'só a história com personalizado pronto oferece colocar o filho');

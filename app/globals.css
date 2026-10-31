@@ -569,8 +569,7 @@ p { margin: 0 0 1em; }
 .amigo-cartao strong { font: 800 1.35rem var(--fonte-titulo), system-ui, sans-serif; margin-top: 8px; }
 .amigo-cartao p { font-size: 0.95rem; margin: 6px 0 8px; }
 .amigo-cartao .amigo-livro { margin-top: auto; font-size: 0.92rem; }
-.amigo-retrato { display: block; width: 100%; aspect-ratio: 1 / 1.05; border-radius: 18px; border: 2px solid var(--grafite); background: url('/artes/turma-em-fila.webp') 0 25% / 380% auto no-repeat, var(--branco); }
-.amigo-retrato-letra { display: grid; place-items: center; background: var(--branco); font: 800 4rem var(--fonte-titulo), system-ui, sans-serif; }
+.amigo-retrato { display: block; width: 100%; height: auto; aspect-ratio: 1; border-radius: 18px; border: 2px solid var(--grafite); }
 
 /* as aventuras da turma */
 .aventuras { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(230px, 100%), 1fr)); gap: 18px; }

@@ -20,9 +20,6 @@ import { TURMA } from '@/lib/turma';
 // história 100% personalizada". Preço e pagamento ficam para depois: a página
 // mostra como funciona, e o nome digitado no topo acompanha tudo.
 
-/** Onde cada amigo está na arte da turma em fila (recorte por background-position). */
-const RECORTE_NA_FILA: Record<string, string> = { Pip: '0%', Bo: '23%', Luna: '52%', Milo: '78%', Dot: '100%' };
-
 const CUIDADOS: { icone: NomeDoIcone; titulo: string; texto: string }[] = [
   { icone: 'certo', titulo: 'Você aprova antes', texto: 'O desenho do personagem e, na história sob medida, o texto inteiro.' },
   { icone: 'cadeado', titulo: 'O nome fica com a gente', texto: 'O nome do seu filho nunca vai para a inteligência artificial que desenha e escreve.' },
@@ -94,16 +91,9 @@ export default function Inicio() {
           <ul className="turma-trilho" aria-label="A turma Little Paws">
             {TURMA.map((a) => {
               const livro = LIVROS_PUBLICADOS.find((l) => l.id === a.livro);
-              const recorte = RECORTE_NA_FILA[a.nome];
               return (
                 <li key={a.nome} className={`amigo-cartao tom-${a.tom}`}>
-                  {recorte ? (
-                    <span className="amigo-retrato" style={{ backgroundPositionX: recorte }} role="img" aria-label={`${a.nome}, ${a.bicho}`} />
-                  ) : (
-                    <span className="amigo-retrato amigo-retrato-letra" aria-hidden="true">
-                      {a.nome[0]}
-                    </span>
-                  )}
+                  <Image src={a.retrato} alt={`${a.nome}, ${a.bicho} da turma Little Paws`} width={640} height={640} className="amigo-retrato" sizes="220px" />
                   <strong>{a.nome}</strong>
                   <span className="letra-miuda">{a.bicho}</span>
                   <p>{a.jeito}</p>
