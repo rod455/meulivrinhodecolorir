@@ -670,5 +670,5 @@ p { margin: 0 0 1em; }
 .loja-linha { display: grid; gap: 6px; padding: 10px 12px; border-radius: 14px; background: var(--nuvem); }
 .loja-rotulo { font-weight: 800; font-size: 0.85rem; color: var(--grafite-suave); }
 .loja-botoes { display: flex; flex-wrap: wrap; gap: 6px; }
-.loja-linha .botao-pequeno { min-height: 38px; padding: 6px 12px; font-size: 0.9rem; }
+.loja-linha .botao-pequeno { min-height: 38px; padding: 6px 12px; font-size: 0.9rem; white-space: nowrap; }
 .imprima-voce { background: #fff3c9; }

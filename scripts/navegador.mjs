@@ -110,6 +110,10 @@ assert.equal(await pdfs.count(), 7, 'cada edição tem o PDF para imprimir em ca
 assert.ok(await pdfs.first().isVisible(), 'o PDF fica à vista, não escondido');
 assert.ok((await pdfs.evaluateAll((as) => as.map((a) => a.getAttribute('href')))).every((h) => /^\/turma\/comprar\?edicao=[a-z-]+&formato=pdf$/.test(h)), 'todo PDF leva à compra do PDF');
 assert.equal(await p.locator('#livro-grande-final .imprima-voce a').textContent(), 'Livro de história em PDF', 'a Grande Final, que não está na Amazon, tem o PDF');
+// todos os livros no mesmo padrão: só "Livro de história em PDF" e "Livro de colorir em PDF", numa linha cada (dono, 31/10/2026)
+assert.ok((await pdfs.allTextContents()).every((t) => t === 'Livro de história em PDF' || t === 'Livro de colorir em PDF'), 'os PDFs com os mesmos dois rótulos em todos os livros');
+const alturasDosBotoes = await p.locator('#little-paws .loja-linha a').evaluateAll((as) => as.map((a) => Math.round(a.getBoundingClientRect().height)));
+assert.ok(Math.max(...alturasDosBotoes) - Math.min(...alturasDosBotoes) <= 2, `nenhum botão quebra em duas linhas: ${alturasDosBotoes.join(', ')}`);
 // quem já tem conta acha o "Entrar" no cabeçalho, também no celular, onde o menu some
 const entrarNoTopo = p.locator('header').getByRole('link', { name: 'Entrar', exact: true });
 assert.ok(await entrarNoTopo.isVisible(), 'Entrar à vista no cabeçalho do celular');

@@ -217,7 +217,7 @@ export default function Inicio() {
                         <div className="loja-botoes">
                           {l.edicoes.map((e) => (
                             <Link key={e.id} className="botao botao-secundario botao-pequeno" href={`/turma/comprar?edicao=${e.id}&formato=pdf`}>
-                              {e.tipo === 'Livro ilustrado' ? 'Livro de história' : e.tipo} em PDF
+                              {e.tipo === 'Livro ilustrado' ? 'Livro de história' : 'Livro de colorir'} em PDF
                             </Link>
                           ))}
                         </div>
