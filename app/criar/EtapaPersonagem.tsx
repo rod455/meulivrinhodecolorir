@@ -7,6 +7,7 @@
 
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
+import { CampoDaIdade } from './Pecas';
 import {
   ALTURAS,
   APARENCIAS,
@@ -74,6 +75,8 @@ export function EtapaPersonagem({
   erro,
   parte,
   onParte,
+  idade,
+  onIdade,
 }: {
   personagem: Personagem;
   onMudar: (p: Personagem) => void;
@@ -83,6 +86,9 @@ export function EtapaPersonagem({
   /** em que telinha do personagem estamos: rosto e cabelo, roupa e cor, superpoder */
   parte: ParteDoPersonagem;
   onParte: (parte: ParteDoPersonagem) => void;
+  /** a idade muda o desenho, então ela é escolhida aqui (dono, 31/10/2026) */
+  idade: number;
+  onIdade: (n: number) => void;
 }) {
   const [consentiu, setConsentiu] = useState(Boolean(personagem.foto));
   const [enviando, setEnviando] = useState(false);
@@ -200,6 +206,7 @@ export function EtapaPersonagem({
         )}
 
         <Escolha titulo="A criança é" lista={APARENCIAS} valor={personagem.aparencia} onEscolher={(v) => muda('aparencia', v)} />
+        <CampoDaIdade idade={idade} onIdade={onIdade} nome={nome} />
 
         {jeito === 'foto' ? (
           <div className="campo">

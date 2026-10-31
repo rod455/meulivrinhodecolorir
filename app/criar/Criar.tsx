@@ -24,6 +24,7 @@ import { DESCONTO_PIX, ehProduto, emReais, LISTA_DE_PRODUTOS, PRODUTOS, totalDoP
 import { LIVROS_PUBLICADOS } from '@/lib/livros-publicados';
 import { caminhoDoTema, ehCaminho, ehTema, TEMAS, TEMAS_DO_CAMINHO, type Caminho, type TemaId } from '@/lib/temas';
 import { EtapaFicha } from './EtapaFicha';
+import { CampoDaIdade, EstanteDaTurma } from './Pecas';
 import { EtapaHistoria } from './EtapaHistoria';
 import { BRIEFING_INICIAL, type Briefing } from '@/lib/historia';
 import { EtapaPersonagem, partesDoPersonagem, type ParteDoPersonagem } from './EtapaPersonagem';
@@ -138,7 +139,6 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
   const [erros, setErros] = useState<ErrosDoPedido>({});
   const [enviando, setEnviando] = useState(false);
   const [falha, setFalha] = useState<string | null>(null);
-  const [abriuDedicatoria, setAbriuDedicatoria] = useState(false);
   const [parte, setParte] = useState<ParteDoPersonagem>(0);
   const topo = useRef<HTMLDivElement>(null);
   const viuPrevia = useRef(false);
@@ -221,8 +221,6 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
   const problema = r.nome.trim() ? problemaDoNome(r.nome) : null;
   const nomeNaCapa = problema === 'bloqueado' ? '' : nome;
   const temPersonagem = Boolean(r.tema && TEMAS[r.tema].comPersonagem);
-  // a dedicatória abre ao toque (etapa do nome mais curta); já escrita, fica aberta
-  const comDedicatoria = abriuDedicatoria || r.dedicatoria.trim() !== '';
   const ordem = ordemDasEtapas(r.caminho, temPersonagem);
   // a ficha aprovada só vale para o desenho de agora: mudou cabelo ou idade, desenha de novo
   const fichaEmDia = r.fichaAprovada && r.fichaDoDesenho === chaveDoDesenho(r.personagem, r.idade);
@@ -453,6 +451,42 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
             {r.caminho === 'turma' ? `Em que história ${nomeNaCapa || 'seu filho'} vai entrar?` : 'Escolha o tema'}
           </h1>
           <p className="letra-miuda">Todos os temas são para meninos e meninas, de 2 a 8 anos.</p>
+          {r.caminho === 'turma' ? (
+            // as aventuras da turma pelas capas de verdade: a que já tem vaga para a criança e as que vêm aí (dono, 31/10/2026)
+            <div className="escolha-livros">
+              {LIVROS_PUBLICADOS.map((l) => {
+                const capa = l.edicoes.find((e) => e.capa)?.capa;
+                const capaImg = capa && <Image src={capa.src} alt="" width={capa.largura} height={capa.altura} className="escolha-livro-capa" sizes="200px" />;
+                const tema = l.temaPersonalizado;
+                return tema ? (
+                  <button
+                    key={l.id}
+                    type="button"
+                    className="escolha-livro"
+                    aria-pressed={r.tema === tema}
+                    onClick={() => {
+                      muda('tema', tema);
+                      registrar('tema_escolhido', { tema });
+                      irPara(r.produto ? 2 : 0);
+                    }}
+                  >
+                    {capaImg}
+                    <strong>{l.titulo.replace('Little Paws: ', '').replace('Little Paws, ', '')}</strong>
+                    <span className="letra-miuda">{nomeNaCapa || 'Seu filho'} entra no time e joga com {l.protagonista}.</span>
+                  </button>
+                ) : (
+                  <div key={l.id} className="escolha-livro escolha-livro-em-breve" aria-disabled="true">
+                    {capaImg}
+                    <span className="selo-em-breve">Em breve</span>
+                    <strong>{l.titulo.replace('Little Paws, ', '')}</strong>
+                    <span className="letra-miuda">
+                      {nomeNaCapa || 'Seu filho'} jogando com {l.protagonista}.
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
           <div className="escolhas">
             {TEMAS_DO_CAMINHO[r.caminho ?? 'zero'].map((t) => (
               <button
@@ -482,26 +516,24 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
                 )}
               </button>
             ))}
-            {r.caminho === 'turma' &&
-              LIVROS_PUBLICADOS.filter((l) => !l.temaPersonalizado).map((l) => {
-                const capa = l.edicoes.find((e) => e.capa)?.capa;
-                return (
-                  <div key={l.id} className="cartao escolha escolha-em-breve" aria-disabled="true">
-                    {capa && <Image src={capa.src} alt="" width={capa.largura} height={capa.altura} className="em-breve-capa" />}
-                    <span className="selo-em-breve">Em breve</span>
-                    <strong style={{ fontSize: '1.2rem' }}>{l.tema}</strong>
-                    <span className="letra-miuda">
-                      {nomeNaCapa || 'Seu filho'} jogando com {l.protagonista} em {l.titulo}.
-                    </span>
-                  </div>
-                );
-              })}
           </div>
+          )}
         </section>
       )}
 
       {etapa === 2 && r.produto && r.tema && produto && (
         <section className="criar-grade">
+          {r.caminho === 'turma' ? (
+            <EstanteDaTurma tema={r.tema} nome={nomeNaCapa} />
+          ) : sobMedida ? (
+            <figure className="criar-sob-medida-arte">
+              <Image src="/artes/turma-saindo-do-livro.webp" alt="" width={1536} height={1024} sizes="(min-width: 860px) 460px, 100vw" />
+              <figcaption>
+                <strong>{nomeNaCapa ? `A história de ${nomeNaCapa}` : 'A história do seu filho'}</strong>
+                <span className="letra-miuda">Escrita do zero, no jeito da turma Little Paws.</span>
+              </figcaption>
+            </figure>
+          ) : (
           <div className="criar-capas" aria-live="polite">
             <CapaLivrinho
               id="criar-capa"
@@ -518,6 +550,7 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
             )}
             <PaginaAmostra tema={r.tema} nome={nomeNaCapa} pagina={2} />
           </div>
+          )}
           <div>
             <h1 style={{ fontSize: 'clamp(1.8rem, 6vw, 2.4rem)' }}>Agora, o nome</h1>
             <p className="letra-miuda">
@@ -549,22 +582,10 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
                 </span>
               )}
             </div>
-            <div className="campo">
-              <label htmlFor="idade">Idade que vai fazer</label>
-              <select id="idade" value={r.idade} onChange={(e) => muda('idade', Number(e.target.value))}>
-                {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
-                  <option key={n} value={n}>
-                    {n} {n === 1 ? 'ano' : 'anos'}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {produto.temDedicatoria && !comDedicatoria && (
-              <button type="button" className="adicionar" onClick={() => setAbriuDedicatoria(true)}>
-                + Adicionar dedicatória <span className="letra-miuda">(opcional)</span>
-              </button>
-            )}
-            {produto.temDedicatoria && comDedicatoria && (
+            {/* a idade muda o desenho: com personagem ela fica na tela do personagem; sem, fica aqui (vai para a capa) */}
+            {!temPersonagem && <CampoDaIdade idade={r.idade} onIdade={(n) => muda('idade', n)} />}
+            {/* a dedicatória já aberta: a família só escreve (dono, 31/10/2026) */}
+            {produto.temDedicatoria && (
               <div className="campo">
                 <label htmlFor="dedicatoria">
                   Dedicatória <span className="letra-miuda">(opcional)</span>
@@ -574,7 +595,7 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
                   value={r.dedicatoria}
                   maxLength={LIMITE_DA_DEDICATORIA + 20}
                   onChange={(e) => muda('dedicatoria', e.target.value)}
-                  placeholder="Escreva com carinho…"
+                  placeholder={`Ex.: ${DEDICATORIAS_PRONTAS[0]}`}
                   aria-describedby="dedicatoria-ajuda"
                 />
                 <span className="contador">
@@ -585,14 +606,6 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
                     {erros.dedicatoria}
                   </span>
                 )}
-                <div className="sugestoes">
-                  <span className="ajuda">Ou toque numa sugestão:</span>
-                  {DEDICATORIAS_PRONTAS.map((d) => (
-                    <button key={d} type="button" onClick={() => muda('dedicatoria', d)}>
-                      {d}
-                    </button>
-                  ))}
-                </div>
               </div>
             )}
           </div>
@@ -608,6 +621,8 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
           erro={erros.personagem}
           parte={parte}
           onParte={mudarParte}
+          idade={r.idade}
+          onIdade={(n) => muda('idade', n)}
         />
       )}
 
@@ -833,7 +848,15 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
       {comPainel && r.tema && r.produto && (
         <aside className="livro-em-construcao" aria-label="O livro em construção">
           <strong className="painel-titulo">{nomeNaCapa ? `O livro de ${nomeNaCapa}` : 'O seu livro'}</strong>
-          <CapaLivrinho id="painel-capa" tema={r.tema} produto={livroComHistoria ? 'presente' : 'lembrancinha'} nome={nomeNaCapa} idade={r.idade} corte={0.6} />
+          {(() => {
+            // na turma, a capa de verdade da aventura escolhida; nos outros caminhos, a capa montada
+            const capa = r.caminho === 'turma' ? LIVROS_PUBLICADOS.find((l) => l.temaPersonalizado === r.tema)?.edicoes.find((e) => e.capa)?.capa : null;
+            return capa ? (
+              <Image src={capa.src} alt="" width={capa.largura} height={capa.altura} className="painel-capa-real" sizes="240px" />
+            ) : (
+              <CapaLivrinho id="painel-capa" tema={r.tema} produto={livroComHistoria ? 'presente' : 'lembrancinha'} nome={nomeNaCapa} idade={r.idade} corte={0.6} />
+            );
+          })()}
           <ul className="painel-lista">
             <li className={nomeNaCapa ? 'feito' : ''}>
               <span>Nome</span>

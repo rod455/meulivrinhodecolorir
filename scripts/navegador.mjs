@@ -138,9 +138,9 @@ await p.getByRole('button', { name: 'Continuar' }).click();
 await p.getByText('Esse nome não pode ir para a capa').first().waitFor();
 await p.fill('#nome', 'Laura');
 // a dedicatória é opcional e abre ao toque, para a etapa do nome ficar curta
-assert.equal(await p.locator('#dedicatoria').count(), 0, 'dedicatória fechada até a pessoa pedir');
-await p.getByRole('button', { name: /Adicionar dedicatória/ }).click();
-await p.getByRole('button', { name: /Feliz aniversário/ }).click();
+// a dedicatória já vem aberta: a família só escreve (dono, 31/10/2026)
+assert.ok(await p.locator('#dedicatoria').isVisible(), 'a dedicatória já vem aberta');
+await p.fill('#dedicatoria', 'Feliz aniversário! Com amor, vovó.');
 await p.getByRole('button', { name: 'Continuar' }).click();
 
 // para comprar precisa de conta: sem ela, nem aparece o botão de pagar
@@ -188,13 +188,37 @@ await vitrine.getByRole('heading', { name: 'Como você quer começar?' }).waitFo
 assert.equal(await vitrine.locator('.escolhas-caminho .escolha').count(), 2, 'o começo tem os dois caminhos');
 await vitrine.getByRole('button', { name: /Com a turma Little Paws/ }).click();
 await vitrine.getByRole('heading', { name: /Em que história/ }).waitFor();
-assert.equal(await vitrine.locator('.selo-personagem').count(), 1, 'na turma, o futebol com personagem');
-assert.equal(await vitrine.locator('.escolha-em-breve').count(), 3, 'e as outras histórias em breve');
+// a escolha da aventura pelas capas de verdade: a do futebol escolhe, as outras dizem em breve
+assert.equal(await vitrine.locator('button.escolha-livro img').count(), 1, 'na turma, o futebol se escolhe pela capa');
+assert.equal(await vitrine.locator('.escolha-livro-em-breve').count(), 3, 'e as outras histórias em breve, com capa');
 await vitrine.getByRole('button', { name: /Voltar/ }).click();
 await vitrine.getByRole('button', { name: /História 100% personalizada/ }).click();
 await vitrine.getByRole('heading', { name: 'Agora, o nome' }).waitFor();
 await vitrine.getByText('Passo 2 de 6').waitFor();
 assert.equal(await vitrine.locator('.barra-fixa').getByText(/R\$/).count(), 0, 'antes de pagar, a barra fala do livro e não do preço');
+
+// a tela do nome na turma: à esquerda, as quatro capas, com a escolhida em destaque; a idade foi para o personagem
+const estante = await novaPagina();
+await estante.goto(`${SITE}/criar?caminho=turma`);
+await estante.getByRole('heading', { name: /Em que história/ }).waitFor();
+await estante.locator('button.escolha-livro').click();
+await estante.getByRole('button', { name: /Livrinho presente/ }).click();
+await estante.getByRole('heading', { name: 'Agora, o nome' }).waitFor();
+assert.equal(await estante.locator('.estante-da-turma figure').count(), 4, 'as quatro capas ao lado do nome');
+assert.equal(await estante.locator('.estante-livro-escolhido img').getAttribute('alt'), 'A aventura escolhida: Little Paws: A Grande Final de Futebol', 'a escolhida em destaque');
+assert.equal(await estante.locator('#idade').count(), 0, 'com personagem, a idade não fica na tela do nome');
+assert.ok(await estante.locator('#dedicatoria').isVisible(), 'a dedicatória já vem aberta');
+await estante.fill('#nome', 'Luiza');
+await estante.locator('.estante-livro-escolhido figcaption', { hasText: 'A história de Luiza' }).waitFor();
+await estante.getByRole('button', { name: 'Continuar' }).click();
+await estante.getByRole('heading', { name: 'Crie o personagem' }).waitFor();
+assert.ok(await estante.locator('#idade').isVisible(), 'a idade fica na tela do personagem, onde muda o desenho');
+// da página inicial, "Colocar meu filho" já cai depois da escolha da história
+await estante.goto(`${SITE}/`);
+await estante.evaluate(() => localStorage.clear());
+await estante.locator('#livro-grande-final').getByRole('link', { name: 'Colocar meu filho' }).click();
+await estante.getByRole('heading', { name: 'Em que formato?' }).waitFor();
+await estante.close();
 
 // futebol com foto, já com a conta aberta
 const foto = await sharp({ create: { width: 1200, height: 900, channels: 3, background: '#a86b48' } })
@@ -420,9 +444,9 @@ await intrusa.locator('#propria').getByRole('link', { name: 'Escrever a históri
 await intrusa.getByRole('heading', { name: 'Agora, o nome' }).waitFor();
 assert.equal(await intrusa.locator('.etapas li').count(), 6, 'a sob medida tem seis etapas (o começo, o nome, o personagem, o desenho, a história e pagar)');
 await intrusa.fill('#nome', 'theo');
-await intrusa.selectOption('#idade', '5');
 await intrusa.getByRole('button', { name: 'Continuar' }).click();
 await intrusa.getByRole('heading', { name: 'Crie o personagem' }).waitFor();
+await intrusa.selectOption('#idade', '5');
 await ateOSuperpoder(intrusa);
 await intrusa.getByRole('button', { name: 'Coragem' }).click();
 await intrusa.getByRole('button', { name: 'Continuar' }).click();
