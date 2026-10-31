@@ -7,7 +7,8 @@
 //   F=http://127.0.0.1:4556; NEXT_PUBLIC_SUPABASE_URL=$F NEXT_PUBLIC_SUPABASE_ANON_KEY=anon-falsa npx next build
 //   NEXT_PUBLIC_SUPABASE_URL=$F NEXT_PUBLIC_SUPABASE_ANON_KEY=anon-falsa SUPABASE_URL=$F \
 //     SUPABASE_SERVICE_ROLE_KEY=chave-de-servico-falsa N8N_WEBHOOK_PEDIDO=$F/n8n \
-//     N8N_WEBHOOK_FICHA=$F/n8n-ficha N8N_WEBHOOK_TURMA=$F/n8n-turma CRON_SECRET=teste npx next start -p 3100 &
+//     N8N_WEBHOOK_FICHA=$F/n8n-ficha N8N_WEBHOOK_TURMA=$F/n8n-turma \
+//     N8N_WEBHOOK_HISTORIA=$F/n8n-historia CRON_SECRET=teste npx next start -p 3100 &
 //   SITE=http://localhost:3100 FALSO=$F REGISTRO=/tmp/sf.jsonl npm run conferir:navegador
 import { existsSync, readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
@@ -49,8 +50,10 @@ const p = await novaPagina();
 
 // LP: a prévia muda a capa enquanto digita, e o botão leva o nome para o fluxo
 await p.goto(`${SITE}/?utm_source=teste&utm_campaign=suite`);
-// a primeira escolha da LP (31/10/2026): as histórias da turma ou uma história do zero
-assert.equal(await p.locator('.hero .caminho').count(), 2, 'o topo oferece os dois caminhos');
+// a primeira escolha da LP (31/10/2026): as histórias da turma, uma do zero ou a sob medida
+assert.equal(await p.locator('.hero .caminho').count(), 3, 'o topo oferece os três caminhos');
+assert.equal(await p.locator('.hero .caminho-sob-medida').getAttribute('href'), '/criar?caminho=sob-medida', 'a sob medida leva ao criar pelo caminho dela');
+assert.equal(await p.locator('#sob-medida').getByText('R$ 39,90').count(), 1, 'a seção da sob medida mostra o preço');
 assert.equal(await p.locator('.hero .caminho-zero').getAttribute('href'), '/criar?caminho=zero', 'do zero leva ao criar pelo caminho certo');
 assert.equal(await p.locator('#turma .amigo').count(), 6, 'a turma inteira se apresenta');
 const colocar = p.locator('#little-paws').getByRole('link', { name: 'Colocar meu filho na história' });
@@ -363,6 +366,86 @@ await intrusa.fill('#conta-senha', 'outra-senha-123');
 await intrusa.getByRole('button', { name: 'Entrar', exact: true }).click();
 await intrusa.waitForURL(/\/conta/);
 
+// a história 100% personalizada (31/10/2026): a IA escreve, a família aprova o texto e o desenho, e o nome nunca vai para a IA
+await intrusa.goto(`${SITE}/`);
+await intrusa.locator('.hero .caminho-sob-medida').click();
+await intrusa.getByRole('heading', { name: 'Agora, o nome' }).waitFor();
+assert.equal(await intrusa.locator('.etapas li').count(), 6, 'a sob medida tem seis etapas (o começo, o nome, o personagem, o desenho, a história e pagar)');
+await intrusa.fill('#nome', 'theo');
+await intrusa.selectOption('#idade', '5');
+await intrusa.getByRole('button', { name: 'Continuar' }).click();
+await intrusa.getByRole('heading', { name: 'Crie o personagem' }).waitFor();
+await ateOSuperpoder(intrusa);
+await intrusa.getByRole('button', { name: 'Coragem' }).click();
+await intrusa.getByRole('button', { name: 'Continuar' }).click();
+await intrusa.getByRole('button', { name: 'Desenhar Theo' }).click();
+await intrusa.locator('img.ficha-previa').waitFor({ timeout: 20000 });
+await intrusa.getByRole('button', { name: 'Amei, quero o livrinho' }).click();
+// depois do desenho, a história: sem texto aprovado, nada de pagar
+await intrusa.getByRole('heading', { name: 'A história de Theo' }).waitFor();
+assert.equal(await intrusa.getByRole('button', { name: /Pagar com/ }).count(), 0, 'sem história aprovada, sem pagar');
+await intrusa.getByRole('button', { name: 'Na praia' }).click();
+await intrusa.getByRole('button', { name: 'Enfrentar um medo' }).click();
+await intrusa.fill('#gosta', 'O Theo adora conchas e o mar');
+await intrusa.getByRole('button', { name: /Tem bichinho de estimação/ }).click();
+await intrusa.fill('#bicho-especie', 'cachorro');
+await intrusa.fill('#bicho-nome', 'Pipoca');
+await intrusa.fill('#detalhe', 'THEO mora na rua 1234, tel (11) 91234-5678');
+await intrusa.getByRole('button', { name: 'Escrever a história de Theo' }).click();
+await intrusa.getByText('Escrevendo a história de Theo…').waitFor();
+await intrusa.getByRole('heading', { name: 'Theo e o mar de conchas' }).waitFor({ timeout: 20000 });
+const paginasDaHistoria = intrusa.locator('.historia-paginas li');
+assert.equal(await paginasDaHistoria.count(), 16, 'a família lê as dezesseis páginas');
+const textoNaTela = (await paginasDaHistoria.allTextContents()).join('\n');
+assert.ok(textoNaTela.includes('Theo e a Lili') && !textoNaTela.includes('{NOME}'), 'o nome volta na tela');
+assert.ok(!/[\u2013\u2014]/.test(textoNaTela), 'o travessão que a IA escreveu não chega na tela');
+let daHistoria = (await estado()).historias.at(-1);
+assert.ok(!JSON.stringify(daHistoria).match(/theo/i), 'o nome não fica guardado na história');
+assert.ok(!JSON.stringify(daHistoria.briefing).includes('1234'), 'número comprido sai do briefing');
+assert.equal(daHistoria.briefing.bichinho.nome, 'Pipoca', 'o bichinho entra');
+assert.equal(daHistoria.token, null, 'o bilhete do n8n morre quando o texto chega');
+let trabalhoDaHistoria = (await estado()).trabalhosDeHistoria.at(-1);
+assert.equal(trabalhoDaHistoria.status, 200);
+assert.ok(!/theo/i.test(JSON.stringify(trabalhoDaHistoria)), 'o nome não vai para a IA');
+assert.ok(trabalhoDaHistoria.pedido.includes('{NOME}') && trabalhoDaHistoria.instrucoes.includes('16 pages'), 'a IA recebe {NOME} e a estrutura da turma');
+const textoTrocado = await fetch(`${SITE}/api/historia/pronta`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ historia_id: daHistoria.id, token: 'x'.repeat(64), texto: '{}' }) });
+assert.equal(textoTrocado.status, 404, 'ninguém troca o texto de uma história pronta');
+// um ajuste: reescreve, o pedido passa pela mesma limpeza e gasta um dos dois
+await intrusa.getByRole('button', { name: 'Pedir um ajuste (restam 2)' }).click();
+await intrusa.fill('#ajuste', 'O Theo quer achar um tesouro no final');
+await intrusa.getByRole('button', { name: 'Reescrever com o ajuste' }).click();
+await intrusa.getByRole('heading', { name: 'Theo e o tesouro da praia' }).waitFor({ timeout: 20000 });
+await intrusa.getByRole('button', { name: 'Pedir um ajuste (resta 1)' }).waitFor();
+trabalhoDaHistoria = (await estado()).trabalhosDeHistoria.at(-1);
+assert.ok(trabalhoDaHistoria.pedido.includes('{NOME} quer achar um tesouro') && !/theo/i.test(trabalhoDaHistoria.pedido), 'o ajuste vai sem o nome');
+// o servidor não aceita pagar história sem aprovação, mesmo que alguém pule a tela
+const fichaDoTheo = (await estado()).fichas.at(-1);
+const semAprovar = await intrusa.request.post(`${SITE}/api/pedido`, {
+  data: { produto: 'sob-medida', tema: 'sob-medida', nome: 'Theo', idade: 5, responsavel: 'Outra', whatsapp: '21998765432', pagamento: 'pix', personagem: fichaDoTheo.personagem, fichaId: fichaDoTheo.id, historiaId: daHistoria.id },
+});
+assert.equal(semAprovar.status(), 422, 'história sem aprovação não vira pedido');
+assert.ok((await semAprovar.json()).erros?.historiaId, 'e o erro aponta a história');
+await intrusa.getByRole('button', { name: 'Amei, aprovar a história' }).click();
+await intrusa.getByText(/Theo e o tesouro da praia”, história aprovada por você/).waitFor();
+await intrusa.getByText('R$ 37,90').first().waitFor();
+await intrusa.fill('#responsavel', 'Outra Pessoa');
+await intrusa.fill('#whatsapp', '(21) 99876-5432');
+await intrusa.getByRole('button', { name: 'Pagar com Pix' }).click();
+await intrusa.waitForURL(/\/obrigado\?pedido=/, { timeout: 15000 });
+const { pedido: sobMedida } = ultimoAvisoAoN8n();
+assert.equal(sobMedida.produto, 'sob-medida');
+assert.equal(sobMedida.total_centavos, 3790, 'R$ 39,90 com o Pix, recalculado no servidor');
+assert.equal(sobMedida.modelo, 'sob-medida-little-paws-v1');
+assert.equal(sobMedida.plano.paginas.length, 16, 'dezesseis páginas no plano');
+assert.equal(sobMedida.plano.titulo, 'Theo e o tesouro da praia', 'o livro usa a versão aprovada');
+assert.equal(sobMedida.personagem.superpoder, 'coragem', 'o superpoder é o da história');
+const promptsDaHistoria = [sobMedida.plano.elenco.prompt, sobMedida.plano.capa.prompt, ...sobMedida.plano.paginas.map((pg) => pg.prompt)];
+assert.ok(promptsDaHistoria.every((t) => !/theo/i.test(t) && !t.includes('{NOME}')), 'o nome não vai para o prompt de imagem');
+daHistoria = (await estado()).historias.find((h) => h.id === daHistoria.id);
+assert.equal(daHistoria.pedido_id, sobMedida.id, 'a história fica presa ao pedido');
+const deNovo = await intrusa.request.post(`${SITE}/api/historia/${daHistoria.id}/ajustar`, { data: { pedido: 'mudar tudo de novo', nome: 'Theo' } });
+assert.equal(deNovo.status(), 409, 'história que virou pedido não muda mais');
+
 // o "next" da volta do login só aceita caminho do próprio site
 const desvio = await intrusa.request.get(`${SITE}/auth/callback?next=//golpe.example`, { maxRedirects: 0 });
 assert.ok(!desvio.headers().location.includes('golpe.example'), 'next para fora do site é ignorado');
@@ -392,7 +475,9 @@ const daCarla = agora.pedidos.filter((x) => x.whatsapp === '(apagado)');
 assert.equal(daCarla.length, 2, 'os dois pedidos da Carla foram anonimizados');
 assert.ok(daCarla.every((x) => x.nome_crianca === '(apagado)' && x.email === '(apagado)' && x.plano === null && x.total_centavos > 0), 'fica só a venda');
 assert.ok(!agora.arquivos.some((a) => a.startsWith('livros/')), 'o PDF saiu do armazenamento');
-assert.ok(!agora.arquivos.some((a) => a.startsWith('fichas/')), 'as fichas do personagem saíram do armazenamento');
+// só sobram os arquivos de fichas de outras contas (a da sob medida, acima)
+const fichasQueFicam = new Set(agora.fichas.map((f) => f.caminho_imagem));
+assert.ok(agora.arquivos.filter((a) => a.startsWith('fichas/')).every((a) => fichasQueFicam.has(a.replace('fichas/', ''))), 'as fichas da Carla saíram do armazenamento');
 assert.ok(!agora.fichas.some((f) => f.user_id === carla), 'nenhuma ficha da Carla sobrou no banco');
 assert.ok(agora.pedidosTurma.every((x) => x.responsavel === '(apagado)' && x.endereco === null && x.user_id === null && x.preco_centavos > 0), 'livros da turma: some quem comprou e o endereço, fica a venda');
 

@@ -32,6 +32,8 @@ export type Pedido = {
   personagem: Personagem | null;
   /** a ficha que a família aprovou; obrigatória nos temas com personagem */
   fichaId: string | null;
+  /** a história escrita pela IA que a família aprovou; obrigatória na sob medida */
+  historiaId: string | null;
   total: number;
 };
 
@@ -112,6 +114,15 @@ export function lerPedido(entrada: Record<string, unknown>):
     else erros.personagem ??= 'Aprove o desenho do personagem antes de pagar.';
   }
 
+  // a sob medida é um produto de um tema só, e o tema só tem esse produto
+  let historiaId: string | null = null;
+  const sobMedida = ehTema(tema) && TEMAS[tema].sobMedida === true;
+  if (ehProduto(produto) && ehTema(tema) && (produto === 'sob-medida') !== sobMedida) erros.produto = 'Escolha o livrinho de novo.';
+  if (sobMedida) {
+    if (ehUuid(entrada.historiaId)) historiaId = entrada.historiaId;
+    else erros.historiaId = 'Aprove o texto da história antes de pagar.';
+  }
+
   const pagamento = entrada.pagamento === 'cartao' ? 'cartao' : 'pix';
 
   if (Object.keys(erros).length > 0 || !ehProduto(produto) || !ehTema(tema) || !whatsapp) {
@@ -136,6 +147,7 @@ export function lerPedido(entrada: Record<string, unknown>):
       aceitaLembrete: entrada.aceitaLembrete === true && Boolean(dataBruta),
       personagem,
       fichaId,
+      historiaId,
       total: totalDoPedido(produto, pagamento),
     },
   };

@@ -89,6 +89,8 @@ export const DESENHOS: Record<TemaId, Forma[]> = {
   futebol,
   natal,
   'fundo-do-mar': fundoDoMar,
+  // a sob medida usa as artes da turma (lib/temas.ts); o desenho fica só de reserva
+  'sob-medida': futebol,
 };
 
 /** Recorte (viewBox) da segunda página de amostra: um detalhe da cena, ampliado. */
@@ -96,4 +98,5 @@ export const DETALHE: Record<TemaId, string> = {
   futebol: '22 50 118 132',
   natal: '138 108 98 74',
   'fundo-do-mar': '32 28 170 112',
+  'sob-medida': '22 50 118 132',
 };

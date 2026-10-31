@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server';
 import { CAMPOS_DE_ORIGEM } from '@/lib/origem';
 import { planoDoLivro } from '@/lib/geracao';
+import { planoDaHistoria, type TextoDaHistoria } from '@/lib/historia';
 import { lerPedido } from '@/lib/pedido';
 import type { Personagem } from '@/lib/personagem';
 import { fichaPorId, mudarFicha } from '@/lib/servidor/fichas';
+import { historiaPorId, mudarHistoria } from '@/lib/servidor/historias';
 import { ligarFotoAoPedido } from '@/lib/servidor/fotos';
 import { destinosLigados, guardarPedido, linkDePagamento } from '@/lib/servidor/pedidos';
 import { contaDaSessao } from '@/lib/servidor/sessao';
@@ -81,8 +83,28 @@ export async function POST(req: Request) {
     fichaAprovada = { id: ficha.id, caminho: ficha.caminho_imagem! };
   }
 
+  // a sob medida: o texto é o da história aprovada, e o superpoder é o dela (a página 13 foi escrita com ele)
+  let texto: TextoDaHistoria | null = null;
+  if (pedido.historiaId) {
+    const h = await historiaPorId(pedido.historiaId).catch(() => null);
+    const valida = h && h.user_id === conta.id && h.status === 'pronta' && h.aprovada_em && h.texto && !h.pedido_id && h.idade === pedido.idade;
+    if (!valida || !personagem) {
+      return NextResponse.json(
+        { erros: { historiaId: 'Aprove o texto da história de novo antes de pagar.' }, mensagem: 'Confira a história.' },
+        { status: 422 },
+      );
+    }
+    texto = h.texto;
+    personagem = { ...personagem, superpoder: h.superpoder };
+  }
+
   const id = crypto.randomUUID();
-  const plano = personagem ? planoDoLivro({ nome: pedido.nome, idade: pedido.idade, produto: pedido.produto, personagem }) : null;
+  const plano =
+    texto && personagem && pedido.historiaId
+      ? planoDaHistoria({ historiaId: pedido.historiaId, nome: pedido.nome, idade: pedido.idade, personagem, texto })
+      : personagem
+        ? planoDoLivro({ nome: pedido.nome, idade: pedido.idade, produto: pedido.produto, personagem })
+        : null;
   if (plano) plano.ficha.aprovada = fichaAprovada;
   // a foto só serviu para a ficha; fica ligada ao pedido para sumir no prazo dela
   const foto = personagem?.foto ?? null;
@@ -94,6 +116,7 @@ export async function POST(req: Request) {
   if (foto) await ligarFotoAoPedido(foto.caminho, id, conta.id).catch((e) => console.error('[pedido] foto sem pedido', id, e));
   // a ficha passa a ser deste pedido: não serve para outro e sai do limite diário
   if (fichaAprovada) await mudarFicha(fichaAprovada.id, { pedido_id: id }).catch((e) => console.error('[pedido] ficha sem pedido', id, e));
+  if (pedido.historiaId) await mudarHistoria(pedido.historiaId, { pedido_id: id }).catch((e) => console.error('[pedido] história sem pedido', id, e));
 
   return NextResponse.json({ id, pagar: linkDePagamento(pedido) });
 }

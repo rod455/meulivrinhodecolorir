@@ -26,6 +26,7 @@ export function EtapaFicha({
   onAprovada,
   onAjustar,
   onEscolher,
+  sobMedida = false,
 }: {
   personagem: Personagem;
   idade: number;
@@ -41,6 +42,8 @@ export function EtapaFicha({
   onAjustar: () => void;
   /** voltar a um desenho que a família já viu: o personagem passa a ser o dele */
   onEscolher: (desenho: DesenhoFeito) => void;
+  /** na história sob medida os amigos são outros, criados para a história */
+  sobMedida?: boolean;
 }) {
   const [situacao, setSituacao] = useState<Situacao>(fichaId ? 'gerando' : 'parada');
   const [restantes, setRestantes] = useState<number | null>(null);
@@ -210,7 +213,7 @@ export function EtapaFicha({
           <div className="enquanto-isso">
             <strong>Enquanto isso, o que vem no livrinho</strong>
             <ul>
-              <li>{quem} aparece na história, jogando com a turma</li>
+              <li>{sobMedida ? `${quem} é a estrela de uma história escrita do zero` : `${quem} aparece na história, jogando com a turma`}</li>
               <li>O arquivo chega na hora, por e-mail e WhatsApp</li>
               <li>Você imprime quantas vezes quiser</li>
             </ul>
@@ -220,7 +223,7 @@ export function EtapaFicha({
 
       {situacao === 'pronta' && fichaId && (
         <div className="ficha-pronta">
-          <p className="ficha-revelacao">É assim que {quem} vai aparecer na história, junto com a turma Little Paws.</p>
+          <p className="ficha-revelacao">É assim que {quem} vai aparecer na história, {sobMedida ? 'no traço da turma Little Paws' : 'junto com a turma Little Paws'}.</p>
           {/* a revelação ganha festa, uma vez só e sem movimento para quem pediu menos movimento (revisão de CRO) */}
           <div className="ficha-palco">
             {/* eslint-disable-next-line @next/next/no-img-element */}

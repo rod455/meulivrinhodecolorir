@@ -9,10 +9,11 @@ import 'server-only';
 // guardado em lugar nenhum é pedido perdido.
 
 import type { PlanoDoLivro } from '@/lib/geracao';
+import type { PlanoSobMedida } from '@/lib/historia';
 import type { Pedido } from '@/lib/pedido';
 
-/** `plano` só existe nos temas com personagem: é a receita que o n8n executa. */
-export type Registro = Pedido & { id: string; criadoEm: string; origem: Record<string, string>; plano: PlanoDoLivro | null; userId: string };
+/** `plano` só existe nos temas com personagem: é a receita que o n8n executa (a da turma ou a da sob medida). */
+export type Registro = Pedido & { id: string; criadoEm: string; origem: Record<string, string>; plano: PlanoDoLivro | PlanoSobMedida | null; userId: string };
 
 export function destinosLigados() {
   return {
@@ -22,7 +23,7 @@ export function destinosLigados() {
 }
 
 export function linkDePagamento(pedido: Pedido): string | null {
-  const chave = `PAGAMENTO_LINK_${pedido.produto.toUpperCase()}_${pedido.pagamento === 'pix' ? 'PIX' : 'CARTAO'}`;
+  const chave = `PAGAMENTO_LINK_${pedido.produto.toUpperCase().replace(/-/g, '_')}_${pedido.pagamento === 'pix' ? 'PIX' : 'CARTAO'}`;
   const link = process.env[chave];
   return link && /^https:\/\//.test(link) ? link : null;
 }

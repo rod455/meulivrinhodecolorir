@@ -57,6 +57,7 @@ export default function Inicio() {
   const lembrancinha = PRODUTOS.lembrancinha;
   const presente = PRODUTOS.presente;
   const combo = PRODUTOS.combo;
+  const sobMedida = PRODUTOS['sob-medida'];
 
   return (
     <>
@@ -72,7 +73,7 @@ export default function Inicio() {
               </h1>
               <p className="hero-sub">
                 Pip, Bo, Luna, Dot, Milo e o Kiko vivem aventuras de esporte e amizade em livros para ler e pintar. Leve a história deles, coloque
-                seu filho dentro dela, ou crie uma história do zero, só dele.
+                seu filho dentro dela, crie uma história do zero, ou peça uma história inteira escrita só para ele.
               </p>
               <div className="caminhos">
                 <a href="#turma" className="cartao caminho caminho-turma">
@@ -84,6 +85,11 @@ export default function Inicio() {
                   <strong>Uma história do zero</strong>
                   <span>Seu filho é o herói de uma história só dele, com o nome na capa. A partir de {emReais(MENOR_PRECO)}.</span>
                   <span className="caminho-seta">Criar do zero →</span>
+                </Link>
+                <Link href="/criar?caminho=sob-medida" className="cartao caminho caminho-sob-medida">
+                  <strong>Uma história 100% personalizada</strong>
+                  <span>Você conta o lugar, a lição e do que seu filho gosta, e a gente escreve a história inteira no jeito da turma Little Paws. {emReais(sobMedida.preco)}.</span>
+                  <span className="caminho-seta">Escrever a história →</span>
                 </Link>
               </div>
               {FAMILIAS_ATENDIDAS && (
@@ -219,6 +225,40 @@ export default function Inicio() {
           </div>
         </section>
 
+        {/* 4b. A história sob medida (pedido do dono, 31/10/2026) */}
+        <section className="secao" id="sob-medida">
+          <div className="miolo sob-medida">
+            <div>
+              <ALapis>Novo</ALapis>
+              <h2>
+                Ou uma história <Grifo cor={COR.rosa}>100% personalizada</Grifo>
+              </h2>
+              <p>
+                Para o aniversário, a chegada de um irmãozinho, a escola nova ou só porque sim: a gente escreve uma história inteira para o seu
+                filho, com os amigos bichinhos, o desenho e o jeito de livro da turma Little Paws.
+              </p>
+              <ol className="sob-medida-passos">
+                <li>
+                  <strong>Você conta</strong> onde a história acontece, o que ela ensina e do que seu filho gosta. Até o bichinho de estimação entra.
+                </li>
+                <li>
+                  <strong>A gente escreve</strong> 16 páginas para pintar, com o superpoder dele na hora mais importante.
+                </li>
+                <li>
+                  <strong>Você lê e aprova</strong> o texto e o desenho do personagem antes de pagar, e pode pedir até 2 ajustes.
+                </li>
+              </ol>
+              <div className="sob-medida-acao">
+                <Link href="/criar?caminho=sob-medida" className="botao">
+                  Escrever a história do meu filho
+                </Link>
+                <span className="preco">{emReais(sobMedida.preco)}</span>
+              </div>
+            </div>
+            <Image src="/artes/turma-comemorando.webp" alt="A turma Little Paws comemorando junta" width={600} height={600} className="sob-medida-arte" />
+          </div>
+        </section>
+
         <section className="secao" id="produtos">
           <div className="miolo">
             <div className="titulo-secao">
@@ -288,14 +328,14 @@ export default function Inicio() {
             <div className="titulo-secao">
               <Image src="/marca/rabisco-acenando.webp" alt="" width={96} height={121} className="rabisco" />
               <h2>Como funciona</h2>
-              <p>Três passos, com a turma ou do zero.</p>
+              <p>Três passos, com a turma, do zero ou com a história sob medida.</p>
             </div>
             <div className="passos">
               <div className="passo cartao">
                 <span className="numero">1</span>
                 <Image src="/marca/icone-escolha.webp" alt="" width={116} height={65} className="passo-icone" />
                 <h3>Escolha a história</h3>
-                <p className="letra-miuda">Uma aventura da turma Little Paws, com seu filho no time, ou uma história do zero.</p>
+                <p className="letra-miuda">Uma aventura da turma Little Paws com seu filho no time, uma história do zero, ou uma escrita só para ele.</p>
               </div>
               <div className="passo cartao">
                 <span className="numero">2</span>

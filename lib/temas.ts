@@ -1,6 +1,6 @@
 // Temas do MVP (seção 8). Os da fase 2 ficam listados para a vitrine dizer "em breve".
 
-export type TemaId = 'futebol' | 'natal' | 'fundo-do-mar';
+export type TemaId = 'futebol' | 'natal' | 'fundo-do-mar' | 'sob-medida';
 
 export type Tema = {
   id: TemaId;
@@ -23,6 +23,8 @@ export type Tema = {
   vitrine: { src: string; largura: number; altura: number };
   /** o tema tem história com vaga para o personagem da criança (lib/historias) */
   comPersonagem?: boolean;
+  /** a história é escrita do zero pela IA para cada criança (lib/historia.ts) */
+  sobMedida?: boolean;
 };
 
 export type Faixa = 'todos' | 'bebes' | 'maiores';
@@ -75,6 +77,25 @@ export const TEMAS: Record<TemaId, Tema> = {
     historia: 'Num dia de sol, {nome} encontrou uma concha que cantava baixinho…',
     vitrine: { src: '/marca/livro-fundo-do-mar.webp', largura: 238, altura: 402 },
   },
+  // não é um tema de vitrine: é o "tema" da história sob medida, que a IA escreve
+  'sob-medida': {
+    id: 'sob-medida',
+    emoji: '✍️',
+    nome: 'História sob medida com o jeito Little Paws',
+    descricao: 'Uma história escrita do zero, com o lugar, a lição e os gostos da criança.',
+    tituloDaHistoria: 'e uma história só sua',
+    cor: 'verde',
+    faixas: ['todos', 'bebes', 'maiores'],
+    amostras: ['{nome} é a estrela desta história', 'Uma aventura escrita só para {nome}'],
+    historia: 'Era uma vez {nome}, e uma ideia que não cabia no bolso…',
+    vitrine: { src: '/artes/turma-comemorando.webp', largura: 600, altura: 600 },
+    comPersonagem: true,
+    sobMedida: true,
+    artes: {
+      capa: '/artes/turma-comemorando.webp',
+      amostras: ['/artes/turma-no-banco.webp', '/artes/turma-em-fila.webp'],
+    },
+  },
 };
 
 export const LISTA_DE_TEMAS: Tema[] = [TEMAS.futebol, TEMAS.natal, TEMAS['fundo-do-mar']];
@@ -84,12 +105,14 @@ export const LISTA_DE_TEMAS: Tema[] = [TEMAS.futebol, TEMAS.natal, TEMAS['fundo-
  * turma Little Paws, com a criança entrando no time, ou uma história do zero,
  * em que a criança é a heroína sozinha. Os temas com personagem são da turma.
  */
-export type Caminho = 'turma' | 'zero';
-export const ehCaminho = (v: unknown): v is Caminho => v === 'turma' || v === 'zero';
-export const caminhoDoTema = (t: TemaId): Caminho => (TEMAS[t].comPersonagem ? 'turma' : 'zero');
+// O terceiro caminho (31/10/2026): a história sob medida, escrita pela IA.
+export type Caminho = 'turma' | 'zero' | 'sob-medida';
+export const ehCaminho = (v: unknown): v is Caminho => v === 'turma' || v === 'zero' || v === 'sob-medida';
+export const caminhoDoTema = (t: TemaId): Caminho => (TEMAS[t].sobMedida ? 'sob-medida' : TEMAS[t].comPersonagem ? 'turma' : 'zero');
 export const TEMAS_DO_CAMINHO: Record<Caminho, Tema[]> = {
   turma: LISTA_DE_TEMAS.filter((t) => t.comPersonagem),
   zero: LISTA_DE_TEMAS.filter((t) => !t.comPersonagem),
+  'sob-medida': [TEMAS['sob-medida']],
 };
 
 export const TEMAS_EM_BREVE = [
@@ -103,7 +126,7 @@ export const TEMAS_EM_BREVE = [
 ];
 
 export function ehTema(valor: unknown): valor is TemaId {
-  return valor === 'futebol' || valor === 'natal' || valor === 'fundo-do-mar';
+  return valor === 'futebol' || valor === 'natal' || valor === 'fundo-do-mar' || valor === 'sob-medida';
 }
 
 export function comNome(frase: string, nome: string): string {

@@ -1,7 +1,7 @@
 // Produtos e preços de teste (seção 3 do documento de produto).
 // Preço é decisão do dono: mudar aqui só com ele.
 
-export type ProdutoId = 'lembrancinha' | 'presente' | 'combo';
+export type ProdutoId = 'lembrancinha' | 'presente' | 'combo' | 'sob-medida';
 
 export type Produto = {
   id: ProdutoId;
@@ -49,6 +49,18 @@ export const PRODUTOS: Record<ProdutoId, Produto> = {
     preco: 5400,
     temDedicatoria: true,
   },
+  // a história escrita do zero pela IA, no estilo da turma (dono, 31/10/2026: R$ 39,90).
+  // Fica fora da LISTA_DE_PRODUTOS: só existe no caminho dela, e é o único produto lá.
+  'sob-medida': {
+    id: 'sob-medida',
+    emoji: '✍️',
+    nome: 'História sob medida',
+    resumo: 'Uma história escrita do zero para a criança, no estilo da turma Little Paws. Você lê e aprova o texto antes de pagar.',
+    paginas: '20 páginas',
+    idealPara: 'Ideal para um momento especial',
+    preco: 3990,
+    temDedicatoria: true,
+  },
 };
 
 export const LISTA_DE_PRODUTOS: Produto[] = [PRODUTOS.lembrancinha, PRODUTOS.presente, PRODUTOS.combo];
@@ -59,7 +71,7 @@ export const DESCONTO_PIX = 0.05;
 export type FormaDePagamento = 'pix' | 'cartao';
 
 export function ehProduto(valor: unknown): valor is ProdutoId {
-  return valor === 'lembrancinha' || valor === 'presente' || valor === 'combo';
+  return valor === 'lembrancinha' || valor === 'presente' || valor === 'combo' || valor === 'sob-medida';
 }
 
 /** Total em centavos. O Pix arredonda para o centavo de baixo, a favor de quem compra. */

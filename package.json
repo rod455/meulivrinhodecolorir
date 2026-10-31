@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "conferir": "npm run conferir:tipos && npm run conferir:estilo && npm run conferir:nome && npm run conferir:pedido && npm run conferir:personagem && npm run conferir:foto && npm run conferir:ficha && npm run conferir:turma && npm run conferir:travessao",
+    "conferir": "npm run conferir:tipos && npm run conferir:estilo && npm run conferir:nome && npm run conferir:pedido && npm run conferir:personagem && npm run conferir:foto && npm run conferir:ficha && npm run conferir:turma && npm run conferir:historia && npm run conferir:travessao",
     "conferir:tipos": "tsc --noEmit",
     "conferir:estilo": "next lint",
     "conferir:nome": "node --experimental-strip-types --no-warnings scripts/verifica-nome.ts",
@@ -17,7 +17,8 @@
     "conferir:personagem": "node --experimental-strip-types --no-warnings scripts/verifica-personagem.ts",
     "conferir:foto": "node --experimental-strip-types --no-warnings scripts/verifica-foto.ts",
     "conferir:ficha": "node --experimental-strip-types --no-warnings scripts/verifica-ficha.ts",
-    "conferir:turma": "node --experimental-strip-types --no-warnings scripts/verifica-turma.ts"
+    "conferir:turma": "node --experimental-strip-types --no-warnings scripts/verifica-turma.ts",
+    "conferir:historia": "node --experimental-strip-types --no-warnings scripts/verifica-historia.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",

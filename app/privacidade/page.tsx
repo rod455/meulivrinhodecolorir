@@ -33,6 +33,11 @@ export default function Privacidade() {
             tiramos dela os dados de localização e do aparelho, guardamos num arquivo privado e <strong>apagamos em 7 dias</strong>. As
             páginas do livro são desenhadas a partir do personagem, nunca da foto.
           </li>
+          <li>
+            Na <strong>história sob medida</strong>, guardamos o que você contou (lugar, lição, do que a criança gosta, o bichinho e o detalhe
+            que você escrever) e o texto da história. Antes de guardar, trocamos o nome da criança por uma marcação e tiramos números
+            compridos, e-mails e links: o nome só volta na tela e no livrinho. Por isso, não escreva sobrenome, escola, endereço nem telefone.
+          </li>
           <li>Não pedimos sobrenome nem escola.</li>
           <li>A data da festa é opcional e serve só para o lembrete do ano seguinte, se você quiser.</li>
           <li>
@@ -69,8 +74,9 @@ export default function Privacidade() {
         <h2>Com quem compartilhamos</h2>
         <p>
           Só com os serviços que fazem o pedido funcionar: hospedagem do site, banco de dados, envio de e-mail e WhatsApp, a empresa de
-          pagamento e o serviço de inteligência artificial que desenha o personagem (OpenAI), que recebe as escolhas do personagem e, se
-          você enviar, a foto. O nome da criança não vai para esse serviço. Nunca vendemos dados.
+          pagamento e o serviço de inteligência artificial que desenha o personagem e escreve a história sob medida (OpenAI), que recebe as
+          escolhas do personagem, a idade, o que você contou para a história (já sem o nome) e, se você enviar, a foto. O nome da criança
+          não vai para esse serviço. Nunca vendemos dados.
         </p>
 
         <h2>Seus direitos</h2>

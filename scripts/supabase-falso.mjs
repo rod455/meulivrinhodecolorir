@@ -25,6 +25,8 @@ const fotos = new Map(); // caminho -> linha
 const consentimentos = [];
 const arquivos = new Map(); // "bucket/caminho" -> bytes
 const fichas = [];
+const historias = [];
+const trabalhosDeHistoria = [];
 let confirmarEmail = false;
 let n8nFalha = false;
 const trabalhosRecebidos = [];
@@ -48,6 +50,30 @@ async function n8nFicha({ ficha_id, token }) {
   const png = await sharp({ create: { width: 1536, height: 1024, channels: 3, background: '#ffd23f' } }).png().toBuffer();
   dados.append('imagem', new Blob([png], { type: 'image/png' }), 'data.png');
   await fetch(`${site}/api/ficha/pronta`, { method: 'POST', body: dados });
+}
+
+// o fluxo "Meu Livrinho | escrever história", sem a OpenAI: busca o trabalho e
+// devolve uma história de 16 páginas no formato que a IA devolve (texto JSON).
+// Num ajuste, o título leva o pedido, para a suíte ver que o texto mudou.
+async function n8nHistoria({ historia_id, token }) {
+  const t = await fetch(`${site}/api/historia/trabalho?id=${historia_id}&token=${token}`);
+  const trabalho = await t.json();
+  trabalhosDeHistoria.push({ status: t.status, ...trabalho });
+  if (!t.ok) return;
+  await new Promise((r) => setTimeout(r, 1200));
+  if (n8nFalha) {
+    await fetch(`${site}/api/historia/pronta`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ historia_id, token, erro: 'a OpenAI não respondeu (teste)' }) });
+    return;
+  }
+  const ajuste = /The family asked for this change/.test(trabalho.pedido);
+  const historia = {
+    titulo: ajuste ? '{NOME} e o tesouro da praia' : '{NOME} e o mar de conchas',
+    subtitulo: 'Uma história sobre coragem',
+    personagens: [{ nome: 'Lili', especie: 'coelha', jeito: 'Corajosa e risonha', visual_en: 'a small cream bunny with a blue scarf' }],
+    cenario_en: 'a calm sunny beach.',
+    paginas: Array.from({ length: 16 }, (_, i) => ({ texto: `{NOME} e a Lili viram a onda ${i + 1} — e riram muito.`, cena_en: `The child and Lili the bunny watch wave ${i + 1} on the beach.` })),
+  };
+  await fetch(`${site}/api/historia/pronta`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ historia_id, token, texto: JSON.stringify(historia) }) });
 }
 
 const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');
@@ -107,8 +133,9 @@ http
       appendFileSync(registro, `${JSON.stringify({ m: q.method, p: u.pathname, s: u.search, quem: quem === 'servico' ? 'servico' : quem?.email ?? null, corpo: q.headers['content-type']?.includes('json') ? corpo.toString() : corpo.length })}\n`);
 
       // controle da suíte
-      if (u.pathname === '/__estado') return responder(r, 200, { usuarios: [...usuarios.values()].map((x) => x.email), pedidos, pedidosTurma, fotos: [...fotos.values()], consentimentos, fichas, trabalhosRecebidos, arquivos: [...arquivos.keys()] });
+      if (u.pathname === '/__estado') return responder(r, 200, { usuarios: [...usuarios.values()].map((x) => x.email), pedidos, pedidosTurma, fotos: [...fotos.values()], consentimentos, fichas, historias, trabalhosRecebidos, trabalhosDeHistoria, arquivos: [...arquivos.keys()] });
       if (u.pathname === '/__n8n-falha') { n8nFalha = u.searchParams.get('ligar') === '1'; return responder(r, 200, { n8nFalha }); }
+      if (u.pathname === '/n8n-historia') { n8nHistoria(json()).catch((e) => console.error('n8n falso', e)); return responder(r, 200, { recebido: true }); }
       if (u.pathname === '/n8n-ficha') { n8nFicha(json()).catch((e) => console.error('n8n falso', e)); return responder(r, 200, { recebido: true }); }
       if (u.pathname === '/__confirmar-email') { confirmarEmail = u.searchParams.get('ligar') === '1'; return responder(r, 200, { confirmarEmail }); }
       if (u.pathname === '/__pdf') { const p = pedidos.find((x) => x.id === u.searchParams.get('pedido')); if (p) { p.link_pdf = `${p.id}.pdf`; p.status = 'entregue'; arquivos.set(`livros/${p.id}.pdf`, Buffer.from('%PDF')); } return responder(r, 200, { ok: Boolean(p) }); }
@@ -171,7 +198,7 @@ http
 
       // REST: a chave de serviço vê tudo; uma conta só vê o que tem o user_id dela (RLS)
       const tabela = u.pathname.replace('/rest/v1/', '');
-      const fontes = { pedidos, pedidos_turma: pedidosTurma, fotos: [...fotos.values()], consentimentos, fichas };
+      const fontes = { pedidos, pedidos_turma: pedidosTurma, fotos: [...fotos.values()], consentimentos, fichas, historias };
       if (tabela === 'rpc/anonimizar_conta') {
         if (quem !== 'servico') return responder(r, 401, {});
         const { uid } = json();
@@ -182,6 +209,8 @@ http
         for (const f of fotos.values()) if (f.user_id === uid) Object.assign(f, { apagada_em: f.apagada_em ?? new Date().toISOString(), user_id: null });
         devolver.push(...fichas.filter((f) => f.user_id === uid && f.caminho_imagem).map((f) => ({ bucket: 'fichas', caminho: f.caminho_imagem })));
         for (let i = fichas.length - 1; i >= 0; i--) if (fichas[i].user_id === uid) fichas.splice(i, 1);
+        // a conta some no fim da exclusão e leva as histórias junto (on delete cascade)
+        for (let i = historias.length - 1; i >= 0; i--) if (historias[i].user_id === uid) historias.splice(i, 1);
         for (const p of pedidos) if (p.user_id === uid) Object.assign(p, { nome_crianca: '(apagado)', email: '(apagado)', whatsapp: '(apagado)', responsavel: '(apagado)', personagem: null, plano: null, link_pdf: null, dedicatoria: null, user_id: null });
         return responder(r, 200, devolver);
       }
@@ -200,6 +229,7 @@ http
         if (tabela === 'pedidos_turma') pedidosTurma.push({ criado_em: new Date().toISOString(), status: 'aguardando_pagamento', ...linha });
         if (tabela === 'fotos') fotos.set(linha.caminho, { enviada_em: new Date().toISOString(), apagada_em: null, user_id: null, pedido_id: null, ...linha });
         if (tabela === 'consentimentos') consentimentos.push({ user_id: null, ...linha });
+        if (tabela === 'historias') historias.push({ texto: null, erro: null, aprovada_em: null, pedido_id: null, pedido_de_ajuste: null, ...linha });
         if (tabela === 'fichas') fichas.push({ criada_em: new Date().toISOString(), caminho_imagem: null, erro: null, aprovada_em: null, pedido_id: null, ...linha });
         return responder(r, 201);
       }

@@ -24,17 +24,20 @@ import { DESCONTO_PIX, ehProduto, emReais, LISTA_DE_PRODUTOS, PRODUTOS, totalDoP
 import { LIVROS_PUBLICADOS } from '@/lib/livros-publicados';
 import { caminhoDoTema, ehCaminho, ehTema, TEMAS, TEMAS_DO_CAMINHO, type Caminho, type TemaId } from '@/lib/temas';
 import { EtapaFicha } from './EtapaFicha';
+import { EtapaHistoria } from './EtapaHistoria';
+import { BRIEFING_INICIAL, type Briefing } from '@/lib/historia';
 import { EtapaPersonagem, partesDoPersonagem, type ParteDoPersonagem } from './EtapaPersonagem';
 
 /**
  * 6 o começo (a turma Little Paws ou uma história do zero), 0 produto, 1 tema,
  * 2 nome, 3 personagem e 4 desenho do personagem (só se o tema tem), 5 contato e pagamento.
  * Na turma o tema (a história) vem antes do produto; do zero, o produto vem antes.
+ * 7 é a história sob medida: a IA escreve e a família aprova o texto (31/10/2026).
  */
-type Etapa = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+type Etapa = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
 const GUARDADO = 'livrinho:rascunho';
 /** o nome de cada passo, acima da barra de progresso (revisão de CRO, 25/10/2026) */
-const NOME_DA_ETAPA: Record<Etapa, string> = { 6: 'o começo', 0: 'o livrinho', 1: 'a história', 2: 'o nome', 3: 'o personagem', 4: 'aprovar o desenho', 5: 'pagar' };
+const NOME_DA_ETAPA: Record<Etapa, string> = { 6: 'o começo', 0: 'o livrinho', 1: 'a história', 2: 'o nome', 3: 'o personagem', 4: 'aprovar o desenho', 7: 'aprovar a história', 5: 'pagar' };
 /** volta do Google e do link por e-mail: cai direto no pagamento, com o rascunho guardado */
 export const DESTINO_DEPOIS_DE_ENTRAR = '/criar?etapa=pagar';
 /** a conta agora costuma nascer antes do desenho do personagem */
@@ -60,6 +63,14 @@ type Rascunho = {
   fichaId: string | null;
   fichaDoDesenho: string | null;
   fichaAprovada: boolean;
+  /** a história sob medida: o que a família contou e a última história escrita */
+  briefing: Briefing;
+  historiaId: string | null;
+  historiaAprovada: boolean;
+  historiaTitulo: string;
+  /** a história foi escrita com este superpoder e esta idade: mudou, escreve de novo */
+  historiaSuperpoder: string | null;
+  historiaIdade: number | null;
 };
 
 const VAZIO: Rascunho = {
@@ -80,7 +91,27 @@ const VAZIO: Rascunho = {
   fichaId: null,
   fichaDoDesenho: null,
   fichaAprovada: false,
+  briefing: BRIEFING_INICIAL,
+  historiaId: null,
+  historiaAprovada: false,
+  historiaTitulo: '',
+  historiaSuperpoder: null,
+  historiaIdade: null,
 };
+
+/** a história aprovada só vale para o superpoder e a idade com que foi escrita */
+const historiaEmDiaDe = (r: Rascunho) => r.historiaAprovada && Boolean(r.historiaId) && r.historiaSuperpoder === r.personagem.superpoder && r.historiaIdade === r.idade;
+
+/** trocar de caminho: a sob medida tem produto e tema próprios, que não servem aos outros */
+function noCaminho(atual: Rascunho, caminho: Caminho): Rascunho {
+  if (caminho === 'sob-medida') return { ...atual, caminho, produto: 'sob-medida', tema: 'sob-medida' };
+  return {
+    ...atual,
+    caminho,
+    produto: atual.produto === 'sob-medida' ? null : atual.produto,
+    tema: atual.tema && caminhoDoTema(atual.tema) === caminho ? atual.tema : null,
+  };
+}
 
 function primeiraEtapaQueFalta(r: Rascunho): Etapa {
   if (!r.caminho) return 6;
@@ -92,6 +123,7 @@ function primeiraEtapaQueFalta(r: Rascunho): Etapa {
 
 /** a ordem dos passos depende do caminho e de o tema ter personagem */
 function ordemDasEtapas(caminho: Caminho | null, temPersonagem: boolean): Etapa[] {
+  if (caminho === 'sob-medida') return [6, 2, 3, 4, 7, 5];
   if (caminho === 'turma') return temPersonagem ? [6, 1, 0, 2, 3, 4, 5] : [6, 1, 0, 2, 5];
   return temPersonagem ? [6, 0, 1, 2, 3, 4, 5] : [6, 0, 1, 2, 5];
 }
@@ -128,9 +160,10 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
     const idade = Number(busca.get('idade'));
     // o tema decide o caminho (futebol é da turma); sem tema no link, vale o caminho pedido, e o tema guardado
     // que não for do caminho escolhido é esquecido
-    const caminho: Caminho | null = ehTema(tema) ? caminhoDoTema(tema) : ehCaminho(caminhoPedido) ? caminhoPedido : base.caminho;
+    const caminho: Caminho | null =
+      produto === 'sob-medida' ? 'sob-medida' : ehTema(tema) ? caminhoDoTema(tema) : ehCaminho(caminhoPedido) ? caminhoPedido : base.caminho;
     const temaGuardado = base.tema && caminho && caminhoDoTema(base.tema) === caminho ? base.tema : null;
-    const inicial: Rascunho = {
+    const comLink: Rascunho = {
       ...base,
       caminho,
       produto: ehProduto(produto) ? produto : base.produto,
@@ -138,14 +171,17 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
       nome: nome ? arrumarNome(nome).slice(0, LIMITE_DO_NOME + 6) : base.nome,
       idade: Number.isInteger(idade) && idade >= 1 && idade <= 10 ? idade : base.idade,
     };
+    const inicial = caminho ? noCaminho(comLink, caminho) : comLink;
     setR(inicial);
     const falta = primeiraEtapaQueFalta(inicial);
     const completo = falta === 2 && !problemaDoNome(inicial.nome);
     const comPersonagem = Boolean(inicial.tema && TEMAS[inicial.tema].comPersonagem);
     const fichaEmDia = inicial.fichaAprovada && inicial.fichaDoDesenho === chaveDoDesenho(inicial.personagem, inicial.idade);
     const pediu = busca.get('etapa');
+    const sobMedida = inicial.caminho === 'sob-medida';
     if (completo && pediu === 'ficha' && comPersonagem) setEtapa(4);
-    else if (completo && pediu === 'pagar') setEtapa(comPersonagem && !fichaEmDia ? 4 : 5);
+    else if (completo && pediu === 'historia' && sobMedida) setEtapa(fichaEmDia ? 7 : 4);
+    else if (completo && pediu === 'pagar') setEtapa(comPersonagem && !fichaEmDia ? 4 : sobMedida && !historiaEmDiaDe(inicial) ? 7 : 5);
     else setEtapa(falta);
     setPronto(true);
     registrar('personalizacao_iniciada');
@@ -191,6 +227,12 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
   // a ficha aprovada só vale para o desenho de agora: mudou cabelo ou idade, desenha de novo
   const fichaEmDia = r.fichaAprovada && r.fichaDoDesenho === chaveDoDesenho(r.personagem, r.idade);
   const posicao = Math.max(0, ordem.indexOf(etapa));
+  const sobMedida = r.caminho === 'sob-medida';
+  const historiaEmDia = historiaEmDiaDe(r);
+  /** a sob medida é um livrinho com história, como o Presente */
+  const livroComHistoria = r.produto === 'presente' || r.produto === 'sob-medida';
+  /** depois da ficha aprovada: a sob medida ainda passa pela história */
+  const depoisDaFicha: Etapa = sobMedida && !historiaEmDia ? 7 : 5;
 
   function validarPersonalizacao(): boolean {
     const p = problemaDoNome(r.nome);
@@ -227,7 +269,7 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
       setErros((e) => ({ ...e, personagem: lido.erro }));
       return;
     }
-    irPara(fichaEmDia ? 5 : 4);
+    irPara(fichaEmDia ? depoisDaFicha : 4);
   }
 
   async function enviar() {
@@ -236,11 +278,16 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
       irPara(4);
       return;
     }
+    if (sobMedida && !historiaEmDia) {
+      irPara(7);
+      return;
+    }
     const resultado = lerPedido({ ...r, email: conta.email, personagem: personagemDoPedido });
     if (!resultado.ok) {
       setErros(resultado.erros);
       if (resultado.erros.nome || resultado.erros.dedicatoria) irPara(2);
       else if (resultado.erros.personagem) irPara(r.fichaId ? 4 : 3);
+      else if (resultado.erros.historiaId) irPara(7);
       return;
     }
     setEnviando(true);
@@ -249,7 +296,7 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
       const resposta = await fetch('/api/pedido', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ ...r, email: conta.email, personagem: personagemDoPedido, fichaId: temPersonagem ? r.fichaId : null, origem: lerOrigem(), site: (document.getElementById('site') as HTMLInputElement | null)?.value ?? '' }),
+        body: JSON.stringify({ ...r, email: conta.email, personagem: personagemDoPedido, fichaId: temPersonagem ? r.fichaId : null, historiaId: sobMedida ? r.historiaId : null, origem: lerOrigem(), site: (document.getElementById('site') as HTMLInputElement | null)?.value ?? '' }),
       });
       const dados = (await resposta.json().catch(() => ({}))) as { id?: string; pagar?: string | null; erros?: ErrosDoPedido; mensagem?: string };
       if (!resposta.ok || !dados.id) {
@@ -259,6 +306,12 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
           // a ficha deixou de valer (mudou, ou já virou outro pedido): desenha e aprova de novo
           setR((atual) => ({ ...atual, fichaAprovada: false }));
           irPara(4);
+          return;
+        }
+        if (dados.erros?.historiaId) {
+          setEnviando(false);
+          setR((atual) => ({ ...atual, historiaAprovada: false }));
+          irPara(7);
           return;
         }
         setFalha(dados.mensagem ?? 'Não conseguimos registrar o pedido agora. Tente de novo em instantes.');
@@ -325,7 +378,7 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
               className="cartao escolha caminho-turma"
               aria-pressed={r.caminho === 'turma'}
               onClick={() => {
-                setR((atual) => ({ ...atual, caminho: 'turma', tema: atual.tema && caminhoDoTema(atual.tema) === 'turma' ? atual.tema : null }));
+                setR((atual) => noCaminho(atual, 'turma'));
                 registrar('caminho_escolhido', { caminho: 'turma' });
                 irPara(1);
               }}
@@ -339,14 +392,32 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
               className="cartao escolha caminho-zero"
               aria-pressed={r.caminho === 'zero'}
               onClick={() => {
-                setR((atual) => ({ ...atual, caminho: 'zero', tema: atual.tema && caminhoDoTema(atual.tema) === 'zero' ? atual.tema : null }));
+                setR((atual) => noCaminho(atual, 'zero'));
                 registrar('caminho_escolhido', { caminho: 'zero' });
-                irPara(r.produto ? 1 : 0);
+                irPara(r.produto && r.produto !== 'sob-medida' ? 1 : 0);
               }}
             >
               <Image src="/marca/rabisco-com-livro.webp" alt="" width={220} height={353} className="caminho-arte caminho-arte-rabisco" />
               <strong style={{ fontSize: '1.3rem', fontFamily: 'var(--fonte-titulo)' }}>Uma história do zero</strong>
               <span>Uma história só {nomeNaCapa ? `de ${nomeNaCapa}` : 'do seu filho'}, com o nome na capa e nas páginas: Natal, fundo do mar e mais temas.</span>
+            </button>
+            <button
+              type="button"
+              className="cartao escolha caminho-sob-medida"
+              aria-pressed={r.caminho === 'sob-medida'}
+              onClick={() => {
+                setR((atual) => noCaminho(atual, 'sob-medida'));
+                registrar('caminho_escolhido', { caminho: 'sob-medida' });
+                irPara(2);
+              }}
+            >
+              <Image src="/artes/turma-comemorando.webp" alt="" width={600} height={600} className="caminho-arte" />
+              <span className="selo-personagem">Novo</span>
+              <strong style={{ fontSize: '1.3rem', fontFamily: 'var(--fonte-titulo)' }}>História 100% personalizada</strong>
+              <span>
+                Você conta o lugar, a lição e do que {nomeNaCapa || 'seu filho'} gosta, e a gente escreve uma história inteira, do começo ao fim, no jeito da
+                turma Little Paws. Você lê e aprova antes de pagar. {emReais(PRODUTOS['sob-medida'].preco)}.
+              </span>
             </button>
           </div>
           <p className="letra-miuda">
@@ -405,7 +476,7 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
                 }}
               >
                 <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 8, alignItems: 'end' }}>
-                  <CapaLivrinho id={`escolha-${t.id}`} tema={t.id} produto={r.produto === 'presente' ? 'presente' : 'lembrancinha'} nome={nomeNaCapa} idade={r.idade} />
+                  <CapaLivrinho id={`escolha-${t.id}`} tema={t.id} produto={livroComHistoria ? 'presente' : 'lembrancinha'} nome={nomeNaCapa} idade={r.idade} />
                   <PaginaAmostra tema={t.id} nome={nomeNaCapa} pagina={1} />
                 </div>
                 {t.comPersonagem && <span className="selo-personagem">A criança vira personagem</span>}
@@ -444,7 +515,7 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
             <CapaLivrinho
               id="criar-capa"
               tema={r.tema}
-              produto={r.produto === 'presente' ? 'presente' : 'lembrancinha'}
+              produto={livroComHistoria ? 'presente' : 'lembrancinha'}
               nome={nomeNaCapa}
               idade={r.idade}
               corte={nome ? 0.6 : 0.25}
@@ -452,7 +523,7 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
             {r.produto === 'combo' ? (
               <CapaLivrinho id="criar-capa-2" tema={r.tema} produto="presente" nome={nomeNaCapa} idade={r.idade} corte={nome ? 0.6 : 0.25} />
             ) : (
-              <PaginaAmostra tema={r.tema} nome={nomeNaCapa} pagina={1} historia={r.produto === 'presente'} />
+              <PaginaAmostra tema={r.tema} nome={nomeNaCapa} pagina={1} historia={livroComHistoria} />
             )}
             <PaginaAmostra tema={r.tema} nome={nomeNaCapa} pagina={2} />
           </div>
@@ -562,9 +633,10 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
           onNova={(id) => setR((atual) => ({ ...atual, fichaId: id, fichaDoDesenho: chaveDoDesenho(atual.personagem, atual.idade), fichaAprovada: false }))}
           onAprovada={() => {
             setR((atual) => ({ ...atual, fichaAprovada: true }));
-            irPara(5);
+            irPara(depoisDaFicha);
           }}
           onAjustar={() => irPara(3)}
+          sobMedida={sobMedida}
           onEscolher={(d) =>
             setR((atual) => {
               // o superpoder não muda o desenho: fica o que a família escolheu agora
@@ -572,6 +644,26 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
               return { ...atual, personagem, fichaId: d.id, fichaDoDesenho: chaveDoDesenho(personagem, atual.idade), fichaAprovada: false };
             })
           }
+        />
+      )}
+
+      {etapa === 7 && sobMedida && (
+        <EtapaHistoria
+          nome={nomeNaCapa}
+          idade={r.idade}
+          superpoder={r.personagem.superpoder}
+          briefing={r.briefing}
+          onBriefing={(b) => setR((atual) => ({ ...atual, briefing: b }))}
+          historiaId={r.historiaId && r.historiaSuperpoder === r.personagem.superpoder && r.historiaIdade === r.idade ? r.historiaId : null}
+          aprovada={historiaEmDia}
+          onNova={(id) => setR((atual) => ({ ...atual, historiaId: id, historiaAprovada: false, historiaSuperpoder: atual.personagem.superpoder, historiaIdade: atual.idade }))}
+          onAprovada={(titulo) => {
+            setR((atual) => ({ ...atual, historiaAprovada: true, historiaTitulo: titulo }));
+            irPara(5);
+          }}
+          conta={conta}
+          carregandoConta={carregandoConta}
+          google={google}
         />
       )}
 
@@ -592,13 +684,13 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
               </figure>
             )}
             <div style={{ display: 'grid', gridTemplateColumns: '110px 1fr', gap: 16, alignItems: 'center' }}>
-              <CapaLivrinho id="resumo-capa" tema={r.tema} produto={r.produto === 'presente' ? 'presente' : 'lembrancinha'} nome={nome} idade={r.idade} corte={0.7} />
+              <CapaLivrinho id="resumo-capa" tema={r.tema} produto={livroComHistoria ? 'presente' : 'lembrancinha'} nome={nome} idade={r.idade} corte={0.7} />
               <div>
                 <strong>
                   {produto.emoji} {produto.nome}
                 </strong>
                 <div className="letra-miuda">
-                  {TEMAS[r.tema].nome} · {nome}, {r.idade} {r.idade === 1 ? 'ano' : 'anos'}
+                  {sobMedida && r.historiaTitulo ? `“${r.historiaTitulo}”, história aprovada por você` : TEMAS[r.tema].nome} · {nome}, {r.idade} {r.idade === 1 ? 'ano' : 'anos'}
                 </div>
                 <div className="letra-miuda">Arquivo para imprimir, por e-mail e WhatsApp</div>
                 <div className="resumo-preco">

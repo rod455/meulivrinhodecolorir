@@ -442,6 +442,25 @@ p { margin: 0 0 1em; }
 .caminho span { font-size: 0.98rem; }
 .caminho-turma { background: #fff3c9; }
 .caminho-zero { background: #e3f3fc; }
+.caminho-sob-medida { background: #fde4ec; }
+@media (min-width: 560px) { .caminho-sob-medida { grid-column: 1 / -1; } }
+
+/* a história sob medida: na LP e na etapa 7 do /criar */
+.sob-medida { display: grid; gap: 24px; align-items: center; }
+@media (min-width: 860px) { .sob-medida { grid-template-columns: 1.3fr 1fr; } }
+.sob-medida-arte { width: 100%; max-width: 420px; height: auto; justify-self: center; border-radius: 22px; border: 2px solid var(--grafite); box-shadow: 0 5px 0 var(--grafite); }
+.sob-medida-passos { display: grid; gap: 10px; padding-left: 22px; margin: 16px 0; }
+.sob-medida-acao { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
+.sob-medida-acao .preco { font-family: var(--fonte-titulo), system-ui, sans-serif; font-weight: 800; font-size: 1.6rem; }
+.historia-briefing { display: grid; gap: 4px; }
+.campo-duplo { display: grid; gap: 0 12px; }
+@media (min-width: 560px) { .campo-duplo { grid-template-columns: 1fr 1fr; } .campo-duplo .link-botao { grid-column: 1 / -1; justify-self: start; } }
+.historia-amigos { background: #fff3c9; border: 2px solid var(--grafite); border-radius: 16px; padding: 14px 16px; margin: 12px 0; display: grid; gap: 6px; }
+.historia-amigos ul { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+.historia-paginas { list-style: none; padding: 0; margin: 16px 0; display: grid; gap: 10px; }
+.historia-paginas li { display: grid; grid-template-columns: 34px 1fr; gap: 10px; align-items: start; background: var(--branco); border: 2px solid #e8e1d3; border-radius: 14px; padding: 10px 12px; }
+.historia-paginas .pagina-superpoder { border-color: var(--grafite); background: #e3f3fc; }
+.historia-numero { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--laranja, #ffb347); color: var(--grafite); font-weight: 800; }
 .caminho-seta { font-weight: 800; margin-top: 4px; }
 @media (prefers-reduced-motion: no-preference) { .caminho:hover { transform: translateY(-2px); } }
 .hero-turma img { border-radius: 24px; border: 2px solid var(--grafite); box-shadow: var(--sombra); height: auto; }
