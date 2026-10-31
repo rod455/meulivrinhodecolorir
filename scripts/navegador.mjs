@@ -85,6 +85,10 @@ assert.equal(await colocar.count(), 1, 'só a história com personalizado pronto
 assert.equal(await colocar.getAttribute('href'), '/criar?caminho=turma&tema=futebol', 'e leva ao futebol pela turma');
 assert.equal(await p.locator('#little-paws').getByText(/Em breve: seu filho jogando com/).count(), 3, 'as outras histórias dizem em breve');
 assert.equal(await p.locator('#little-paws img[alt^="Capa do livro"]').count(), 4, 'cada livro com a capa de verdade');
+// as capas aparecem inteiras (sem corte) e todas na mesma altura (dono, 31/10/2026)
+const capas = await p.locator('#little-paws img.aventura-capa').evaluateAll((imgs) => imgs.map((i) => ({ h: Math.round(i.getBoundingClientRect().height), corte: getComputedStyle(i).objectFit })));
+assert.ok(capas.every((c) => c.corte === 'contain'), 'nenhuma capa cortada');
+assert.ok(Math.max(...capas.map((c) => c.h)) - Math.min(...capas.map((c) => c.h)) <= 2, `capas na mesma altura: ${capas.map((c) => c.h).join(', ')}`);
 // os livros publicados da turma, em inglês: os três aparecem, e sem link de verdade não há botão
 const publicados = p.locator('#little-paws article');
 assert.equal(await publicados.count(), 4, 'os quatro livros publicados da turma aparecem na LP');
@@ -100,7 +104,12 @@ assert.equal(await botoesDo('Big Play'), 'Livro de história|E-book (Kindle)|Liv
 assert.equal(await botoesDo('Big Christmas'), 'Livro de história|E-book (Kindle)', 'o Natal sem o de colorir até chegar o link');
 assert.ok(await p.locator('#livro-big-game .na-amazon a', { hasText: 'Livro de colorir' }).isVisible(), 'os links da Amazon não ficam escondidos');
 assert.equal(await p.locator('#little-paws a', { hasText: 'Impresso R$ 79,90' }).count(), 7, 'cada edição tem o impresso a R$ 79,90');
-assert.equal(await p.locator('#little-paws a', { hasText: 'PDF R$ 29,90' }).count(), 7, 'cada edição tem o PDF a R$ 29,90');
+// "compre e imprima você mesmo": o PDF de cada edição, à vista em cada livro (dono, 31/10/2026)
+const pdfs = p.locator('#little-paws .imprima-voce a');
+assert.equal(await pdfs.count(), 7, 'cada edição tem o PDF para imprimir em casa');
+assert.ok(await pdfs.first().isVisible(), 'o PDF fica à vista, não escondido');
+assert.ok((await pdfs.evaluateAll((as) => as.map((a) => a.getAttribute('href')))).every((h) => /^\/turma\/comprar\?edicao=[a-z-]+&formato=pdf$/.test(h)), 'todo PDF leva à compra do PDF');
+assert.equal(await p.locator('#livro-grande-final .imprima-voce a').textContent(), 'Livro de história em PDF', 'a Grande Final, que não está na Amazon, tem o PDF');
 // quem já tem conta acha o "Entrar" no cabeçalho, também no celular, onde o menu some
 const entrarNoTopo = p.locator('header').getByRole('link', { name: 'Entrar', exact: true });
 assert.ok(await entrarNoTopo.isVisible(), 'Entrar à vista no cabeçalho do celular');
@@ -326,7 +335,7 @@ assert.ok(!readFileSync(`${REGISTRO}.ultima.jpg`).includes(Buffer.from('CelularD
 // livros da turma: o impresso pede endereço, o preço é o do servidor e o pedido aparece na conta
 await p.goto(`${SITE}/`);
 const bigGame = p.locator('#little-paws article').filter({ hasText: 'Big Game' });
-await bigGame.getByText('Comprar impresso ou PDF com a gente').click();
+await bigGame.getByText('Prefere impresso? A gente imprime e envia').click();
 await bigGame.getByRole('link', { name: 'Impresso R$ 79,90' }).first().click();
 await p.getByRole('heading', { name: 'Little Paws, Big Game' }).waitFor();
 await p.fill('#responsavel', 'Carla Teste');

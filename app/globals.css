@@ -574,7 +574,8 @@ p { margin: 0 0 1em; }
 /* as aventuras da turma */
 .aventuras { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(230px, 100%), 1fr)); gap: 18px; }
 .aventura { display: flex; flex-direction: column; background: var(--branco); border: 2px solid var(--grafite); border-radius: 24px; overflow: hidden; }
-.aventura-capa { width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; object-position: top; border-bottom: 2px solid var(--grafite); }
+.aventura-estante { display: flex; align-items: center; justify-content: center; height: 300px; padding: 18px 12px 14px; background: linear-gradient(#e3f3fc 0 82%, #d9cdb6 82% 100%); border-bottom: 2px solid var(--grafite); }
+.aventura-capa { height: 100%; width: auto; max-width: 100%; object-fit: contain; border-radius: 3px 6px 6px 3px; box-shadow: -3px 0 0 rgba(43, 45, 66, 0.25) inset, 0 8px 16px rgba(43, 45, 66, 0.22); }
 .aventura-corpo { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px 18px; flex: 1; }
 .aventura-corpo h3 { font-size: 1.2rem; margin: 0; }
 .aventura-corpo .letra-miuda { margin: 0; }
@@ -627,8 +628,7 @@ p { margin: 0 0 1em; }
 .painel-ficha { width: 100%; height: auto; margin-top: 6px; border-radius: 10px; border: 2px solid var(--grafite); }
 /* no celular, cada aventura numa linha: capa pequena e o texto do lado */
 @media (max-width: 599px) {
-  .aventura { display: grid; grid-template-columns: 112px 1fr; }
-  .aventura-capa { height: 100%; aspect-ratio: auto; border-bottom: 0; border-right: 2px solid var(--grafite); }
+  .aventura-estante { height: 250px; }
   .aventura-corpo { padding: 12px 14px 14px; }
   .aventura-corpo .letra-miuda { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
 }
@@ -667,7 +667,8 @@ p { margin: 0 0 1em; }
 /* ao clicar numa porta do topo, o título da seção não fica escondido atrás do cabeçalho fixo */
 .lp section[id] { scroll-margin-top: 84px; }
 /* os livros da turma na Amazon: o de história, o e-book e o de colorir, sempre à vista */
-.na-amazon { display: grid; gap: 6px; padding: 10px 12px; border-radius: 14px; background: var(--nuvem); }
-.na-amazon-rotulo { font-weight: 800; font-size: 0.85rem; color: var(--grafite-suave); }
-.na-amazon-botoes { display: flex; flex-wrap: wrap; gap: 6px; }
-.na-amazon .botao-pequeno { min-height: 38px; padding: 6px 12px; font-size: 0.9rem; }
+.loja-linha { display: grid; gap: 6px; padding: 10px 12px; border-radius: 14px; background: var(--nuvem); }
+.loja-rotulo { font-weight: 800; font-size: 0.85rem; color: var(--grafite-suave); }
+.loja-botoes { display: flex; flex-wrap: wrap; gap: 6px; }
+.loja-linha .botao-pequeno { min-height: 38px; padding: 6px 12px; font-size: 0.9rem; }
+.imprima-voce { background: #fff3c9; }

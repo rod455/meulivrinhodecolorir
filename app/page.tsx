@@ -182,15 +182,20 @@ export default function Inicio() {
                 const capa = l.edicoes.find((e) => e.capa)?.capa;
                 return (
                   <article key={l.id} id={`livro-${l.id}`} className="aventura">
-                    {capa && <Image src={capa.src} alt={`Capa do livro ${l.titulo}`} width={capa.largura} height={capa.altura} className="aventura-capa" sizes="(min-width: 960px) 240px, 45vw" />}
+                    {capa && (
+                      // a capa inteira, sem corte, como um livro em pé na estante; todas na mesma altura (dono, 31/10/2026)
+                      <div className="aventura-estante">
+                        <Image src={capa.src} alt={`Capa do livro ${l.titulo}`} width={capa.largura} height={capa.altura} className="aventura-capa" sizes="(min-width: 960px) 200px, 40vw" />
+                      </div>
+                    )}
                     <div className="aventura-corpo">
                       <span className="selo-ingles">{l.idioma === 'pt' ? 'Em português' : 'Em inglês'}</span>
                       <h3 lang={l.idioma === 'en' ? 'en' : undefined}>{l.titulo}</h3>
                       <p className="letra-miuda">{l.historia}</p>
                       {linksNaAmazon(l).length > 0 && (
-                        <div className="na-amazon">
-                          <span className="na-amazon-rotulo">Na Amazon</span>
-                          <div className="na-amazon-botoes">
+                        <div className="loja-linha na-amazon">
+                          <span className="loja-rotulo">Na Amazon</span>
+                          <div className="loja-botoes">
                             {linksNaAmazon(l).map((x) => (
                               <a key={x.href} className="botao botao-secundario botao-pequeno" href={x.href} target="_blank" rel="noopener noreferrer">
                                 {x.rotulo}
@@ -206,17 +211,25 @@ export default function Inicio() {
                       ) : (
                         <span className="aventura-em-breve">Em breve: seu filho jogando com {l.protagonista}</span>
                       )}
+                      {/* o PDF para a família imprimir em casa, à vista como a Amazon (dono, 31/10/2026) */}
+                      <div className="loja-linha imprima-voce">
+                        <span className="loja-rotulo">Compre e imprima você mesmo</span>
+                        <div className="loja-botoes">
+                          {l.edicoes.map((e) => (
+                            <Link key={e.id} className="botao botao-secundario botao-pequeno" href={`/turma/comprar?edicao=${e.id}&formato=pdf`}>
+                              {e.tipo === 'Livro ilustrado' ? 'Livro de história' : e.tipo} em PDF
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
                       <details className="aventura-original">
-                        <summary>Comprar impresso ou PDF com a gente</summary>
+                        <summary>Prefere impresso? A gente imprime e envia</summary>
                         {l.edicoes.map((e) => (
                           <div key={e.id} className="edicao">
                             <strong>{e.tipo}</strong>
                             <div className="edicao-botoes">
                               <Link className="botao botao-secundario botao-pequeno" href={`/turma/comprar?edicao=${e.id}&formato=impresso`}>
                                 Impresso {emReais(PRECO_DO_FORMATO.impresso)}
-                              </Link>
-                              <Link className="botao botao-secundario botao-pequeno" href={`/turma/comprar?edicao=${e.id}&formato=pdf`}>
-                                PDF {emReais(PRECO_DO_FORMATO.pdf)}
                               </Link>
                             </div>
                           </div>
