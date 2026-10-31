@@ -51,10 +51,13 @@ const p = await novaPagina();
 // LP redesenhada (31/10/2026): os dois caminhos (o filho na história da turma ou uma história só dele), e o nome
 // digitado no topo acompanha a página inteira
 await p.goto(`${SITE}/?utm_source=teste&utm_campaign=suite`);
-const caminhos = p.locator('#caminhos a.botao');
-assert.equal(await caminhos.count(), 2, 'a página oferece os dois caminhos');
-assert.equal(await caminhos.nth(0).getAttribute('href'), '/criar?caminho=turma&tema=futebol', 'a turma leva ao futebol');
-assert.equal(await caminhos.nth(1).getAttribute('href'), '/criar?caminho=sob-medida', 'a sob medida leva ao caminho dela');
+// o topo tem as três portas (dono, 31/10/2026), cada uma para uma seção da página
+const portas = p.locator('.topo .porta');
+assert.equal(await portas.count(), 3, 'o topo oferece as três portas');
+assert.deepEqual(await portas.evaluateAll((as) => as.map((a) => a.getAttribute('href'))), ['#turma', '#fazer-parte', '#propria'], 'cada porta leva à sua seção');
+for (const id of ['turma', 'fazer-parte', 'propria']) assert.equal(await p.locator(`#${id}`).count(), 1, `a seção #${id} existe`);
+assert.equal(await p.locator('#fazer-parte a.botao').getAttribute('href'), '/criar?caminho=turma&tema=futebol', 'faça parte leva ao futebol da turma');
+assert.equal(await p.locator('#propria a.botao').getAttribute('href'), '/criar?caminho=sob-medida', 'a sua própria história leva à sob medida');
 assert.equal(await p.locator('a[href*="caminho=zero"]').count(), 0, 'o caminho do zero saiu da página (o objetivo são os dois caminhos)');
 assert.equal(await p.locator('#turma .amigo-cartao').count(), 6, 'a turma inteira se apresenta');
 const retratos = await p.locator('#turma .amigo-cartao img.amigo-retrato').evaluateAll((imgs) => imgs.map((i) => i.getAttribute('src') ?? ''));
@@ -80,13 +83,11 @@ const entrarNoTopo = p.locator('header').getByRole('link', { name: 'Entrar', exa
 assert.ok(await entrarNoTopo.isVisible(), 'Entrar à vista no cabeçalho do celular');
 assert.equal(await entrarNoTopo.getAttribute('href'), '/entrar?next=/conta', 'Entrar leva ao login e volta para os livrinhos');
 await p.fill('#nome-lp', 'joão pedro');
-assert.equal(await p.locator('#caminhos a[href*="nome=Jo%C3%A3o+Pedro"]').count(), 2, 'o nome arrumado vai nos dois caminhos');
-await p.getByRole('heading', { name: 'Dois jeitos de colocar seu filho na história' }).waitFor();
+assert.equal(await p.locator('#fazer-parte a.botao[href*="nome=Jo%C3%A3o+Pedro"], #propria a.botao[href*="nome=Jo%C3%A3o+Pedro"]').count(), 2, 'o nome arrumado vai nos dois caminhos');
 assert.equal(await p.locator('.folha-capa-titulo').textContent(), 'João Pedro entra em campo!', 'o livro de exemplo leva o nome');
 await p.getByRole('button', { name: 'Próxima página' }).click();
 await p.locator('.folha-texto', { hasText: 'Logo atrás dela vinha João Pedro!' }).waitFor();
-await p.getByRole('tab', { name: 'História 100% personalizada' }).click();
-await p.getByText('João Pedro e o mar de conchas').waitFor();
+await p.locator('#propria').getByText('João Pedro e o mar de conchas').waitFor();
 // o caminho do zero continua de pé para os links antigos (anúncios), só saiu da página
 await p.goto(`${SITE}/criar?caminho=zero&tema=natal&nome=jo%C3%A3o%20pedro`);
 
@@ -378,7 +379,8 @@ await intrusa.waitForURL(/\/conta/);
 
 // a história 100% personalizada (31/10/2026): a IA escreve, a família aprova o texto e o desenho, e o nome nunca vai para a IA
 await intrusa.goto(`${SITE}/`);
-await intrusa.locator('#caminhos').getByRole('link', { name: 'Escrever a história' }).click();
+await intrusa.locator('.topo .porta-propria').click();
+await intrusa.locator('#propria').getByRole('link', { name: 'Escrever a história' }).click();
 await intrusa.getByRole('heading', { name: 'Agora, o nome' }).waitFor();
 assert.equal(await intrusa.locator('.etapas li').count(), 6, 'a sob medida tem seis etapas (o começo, o nome, o personagem, o desenho, a história e pagar)');
 await intrusa.fill('#nome', 'theo');

@@ -4,10 +4,8 @@ import { Cabecalho } from '@/components/Cabecalho';
 import { COR } from '@/components/desenho/formas';
 import { Grifo } from '@/components/Enfeites';
 import { Icone, type NomeDoIcone } from '@/components/Icone';
-import { CampoDoNome } from '@/components/lp/CampoDoNome';
 import { ChamadaFinal } from '@/components/lp/ChamadaFinal';
-import { DoisCaminhos } from '@/components/lp/DoisCaminhos';
-import { VejaComoFica } from '@/components/lp/VejaComoFica';
+import { FacaParte, HistoriaPropria } from '@/components/lp/Caminhos';
 import { Rodape } from '@/components/Rodape';
 import { SITE } from '@/lib/config';
 import { PERGUNTAS } from '@/lib/faq';
@@ -43,15 +41,37 @@ export default function Inicio() {
     <>
       <Cabecalho />
       <main className="lp">
-        {/* 1. Topo: a turma saindo do livro, e o nome do filho */}
+        {/* 1. Topo: a turma saindo do livro, e as três portas para as seções abaixo (dono, 31/10/2026) */}
         <section className="topo">
           <div className="miolo topo-grade">
             <div className="topo-texto">
               <h1>
                 Seu filho <Grifo>dentro da história</Grifo>
               </h1>
-              <p className="topo-sub">Coloque seu filho no time da turma Little Paws ou peça uma história escrita só para ele.</p>
-              <CampoDoNome />
+              <p className="topo-sub">Conheça a turma Little Paws, coloque seu filho no time ou crie uma história só dele.</p>
+              <nav className="portas" aria-label="Por onde começar">
+                <a href="#turma" className="porta porta-turma">
+                  <Image src="/artes/turma/bo.webp" alt="" width={640} height={640} className="porta-arte" sizes="64px" />
+                  <span>
+                    <strong>Conheça o Little Paws</strong>
+                    <span>A turma e as aventuras deles</span>
+                  </span>
+                </a>
+                <a href="#fazer-parte" className="porta porta-fazer-parte">
+                  <Image src="/artes/exemplo-pagina-9.webp" alt="" width={1024} height={1536} className="porta-arte porta-arte-pagina" sizes="64px" />
+                  <span>
+                    <strong>Faça parte da história</strong>
+                    <span>Seu filho entra no time</span>
+                  </span>
+                </a>
+                <a href="#propria" className="porta porta-propria">
+                  <Image src="/marca/rabisco-com-livro.webp" alt="" width={220} height={353} className="porta-arte porta-arte-rabisco" sizes="64px" />
+                  <span>
+                    <strong>Crie a sua própria história</strong>
+                    <span>Escrita do zero, só para ele</span>
+                  </span>
+                </a>
+              </nav>
             </div>
             <div className="topo-arte">
               <Image
@@ -66,26 +86,10 @@ export default function Inicio() {
           </div>
         </section>
 
-        {/* 2. Os dois caminhos */}
-        <section className="secao" id="caminhos">
-          <div className="miolo">
-            <h2 className="titulo-lp">Dois jeitos de colocar seu filho na história</h2>
-            <DoisCaminhos />
-          </div>
-        </section>
-
-        {/* 3. Veja como fica: folhear o livro de exemplo */}
-        <section className="secao secao-nuvem" id="exemplo">
-          <div className="miolo">
-            <h2 className="titulo-lp">Veja como fica</h2>
-            <VejaComoFica />
-          </div>
-        </section>
-
-        {/* 4. A turma */}
+        {/* 2. Conheça o Little Paws: a turma e as aventuras */}
         <section className="secao" id="turma">
           <div className="miolo">
-            <h2 className="titulo-lp">Conheça a turma</h2>
+            <h2 className="titulo-lp">Conheça a turma Little Paws</h2>
             <p className="sub-lp">Seis amigos de um bairro com praça, quadra e campinho. Cada livro é a aventura de um deles.</p>
           </div>
           <ul className="turma-trilho" aria-label="A turma Little Paws">
@@ -108,8 +112,8 @@ export default function Inicio() {
           </ul>
         </section>
 
-        {/* 5. Os livros da turma: cada um vira uma aventura para o filho entrar */}
-        <section className="secao" id="little-paws">
+        {/* as aventuras da turma, logo depois de conhecer os amigos */}
+        <section className="secao secao-colada" id="little-paws">
           <div className="miolo">
             <h2 className="titulo-lp">As aventuras da turma</h2>
             <p className="sub-lp">
@@ -161,7 +165,21 @@ export default function Inicio() {
           </div>
         </section>
 
-        {/* 6. Feito com cuidado */}
+        {/* 3. Faça parte da história: o filho no time da turma */}
+        <section className="secao secao-nuvem" id="fazer-parte">
+          <div className="miolo">
+            <FacaParte />
+          </div>
+        </section>
+
+        {/* 4. Crie a sua própria história: a 100% personalizada */}
+        <section className="secao" id="propria">
+          <div className="miolo">
+            <HistoriaPropria />
+          </div>
+        </section>
+
+        {/* 5. Feito com cuidado */}
         <section className="secao secao-azul" id="cuidado">
           <div className="miolo cuidado">
             <div>
@@ -184,7 +202,7 @@ export default function Inicio() {
           </div>
         </section>
 
-        {/* 7. Perguntas frequentes */}
+        {/* 6. Perguntas frequentes */}
         <section className="secao" id="duvidas">
           <div className="miolo">
             <h2 className="titulo-lp">Perguntas frequentes</h2>
@@ -199,7 +217,7 @@ export default function Inicio() {
           </div>
         </section>
 
-        {/* 8. Chamada final, com o nome */}
+        {/* 7. Chamada final, com o nome */}
         <section className="secao secao-nuvem final">
           <div className="miolo">
             <ChamadaFinal />

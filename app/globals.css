@@ -632,3 +632,37 @@ p { margin: 0 0 1em; }
   .aventura-corpo { padding: 12px 14px 14px; }
   .aventura-corpo .letra-miuda { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
 }
+
+/* as três portas do topo (dono, 31/10/2026): cada uma leva a uma seção da página */
+.portas { display: grid; gap: 10px; max-width: 480px; }
+.porta { display: grid; grid-template-columns: 64px 1fr auto; align-items: center; gap: 14px; padding: 10px 16px 10px 10px; border: 2px solid var(--grafite); border-radius: 20px; text-decoration: none; color: var(--grafite); box-shadow: 0 4px 0 var(--grafite); transition: transform 0.12s ease, box-shadow 0.12s ease; }
+.porta::after { content: '→'; font: 800 1.4rem var(--fonte-titulo), system-ui, sans-serif; }
+.porta > span { display: grid; gap: 1px; }
+.porta strong { font: 800 1.2rem / 1.15 var(--fonte-titulo), system-ui, sans-serif; }
+.porta > span > span { font-size: 0.95rem; color: var(--grafite-suave); }
+.porta:hover { transform: translateY(-2px); box-shadow: 0 6px 0 var(--grafite); color: var(--grafite); }
+.porta:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--grafite); }
+.porta-turma { background: #fff3c9; }
+.porta-fazer-parte { background: #e3f3fc; }
+.porta-propria { background: #fde4ec; }
+.porta-arte { width: 64px; height: 64px; object-fit: cover; border-radius: 14px; border: 2px solid var(--grafite); background: var(--branco); }
+.porta-arte-pagina { object-position: 50% 22%; }
+.porta-arte-rabisco { object-fit: contain; padding: 2px; }
+@media (prefers-reduced-motion: reduce) { .porta { transition: none; } .porta:hover, .porta:active { transform: none; } }
+
+/* as aventuras ficam coladas na turma: é a mesma seção, "Conheça o Little Paws" */
+.secao-colada { padding-top: 8px; }
+
+/* faça parte / crie a sua: texto e exemplo lado a lado; a segunda espelhada */
+.secao-caminho { display: grid; gap: 28px; align-items: center; }
+.secao-caminho h2 { margin-bottom: 8px; }
+.sub-caminho { color: var(--grafite-suave); font-size: 1.1rem; max-width: 46ch; }
+.secao-caminho-texto { display: grid; gap: 14px; justify-items: start; }
+.secao-caminho-texto .caminho-passos { margin: 4px 0 6px; }
+.secao-caminho .campo-do-nome input { width: 100%; }
+@media (min-width: 900px) {
+  .secao-caminho { grid-template-columns: 1fr 1fr; gap: 48px; }
+  .secao-caminho-invertida .secao-caminho-texto { order: 2; }
+}
+/* ao clicar numa porta do topo, o título da seção não fica escondido atrás do cabeçalho fixo */
+.lp section[id] { scroll-margin-top: 84px; }
