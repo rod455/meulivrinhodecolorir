@@ -6,8 +6,9 @@ import { googleLigado } from '@/lib/servidor/sessao';
 import { Criar } from './Criar';
 
 export const metadata: Metadata = {
-  title: 'Criar meu livrinho | Meu Livrinho de Colorir',
-  description: 'Escolha o tema, digite o nome da criança e veja a capa na hora.',
+  title: 'Criar o livro personalizado do seu filho | Meu Livrinho de Colorir',
+  description:
+    'Coloque seu filho no time da turma Little Paws ou peça uma história 100% personalizada. Monte o personagem, aprove o desenho e o texto antes de pagar.',
   alternates: { canonical: '/criar' },
 };
 

@@ -51,6 +51,23 @@ const p = await novaPagina();
 // LP redesenhada (31/10/2026): os dois caminhos (o filho na história da turma ou uma história só dele), e o nome
 // digitado no topo acompanha a página inteira
 await p.goto(`${SITE}/?utm_source=teste&utm_campaign=suite`);
+// SEO e IAs (31/10/2026): dados estruturados válidos, imagem de compartilhamento, canônico só onde deve e o /llms.txt
+const ld = JSON.parse(await p.locator('script[type="application/ld+json"]').textContent());
+const tipos = ld['@graph'].map((x) => x['@type']);
+assert.equal(tipos.filter((t) => t === 'Book').length, 4, 'os quatro livros publicados nos dados estruturados');
+assert.equal(tipos.filter((t) => t === 'Service').length, 2, 'os dois caminhos como serviços');
+assert.ok(['Organization', 'WebSite', 'BookSeries', 'FAQPage'].every((t) => tipos.includes(t)), 'organização, site, série e FAQ');
+assert.ok(!JSON.stringify(ld).includes('R$') && !JSON.stringify(ld).includes('price'), 'sem preço nos dados estruturados (por enquanto)');
+assert.match(await p.locator('meta[property="og:image"]').getAttribute('content'), /opengraph-image/, 'a página tem imagem de compartilhamento');
+assert.equal(await p.locator('link[rel="canonical"]').getAttribute('href'), `https://meulivrinhodecolorir.com.br`, 'a página inicial é canônica dela mesma');
+const paraIas = await fetch(`${SITE}/llms.txt`);
+assert.equal(paraIas.status, 200, 'o /llms.txt existe');
+const textoParaIas = await paraIas.text();
+assert.ok(['# Meu Livrinho de Colorir', 'Faça parte da história', 'Crie a sua própria história', 'Kiko (porco-espinho)', 'O que é a turma Little Paws?'].every((t) => textoParaIas.includes(t)), 'o /llms.txt explica os caminhos, a turma e o FAQ');
+assert.ok(!textoParaIas.includes('R$'), 'o /llms.txt não fala de preço');
+const entrarHtml = await (await fetch(`${SITE}/entrar`)).text();
+assert.ok(!/rel="canonical" href="https:\/\/meulivrinhodecolorir\.com\.br"/.test(entrarHtml), 'o canônico da página inicial não vaza para outras páginas');
+
 // o topo tem as três portas (dono, 31/10/2026), cada uma para uma seção da página
 const portas = p.locator('.topo .porta');
 assert.equal(await portas.count(), 3, 'o topo oferece as três portas');

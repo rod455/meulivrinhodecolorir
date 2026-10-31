@@ -4,6 +4,7 @@ import { Rodape } from '@/components/Rodape';
 
 export const metadata: Metadata = {
   title: 'Termos de uso e trocas | Meu Livrinho de Colorir',
+  description: 'Como funcionam a compra, a entrega, as correções e a garantia de 7 dias dos livros de colorir personalizados.',
   alternates: { canonical: '/termos' },
 };
 

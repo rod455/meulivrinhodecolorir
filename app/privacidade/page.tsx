@@ -5,6 +5,7 @@ import { SITE } from '@/lib/config';
 
 export const metadata: Metadata = {
   title: 'Política de privacidade | Meu Livrinho de Colorir',
+  description: 'Que dados guardamos da criança e da família, por quanto tempo, e como o nome nunca vai para a inteligência artificial.',
   alternates: { canonical: '/privacidade' },
 };
 

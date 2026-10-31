@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Cabecalho } from '@/components/Cabecalho';
@@ -25,16 +26,73 @@ const CUIDADOS: { icone: NomeDoIcone; titulo: string; texto: string }[] = [
   { icone: 'coracao', titulo: 'Personagens nossos', texto: 'A turma Little Paws é original. Nada de cópia de desenho famoso.' },
 ];
 
+// Dados estruturados (schema.org): para o Google e para as IAs que leem a página
+// entenderem o que é o site, a série Little Paws, os livros e os dois serviços.
+// Sem preço de propósito (dono, 31/10/2026: preço e pagamento ficam para depois).
+const ORG = `${SITE.url}/#organizacao`;
+const SERIE = `${SITE.url}/#little-paws`;
+const AUTORES = [
+  { '@type': 'Person', name: 'Rodrigo Moraes' },
+  { '@type': 'Person', name: 'Luana David' },
+];
 const dadosEstruturados = {
   '@context': 'https://schema.org',
   '@graph': [
-    { '@type': 'Organization', name: SITE.nome, url: SITE.url },
+    { '@type': 'Organization', '@id': ORG, name: SITE.nome, url: SITE.url, logo: `${SITE.url}/marca/logo.webp` },
+    { '@type': 'WebSite', '@id': `${SITE.url}/#site`, name: SITE.nome, url: SITE.url, inLanguage: 'pt-BR', publisher: { '@id': ORG } },
+    {
+      '@type': 'BookSeries',
+      '@id': SERIE,
+      name: 'Little Paws',
+      author: AUTORES,
+      description: 'Série de livros infantis ilustrados e de colorir sobre uma turma de amigos bichinhos que vive aventuras de esporte e amizade.',
+      character: TURMA.map((a) => ({ '@type': 'Person', name: a.nome, description: `${a.bicho}. ${a.jeito}` })),
+    },
+    ...LIVROS_PUBLICADOS.map((l) => {
+      const capa = l.edicoes.find((e) => e.capa)?.capa;
+      const kindle = l.edicoes.find((e) => e.kindle)?.kindle;
+      return {
+        '@type': 'Book',
+        '@id': `${SITE.url}/#livro-${l.id}`,
+        name: l.titulo,
+        ...(l.subtitulo ? { alternativeHeadline: l.subtitulo } : {}),
+        author: AUTORES,
+        inLanguage: l.idioma === 'pt' ? 'pt-BR' : 'en',
+        isPartOf: { '@id': SERIE },
+        description: l.historia,
+        ...(capa ? { image: `${SITE.url}${capa.src}` } : {}),
+        ...(kindle ? { sameAs: kindle } : {}),
+      };
+    }),
+    {
+      '@type': 'Service',
+      name: 'Livro de colorir personalizado com a criança na história da turma Little Paws',
+      serviceType: 'Livro infantil personalizado',
+      provider: { '@id': ORG },
+      areaServed: 'BR',
+      url: `${SITE.url}/#fazer-parte`,
+      description:
+        'A criança entra no time da turma Little Paws e vive a aventura junto com eles. A família monta o personagem pelo cabelo, pele e roupa, ou por uma foto, e aprova o desenho antes. O nome da criança aparece no texto.',
+    },
+    {
+      '@type': 'Service',
+      name: 'História 100% personalizada no estilo Little Paws',
+      serviceType: 'História infantil personalizada',
+      provider: { '@id': ORG },
+      areaServed: 'BR',
+      url: `${SITE.url}/#propria`,
+      description:
+        'Uma história de 16 páginas para colorir escrita do zero para a criança, a partir do lugar, da lição e dos gostos que a família conta. A família lê, pede até 2 ajustes e aprova o texto e o desenho do personagem.',
+    },
     {
       '@type': 'FAQPage',
       mainEntity: PERGUNTAS.map((p) => ({ '@type': 'Question', name: p.pergunta, acceptedAnswer: { '@type': 'Answer', text: p.resposta } })),
     },
   ],
 };
+
+// o canônico mora aqui, e não no layout: no layout ele vazava para as outras páginas
+export const metadata: Metadata = { alternates: { canonical: '/' } };
 
 export default function Inicio() {
   return (
@@ -48,7 +106,7 @@ export default function Inicio() {
               <h1>
                 Seu filho <Grifo>dentro da história</Grifo>
               </h1>
-              <p className="topo-sub">Conheça a turma Little Paws, coloque seu filho no time ou crie uma história só dele.</p>
+              <p className="topo-sub">Livros de colorir personalizados: conheça a turma Little Paws, coloque seu filho no time ou crie uma história só dele.</p>
               <nav className="portas" aria-label="Por onde começar">
                 <a href="#turma" className="porta porta-turma">
                   <Image src="/artes/turma/bo.webp" alt="" width={640} height={640} className="porta-arte" sizes="64px" />

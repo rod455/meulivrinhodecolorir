@@ -3,6 +3,11 @@
 
 export const PERGUNTAS: { pergunta: string; resposta: string }[] = [
   {
+    pergunta: 'O que é a turma Little Paws?',
+    resposta:
+      'É uma série original de livros infantis, de Rodrigo Moraes e Luana David, sobre seis amigos bichinhos de um bairro com praça, quadra e campinho: Pip, Bo, Dot, Milo, Luna e Kiko. Cada livro é uma aventura de esporte e amizade em que um deles aprende alguma coisa com o time. Aqui, seu filho pode entrar nessas histórias ou ganhar uma só dele.',
+  },
+  {
     pergunta: 'Como meu filho entra na história da turma?',
     resposta:
       'Você monta o personagem escolhendo cabelo, tom de pele, roupa e superpoder, ou envia uma foto. A gente desenha o personagem no traço da turma Little Paws e você aprova antes de tudo. Ele entra no time e aparece nas páginas da aventura, com o nome no texto.',

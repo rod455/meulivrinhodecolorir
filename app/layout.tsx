@@ -13,17 +13,31 @@ const PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
-  title: 'Livro de colorir personalizado: seu filho dentro da história | Little Paws',
+  title: 'Livro de colorir personalizado: seu filho na história | Little Paws',
   description:
-    'Coloque seu filho no time da turma Little Paws ou peça uma história escrita só para ele. Você monta o personagem, aprova o desenho e o texto, e imprime para colorir.',
+    'Livro infantil personalizado para colorir: coloque seu filho no time da turma Little Paws ou peça uma história escrita só para ele. Você aprova o desenho e o texto.',
+  applicationName: SITE.nome,
+  authors: [{ name: 'Rodrigo Moraes' }, { name: 'Luana David' }],
+  creator: SITE.nome,
+  keywords: [
+    'livro personalizado infantil',
+    'livro de colorir personalizado',
+    'livro personalizado com nome da criança',
+    'história personalizada para criança',
+    'livro com a criança como personagem',
+    'presente de aniversário infantil',
+    'Little Paws',
+  ],
   openGraph: {
     type: 'website',
     locale: 'pt_BR',
     siteName: SITE.nome,
+    url: SITE.url,
     title: 'Seu filho dentro da história da turma Little Paws',
-    description: 'No time da turma ou numa história escrita só para ele. Você monta o personagem e aprova antes.',
+    description: 'Livro de colorir personalizado: seu filho no time da turma Little Paws ou numa história escrita só para ele. Você aprova antes.',
   },
-  alternates: { canonical: '/' },
+  twitter: { card: 'summary_large_image' },
+  formatDetection: { telephone: false },
 };
 
 export const viewport: Viewport = { themeColor: '#FFF8EE' };
