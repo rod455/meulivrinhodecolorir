@@ -79,6 +79,19 @@ export const TEMAS: Record<TemaId, Tema> = {
 
 export const LISTA_DE_TEMAS: Tema[] = [TEMAS.futebol, TEMAS.natal, TEMAS['fundo-do-mar']];
 
+/**
+ * A primeira escolha do site (pedido do dono, 31/10/2026): ou a história da
+ * turma Little Paws, com a criança entrando no time, ou uma história do zero,
+ * em que a criança é a heroína sozinha. Os temas com personagem são da turma.
+ */
+export type Caminho = 'turma' | 'zero';
+export const ehCaminho = (v: unknown): v is Caminho => v === 'turma' || v === 'zero';
+export const caminhoDoTema = (t: TemaId): Caminho => (TEMAS[t].comPersonagem ? 'turma' : 'zero');
+export const TEMAS_DO_CAMINHO: Record<Caminho, Tema[]> = {
+  turma: LISTA_DE_TEMAS.filter((t) => t.comPersonagem),
+  zero: LISTA_DE_TEMAS.filter((t) => !t.comPersonagem),
+};
+
 export const TEMAS_EM_BREVE = [
   { emoji: '🦕', nome: 'Dinossauros' },
   { emoji: '🦁', nome: 'Safári e selva' },

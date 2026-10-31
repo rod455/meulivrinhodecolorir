@@ -7,6 +7,7 @@
 export type Evento =
   | 'clique_criar'
   | 'previa_digitou'
+  | 'caminho_escolhido'
   | 'produto_escolhido'
   | 'tema_escolhido'
   | 'personalizacao_iniciada'

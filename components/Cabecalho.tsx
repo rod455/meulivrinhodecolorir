@@ -14,9 +14,9 @@ export function Cabecalho({ semMenu = false }: { semMenu?: boolean }) {
         ) : (
           <>
             <nav aria-label="Seções">
-              <a href="#como-funciona">Como funciona</a>
+              <a href="#turma">A turma</a>
+              <a href="#do-zero">Do zero</a>
               <a href="#produtos">Preços</a>
-              <a href="#temas">Temas</a>
               <a href="#duvidas">Dúvidas</a>
             </nav>
             <div className="cabecalho-acoes">

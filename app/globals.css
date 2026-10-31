@@ -176,20 +176,6 @@ p { margin: 0 0 1em; }
 .produto-destaque { background: #fff3c9; }
 @media (min-width: 860px) { .produtos { grid-template-columns: repeat(3, 1fr); } }
 
-/* Galeria de temas */
-.galeria { display: grid; grid-auto-flow: column; grid-auto-columns: 78%; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 6px 4px 18px; }
-.galeria > * { scroll-snap-align: start; }
-.tema-cartao { display: flex; flex-direction: column; gap: 12px; text-align: left; cursor: pointer; font: inherit; color: inherit; }
-.tema-cartao { text-decoration: none; }
-.tema-capa { display: grid; place-items: center; height: 340px; background: var(--papel); border-radius: 18px; overflow: hidden; container-type: inline-size; }
-/* capas de formatos diferentes (Kindle 1:1,6 e impresso 4:5) com a mesma altura: a altura cabe na largura da mais larga */
-.tema-capa img { height: min(310px, 124cqw); width: auto; max-width: 100%; object-fit: contain; border-radius: 8px; filter: drop-shadow(0 8px 12px rgba(43, 45, 66, 0.18)); }
-.tema-personalizar { cursor: default; }
-.tema-personalizar .tema-capa { background: #fff3c9; }
-.tema-personalizar .tema-capa img { height: 230px; border-radius: 0; filter: none; }
-.tema-produtos { display: grid; gap: 8px; }
-.tema-produtos .botao { width: 100%; justify-content: space-between; gap: 10px; text-align: left; font-size: 0.92rem; }
-.tema-produtos .botao span:last-child { white-space: nowrap; }
 .janela-vitrine { display: grid; place-items: center; margin: 14px 0; }
 .janela-vitrine img { max-height: 60vh; width: auto; height: auto; }
 .em-breve { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 22px; }
@@ -197,9 +183,6 @@ p { margin: 0 0 1em; }
 .em-breve span:nth-of-type(4n+2) { background: #ffe0ee; }
 .em-breve span:nth-of-type(4n+3) { background: #d8effb; }
 .em-breve span:nth-of-type(4n+4) { background: #def2dd; }
-@media (min-width: 760px) { .galeria { grid-auto-flow: row; grid-template-columns: repeat(2, 1fr); overflow: visible; } }
-@media (min-width: 1040px) { .galeria { grid-template-columns: repeat(5, 1fr); gap: 12px; } .galeria .tema-capa { height: 280px; } .galeria .tema-capa img { height: min(250px, 124cqw); } .galeria .tema-personalizar .tema-capa img { height: 190px; } }
-
 .janela-fundo { position: fixed; inset: 0; background: rgba(43, 45, 66, 0.55); z-index: 50; display: grid; place-items: center; padding: 16px; }
 .janela { background: var(--papel); border: 2px solid var(--grafite); border-radius: var(--raio); max-width: 760px; width: 100%; max-height: 92vh; overflow: auto; padding: 20px; }
 .janela-paginas { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 14px 0; }
@@ -433,7 +416,7 @@ p { margin: 0 0 1em; }
 
 /* Os livros publicados da turma, em inglês */
 .livros-publicados { display: grid; gap: 18px; }
-@media (min-width: 760px) { .livros-publicados { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 760px) { .livros-publicados { grid-template-columns: repeat(2, 1fr); } }
 .livro-publicado { container-type: inline-size; background: var(--branco); border: 1.5px solid var(--contorno-suave); border-radius: var(--raio); padding: 18px; display: flex; flex-direction: column; gap: 8px; }
 .livro-publicado h3 { margin: 0; font-size: 1.25rem; }
 .livro-publicado p { margin: 0; }
@@ -450,3 +433,29 @@ p { margin: 0 0 1em; }
 .endereco { border: none; padding: 0; margin: 0; }
 .endereco legend { font-family: var(--fonte-titulo), system-ui, sans-serif; font-weight: 800; font-size: 1.25rem; margin-bottom: 8px; }
 .endereco-linha { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* A primeira escolha (31/10/2026): a turma Little Paws ou uma história do zero */
+.caminhos { display: grid; gap: 12px; margin-top: 18px; }
+@media (min-width: 560px) { .caminhos { grid-template-columns: 1fr 1fr; } }
+.caminho { display: grid; gap: 6px; padding: 18px; text-decoration: none; color: var(--grafite); border: 2px solid var(--grafite); box-shadow: 0 4px 0 var(--grafite); transition: transform 120ms ease; }
+.caminho strong { font-family: var(--fonte-titulo), system-ui, sans-serif; font-size: 1.25rem; line-height: 1.2; }
+.caminho span { font-size: 0.98rem; }
+.caminho-turma { background: #fff3c9; }
+.caminho-zero { background: #e3f3fc; }
+.caminho-seta { font-weight: 800; margin-top: 4px; }
+@media (prefers-reduced-motion: no-preference) { .caminho:hover { transform: translateY(-2px); } }
+.hero-turma img { border-radius: 24px; border: 2px solid var(--grafite); box-shadow: var(--sombra); height: auto; }
+.turma { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; }
+@media (min-width: 700px) { .turma { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1040px) { .turma { grid-template-columns: repeat(3, 1fr); } }
+.amigo { display: flex; gap: 14px; align-items: flex-start; padding: 18px; }
+.amigo p { margin: 6px 0 8px; }
+.amigo-inicial { flex: none; width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; font-family: var(--fonte-titulo), system-ui, sans-serif; font-size: 1.5rem; font-weight: 800; border: 2px solid var(--grafite); }
+.amigo-livro { font-weight: 800; color: var(--grafite); }
+.livro-colocar { display: grid; gap: 8px; padding: 14px; border-radius: 16px; background: #fff3c9; border: 2px solid var(--amarelo); justify-items: start; }
+.escolhas-caminho .escolha { gap: 8px; }
+.caminho-arte { width: 100%; height: 150px; object-fit: cover; border-radius: 14px; border: 2px solid var(--grafite); }
+.caminho-arte-rabisco { object-fit: contain; background: var(--branco); }
+.escolha-em-breve { opacity: 0.75; cursor: default; }
+.em-breve-capa { width: 90px; height: auto; border-radius: 8px; border: 2px solid var(--contorno-suave); }
+.selo-em-breve { align-self: flex-start; padding: 2px 10px; border-radius: 99px; background: var(--nuvem); font-weight: 800; font-size: 0.85rem; }

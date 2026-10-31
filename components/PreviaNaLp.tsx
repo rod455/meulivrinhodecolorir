@@ -8,12 +8,13 @@ import Link from 'next/link';
 import { useRef, useState } from 'react';
 import { registrar } from '@/lib/analytics';
 import { arrumarNome, LIMITE_DO_NOME, MENSAGEM_DO_PROBLEMA, problemaDoNome } from '@/lib/nome';
-import { LISTA_DE_TEMAS, type TemaId } from '@/lib/temas';
+import { TEMAS_DO_CAMINHO, type TemaId } from '@/lib/temas';
 import { ALapis } from './Enfeites';
 
 export function PreviaNaLp() {
   const [bruto, setBruto] = useState('');
-  const [tema, setTema] = useState<TemaId>('futebol');
+  // a prévia da LP fica na seção "do zero": só os temas sem a turma
+  const [tema, setTema] = useState<TemaId>(TEMAS_DO_CAMINHO.zero[0].id);
   const [idade, setIdade] = useState(5);
   const contou = useRef(false);
 
@@ -67,7 +68,7 @@ export function PreviaNaLp() {
         <div className="campo">
           <span className="rotulo" id="tema-lp">Tema</span>
           <div className="temas-mini" role="group" aria-labelledby="tema-lp">
-            {LISTA_DE_TEMAS.map((t) => (
+            {TEMAS_DO_CAMINHO.zero.map((t) => (
               <button key={t.id} type="button" className="chip" aria-pressed={tema === t.id} onClick={() => setTema(t.id)}>
                 {t.emoji} {t.id === 'futebol' ? 'Futebol' : t.nome}
               </button>

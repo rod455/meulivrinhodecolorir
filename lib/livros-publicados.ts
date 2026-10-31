@@ -8,6 +8,8 @@
 // para imprimir em casa, R$ 29,90. Preço é decisão do dono: mudar só com ele.
 // Puro: conferido por `npm run conferir:turma`.
 
+import type { TemaId } from './temas.ts';
+
 export const PRECO_DO_FORMATO = { impresso: 7990, pdf: 2990 } as const;
 export type FormatoDaTurma = keyof typeof PRECO_DO_FORMATO;
 export const ROTULO_DO_FORMATO: Record<FormatoDaTurma, string> = { impresso: 'Impresso sob medida', pdf: 'PDF para imprimir em casa' };
@@ -28,6 +30,10 @@ export type LivroPublicado = {
   subtitulo: string | null;
   /** o idioma do texto: os três primeiros saíram em inglês; o de futebol, primeiro em português */
   idioma: 'pt' | 'en';
+  /** o tema personalizado em que a criança entra nesta história; null enquanto as cenas base não existem */
+  temaPersonalizado: TemaId | null;
+  /** quem vive a história principal, já com o artigo ("o Milo", "a Dot"), para a vitrine */
+  protagonista: string;
   /** como o livro aparece em "Temas exclusivos" na LP */
   tema: string;
   /** o que a criança vive na história, em português */
@@ -39,6 +45,8 @@ export const LIVROS_PUBLICADOS: LivroPublicado[] = [
   {
     // Livro 4 (livros-fonte/04-little-paws-futebol): saiu primeiro em português; o Kindle entra com a versão em inglês
     id: 'grande-final',
+    temaPersonalizado: 'futebol',
+    protagonista: 'o Milo',
     idioma: 'pt',
     tema: 'Futebol com a turma',
     titulo: 'Little Paws: A Grande Final de Futebol',
@@ -49,6 +57,8 @@ export const LIVROS_PUBLICADOS: LivroPublicado[] = [
   },
   {
     id: 'big-game',
+    temaPersonalizado: null,
+    protagonista: 'o Pip',
     idioma: 'en',
     tema: 'Basquete com a turma',
     titulo: 'Little Paws, Big Game',
@@ -62,6 +72,8 @@ export const LIVROS_PUBLICADOS: LivroPublicado[] = [
   },
   {
     id: 'big-play',
+    temaPersonalizado: null,
+    protagonista: 'o Bo',
     idioma: 'en',
     tema: 'Flag football com a turma',
     titulo: 'Little Paws, Big Play',
@@ -75,6 +87,8 @@ export const LIVROS_PUBLICADOS: LivroPublicado[] = [
   },
   {
     id: 'big-christmas',
+    temaPersonalizado: null,
+    protagonista: 'a Dot',
     idioma: 'en',
     tema: 'Natal com a turma',
     titulo: 'Little Paws, Big Christmas',

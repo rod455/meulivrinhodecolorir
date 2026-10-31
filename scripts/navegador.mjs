@@ -49,12 +49,15 @@ const p = await novaPagina();
 
 // LP: a prévia muda a capa enquanto digita, e o botão leva o nome para o fluxo
 await p.goto(`${SITE}/?utm_source=teste&utm_campaign=suite`);
-// "Temas exclusivos": os livros da turma com a capa e, por último, personalizar a história completa
-const temas = p.locator('#temas .tema-cartao');
-assert.equal(await temas.count(), 5, 'quatro livros e o personalizado');
-assert.equal(await p.locator('#temas img[alt^="Capa do livro"]').count(), 4, 'cada livro com a capa de verdade');
-assert.equal(await temas.last().getByRole('link').evaluateAll((as) => as.map((a) => new URL(a.href).search).join()), '?produto=lembrancinha,?produto=presente,?produto=combo', 'o último leva aos três livrinhos personalizados');
-assert.equal(await p.locator('#little-paws img[alt^="Capa do livro"]').count(), 4, 'a seção dos livros também mostra as capas');
+// a primeira escolha da LP (31/10/2026): as histórias da turma ou uma história do zero
+assert.equal(await p.locator('.hero .caminho').count(), 2, 'o topo oferece os dois caminhos');
+assert.equal(await p.locator('.hero .caminho-zero').getAttribute('href'), '/criar?caminho=zero', 'do zero leva ao criar pelo caminho certo');
+assert.equal(await p.locator('#turma .amigo').count(), 6, 'a turma inteira se apresenta');
+const colocar = p.locator('#little-paws').getByRole('link', { name: 'Colocar meu filho na história' });
+assert.equal(await colocar.count(), 1, 'só a história com personalizado pronto oferece colocar o filho');
+assert.equal(await colocar.getAttribute('href'), '/criar?caminho=turma&tema=futebol', 'e leva ao futebol pela turma');
+assert.equal(await p.locator('#little-paws').getByText(/Em breve: seu filho jogando com/).count(), 3, 'as outras histórias dizem em breve');
+assert.equal(await p.locator('#little-paws img[alt^="Capa do livro"]').count(), 4, 'cada livro com a capa de verdade');
 // os livros publicados da turma, em inglês: os três aparecem, e sem link de verdade não há botão
 const publicados = p.locator('#little-paws article');
 assert.equal(await publicados.count(), 4, 'os quatro livros publicados da turma aparecem na LP');
@@ -129,13 +132,21 @@ assert.ok(pedido.user_id && pedido.user_id === carla, 'pedido ligado à conta');
 assert.match(pedido.dedicatoria, /^Feliz aniversário/);
 assert.equal(pedido.origem.utm_source, 'teste', 'UTM da primeira página chega no pedido');
 
-// o diferencial aparece já na escolha do tema: só o tema com personagem leva o selo
+// o /criar começa pela mesma escolha: a turma mostra só as histórias com personagem; do zero, os outros temas
 const vitrine = await novaPagina();
-await vitrine.goto(`${SITE}/criar?produto=presente`);
+await vitrine.goto(`${SITE}/criar`);
+await vitrine.getByRole('heading', { name: 'Como você quer começar?' }).waitFor();
+await vitrine.getByRole('button', { name: /Com a turma Little Paws/ }).click();
+await vitrine.getByRole('heading', { name: /Em que história/ }).waitFor();
+assert.equal(await vitrine.locator('.selo-personagem').count(), 1, 'na turma, o futebol com personagem');
+assert.equal(await vitrine.locator('.escolha-em-breve').count(), 3, 'e as outras histórias em breve');
+await vitrine.getByRole('button', { name: /Voltar/ }).click();
+await vitrine.getByRole('button', { name: /Uma história do zero/ }).click();
+await vitrine.getByRole('heading', { name: 'O que você quer criar?' }).waitFor();
+await vitrine.getByRole('button', { name: /Livrinho presente/ }).click();
 await vitrine.getByRole('heading', { name: 'Escolha o tema' }).waitFor();
-await vitrine.getByText('Passo 2 de').waitFor();
-assert.equal(await vitrine.locator('.selo-personagem').count(), 1, 'um tema com personagem, um selo');
-assert.ok(await vitrine.getByRole('button', { name: /A criança vira personagem/ }).filter({ hasText: 'Futebol' }).isVisible(), 'o selo está no Futebol');
+await vitrine.getByText('Passo 3 de 5').waitFor();
+assert.equal(await vitrine.locator('.selo-personagem').count(), 0, 'do zero não mostra os temas da turma');
 
 // futebol com foto, já com a conta aberta
 const foto = await sharp({ create: { width: 1200, height: 900, channels: 3, background: '#a86b48' } })
@@ -144,7 +155,7 @@ const foto = await sharp({ create: { width: 1200, height: 900, channels: 3, back
   .toBuffer();
 await p.goto(`${SITE}/criar?produto=presente&tema=futebol&nome=Bia&idade=6`);
 await p.getByRole('heading', { name: 'Agora, o nome' }).waitFor();
-assert.equal(await p.locator('.etapas li').count(), 6, 'futebol tem seis etapas (com o desenho do personagem)');
+assert.equal(await p.locator('.etapas li').count(), 7, 'futebol tem sete etapas (o começo, a história, o livrinho, o nome, o personagem, o desenho e pagar)');
 await p.getByRole('button', { name: 'Continuar' }).click();
 await p.getByRole('heading', { name: 'Crie o personagem' }).waitFor();
 await p.getByRole('button', { name: /Por uma foto/ }).click();

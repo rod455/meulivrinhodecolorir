@@ -5,6 +5,7 @@
 // fim, os dados de contato e a forma de pagamento.
 // Sem conta e sem cadastro. O preço mostrado aqui é só vitrine: a rota recalcula.
 
+import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { CapaLivrinho } from '@/components/CapaLivrinho';
@@ -20,21 +21,28 @@ import { DEDICATORIAS_PRONTAS, LIMITE_DA_DEDICATORIA, lerPedido, type ErrosDoPed
 import { chaveDoDesenho } from '@/lib/ficha';
 import { lerPersonagem, PERSONAGEM_INICIAL, SUPERPODERES, type Personagem } from '@/lib/personagem';
 import { DESCONTO_PIX, ehProduto, emReais, LISTA_DE_PRODUTOS, PRODUTOS, totalDoPedido, type FormaDePagamento, type ProdutoId } from '@/lib/produtos';
-import { ehTema, LISTA_DE_TEMAS, TEMAS, type TemaId } from '@/lib/temas';
+import { LIVROS_PUBLICADOS } from '@/lib/livros-publicados';
+import { caminhoDoTema, ehCaminho, ehTema, TEMAS, TEMAS_DO_CAMINHO, type Caminho, type TemaId } from '@/lib/temas';
 import { EtapaFicha } from './EtapaFicha';
 import { EtapaPersonagem, partesDoPersonagem, type ParteDoPersonagem } from './EtapaPersonagem';
 
-/** 0 produto, 1 tema, 2 nome, 3 personagem e 4 desenho do personagem (só se o tema tem), 5 contato e pagamento */
-type Etapa = 0 | 1 | 2 | 3 | 4 | 5;
+/**
+ * 6 o começo (a turma Little Paws ou uma história do zero), 0 produto, 1 tema,
+ * 2 nome, 3 personagem e 4 desenho do personagem (só se o tema tem), 5 contato e pagamento.
+ * Na turma o tema (a história) vem antes do produto; do zero, o produto vem antes.
+ */
+type Etapa = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 const GUARDADO = 'livrinho:rascunho';
 /** o nome de cada passo, acima da barra de progresso (revisão de CRO, 25/10/2026) */
-const NOME_DA_ETAPA: Record<Etapa, string> = { 0: 'o livrinho', 1: 'o tema', 2: 'o nome', 3: 'o personagem', 4: 'aprovar o desenho', 5: 'pagar' };
+const NOME_DA_ETAPA: Record<Etapa, string> = { 6: 'o começo', 0: 'o livrinho', 1: 'a história', 2: 'o nome', 3: 'o personagem', 4: 'aprovar o desenho', 5: 'pagar' };
 /** volta do Google e do link por e-mail: cai direto no pagamento, com o rascunho guardado */
 export const DESTINO_DEPOIS_DE_ENTRAR = '/criar?etapa=pagar';
 /** a conta agora costuma nascer antes do desenho do personagem */
 export const DESTINO_DEPOIS_DE_ENTRAR_NA_FICHA = '/criar?etapa=ficha';
 
 type Rascunho = {
+  /** a primeira escolha: a turma Little Paws ou do zero (31/10/2026) */
+  caminho: Caminho | null;
   produto: ProdutoId | null;
   tema: TemaId | null;
   nome: string;
@@ -55,6 +63,7 @@ type Rascunho = {
 };
 
 const VAZIO: Rascunho = {
+  caminho: null,
   produto: null,
   tema: null,
   nome: '',
@@ -74,9 +83,17 @@ const VAZIO: Rascunho = {
 };
 
 function primeiraEtapaQueFalta(r: Rascunho): Etapa {
+  if (!r.caminho) return 6;
+  if (r.caminho === 'turma' && !r.tema) return 1;
   if (!r.produto) return 0;
   if (!r.tema) return 1;
   return 2;
+}
+
+/** a ordem dos passos depende do caminho e de o tema ter personagem */
+function ordemDasEtapas(caminho: Caminho | null, temPersonagem: boolean): Etapa[] {
+  if (caminho === 'turma') return temPersonagem ? [6, 1, 0, 2, 3, 4, 5] : [6, 1, 0, 2, 5];
+  return temPersonagem ? [6, 0, 1, 2, 3, 4, 5] : [6, 0, 1, 2, 5];
 }
 
 export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boolean }) {
@@ -106,12 +123,18 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
     }
     const produto = busca.get('produto');
     const tema = busca.get('tema');
+    const caminhoPedido = busca.get('caminho');
     const nome = busca.get('nome');
     const idade = Number(busca.get('idade'));
+    // o tema decide o caminho (futebol é da turma); sem tema no link, vale o caminho pedido, e o tema guardado
+    // que não for do caminho escolhido é esquecido
+    const caminho: Caminho | null = ehTema(tema) ? caminhoDoTema(tema) : ehCaminho(caminhoPedido) ? caminhoPedido : base.caminho;
+    const temaGuardado = base.tema && caminho && caminhoDoTema(base.tema) === caminho ? base.tema : null;
     const inicial: Rascunho = {
       ...base,
+      caminho,
       produto: ehProduto(produto) ? produto : base.produto,
-      tema: ehTema(tema) ? tema : base.tema,
+      tema: ehTema(tema) ? tema : temaGuardado,
       nome: nome ? arrumarNome(nome).slice(0, LIMITE_DO_NOME + 6) : base.nome,
       idade: Number.isInteger(idade) && idade >= 1 && idade <= 10 ? idade : base.idade,
     };
@@ -164,7 +187,7 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
   const temPersonagem = Boolean(r.tema && TEMAS[r.tema].comPersonagem);
   // a dedicatória abre ao toque (etapa do nome mais curta); já escrita, fica aberta
   const comDedicatoria = abriuDedicatoria || r.dedicatoria.trim() !== '';
-  const ordem: Etapa[] = temPersonagem ? [0, 1, 2, 3, 4, 5] : [0, 1, 2, 5];
+  const ordem = ordemDasEtapas(r.caminho, temPersonagem);
   // a ficha aprovada só vale para o desenho de agora: mudou cabelo ou idade, desenha de novo
   const fichaEmDia = r.fichaAprovada && r.fichaDoDesenho === chaveDoDesenho(r.personagem, r.idade);
   const posicao = Math.max(0, ordem.indexOf(etapa));
@@ -287,15 +310,54 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
           <li key={e} className={i < posicao ? 'feita' : i === posicao ? 'atual' : ''} />
         ))}
       </ol>
-      {etapa > 0 && (
-        <button type="button" className="voltar" onClick={() => (etapa === 3 && parte > 0 ? mudarParte(parte - 1) : irPara(ordem[posicao - 1] ?? 0))}>
+      {etapa !== 6 && (
+        <button type="button" className="voltar" onClick={() => (etapa === 3 && parte > 0 ? mudarParte(parte - 1) : irPara(ordem[posicao - 1] ?? 6))}>
           ← Voltar
         </button>
       )}
 
+      {etapa === 6 && (
+        <section>
+          <h1 style={{ fontSize: 'clamp(1.9rem, 6vw, 2.6rem)' }}>Como você quer começar?</h1>
+          <div className="escolhas escolhas-caminho">
+            <button
+              type="button"
+              className="cartao escolha caminho-turma"
+              aria-pressed={r.caminho === 'turma'}
+              onClick={() => {
+                setR((atual) => ({ ...atual, caminho: 'turma', tema: atual.tema && caminhoDoTema(atual.tema) === 'turma' ? atual.tema : null }));
+                registrar('caminho_escolhido', { caminho: 'turma' });
+                irPara(1);
+              }}
+            >
+              <Image src="/artes/turma-em-fila.webp" alt="" width={970} height={600} className="caminho-arte" />
+              <strong style={{ fontSize: '1.3rem', fontFamily: 'var(--fonte-titulo)' }}>Com a turma Little Paws</strong>
+              <span>{nomeNaCapa || 'Seu filho'} entra numa história da turma e vive a aventura junto com o Pip, o Bo, a Luna, a Dot e o Milo, desenhado do jeitinho que você escolher.</span>
+            </button>
+            <button
+              type="button"
+              className="cartao escolha caminho-zero"
+              aria-pressed={r.caminho === 'zero'}
+              onClick={() => {
+                setR((atual) => ({ ...atual, caminho: 'zero', tema: atual.tema && caminhoDoTema(atual.tema) === 'zero' ? atual.tema : null }));
+                registrar('caminho_escolhido', { caminho: 'zero' });
+                irPara(r.produto ? 1 : 0);
+              }}
+            >
+              <Image src="/marca/rabisco-com-livro.webp" alt="" width={220} height={353} className="caminho-arte caminho-arte-rabisco" />
+              <strong style={{ fontSize: '1.3rem', fontFamily: 'var(--fonte-titulo)' }}>Uma história do zero</strong>
+              <span>Uma história só {nomeNaCapa ? `de ${nomeNaCapa}` : 'do seu filho'}, com o nome na capa e nas páginas: Natal, fundo do mar e mais temas.</span>
+            </button>
+          </div>
+          <p className="letra-miuda">
+            Quer o livro da turma como ele é, para ler e pintar? <a href="/#little-paws">Veja os livros da turma</a>.
+          </p>
+        </section>
+      )}
+
       {etapa === 0 && (
         <section>
-          <h1 style={{ fontSize: 'clamp(1.9rem, 6vw, 2.6rem)' }}>O que você quer criar?</h1>
+          <h1 style={{ fontSize: 'clamp(1.9rem, 6vw, 2.6rem)' }}>{r.caminho === 'turma' && r.tema ? 'Em que formato?' : 'O que você quer criar?'}</h1>
           <div className="escolhas">
             {LISTA_DE_PRODUTOS.map((p) => (
               <button
@@ -306,6 +368,7 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
                 onClick={() => {
                   muda('produto', p.id);
                   registrar('produto_escolhido', { produto: p.id });
+                  // na turma a história já foi escolhida antes, então daqui vai direto para o nome
                   irPara(r.tema ? 2 : 1);
                 }}
               >
@@ -324,10 +387,12 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
 
       {etapa === 1 && (
         <section>
-          <h1 style={{ fontSize: 'clamp(1.9rem, 6vw, 2.6rem)' }}>Escolha o tema</h1>
+          <h1 style={{ fontSize: 'clamp(1.9rem, 6vw, 2.6rem)' }}>
+            {r.caminho === 'turma' ? `Em que história ${nomeNaCapa || 'seu filho'} vai entrar?` : 'Escolha o tema'}
+          </h1>
           <p className="letra-miuda">Todos os temas são para meninos e meninas, de 2 a 8 anos.</p>
           <div className="escolhas">
-            {LISTA_DE_TEMAS.map((t) => (
+            {TEMAS_DO_CAMINHO[r.caminho ?? 'zero'].map((t) => (
               <button
                 key={t.id}
                 type="button"
@@ -336,7 +401,7 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
                 onClick={() => {
                   muda('tema', t.id);
                   registrar('tema_escolhido', { tema: t.id });
-                  irPara(2);
+                  irPara(r.produto ? 2 : 0);
                 }}
               >
                 <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 8, alignItems: 'end' }}>
@@ -355,6 +420,20 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
                 )}
               </button>
             ))}
+            {r.caminho === 'turma' &&
+              LIVROS_PUBLICADOS.filter((l) => !l.temaPersonalizado).map((l) => {
+                const capa = l.edicoes.find((e) => e.capa)?.capa;
+                return (
+                  <div key={l.id} className="cartao escolha escolha-em-breve" aria-disabled="true">
+                    {capa && <Image src={capa.src} alt="" width={capa.largura} height={capa.altura} className="em-breve-capa" />}
+                    <span className="selo-em-breve">Em breve</span>
+                    <strong style={{ fontSize: '1.2rem' }}>{l.tema}</strong>
+                    <span className="letra-miuda">
+                      {nomeNaCapa || 'Seu filho'} jogando com {l.protagonista} em {l.titulo}.
+                    </span>
+                  </div>
+                );
+              })}
           </div>
         </section>
       )}
