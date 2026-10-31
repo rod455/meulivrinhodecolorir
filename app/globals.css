@@ -443,7 +443,6 @@ p { margin: 0 0 1em; }
 .caminho-turma { background: #fff3c9; }
 .caminho-zero { background: #e3f3fc; }
 .caminho-sob-medida { background: #fde4ec; }
-@media (min-width: 560px) { .caminho-sob-medida { grid-column: 1 / -1; } }
 
 /* a história sob medida: na LP e na etapa 7 do /criar */
 .sob-medida { display: grid; gap: 24px; align-items: center; }

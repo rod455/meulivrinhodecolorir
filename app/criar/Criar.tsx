@@ -109,7 +109,8 @@ function noCaminho(atual: Rascunho, caminho: Caminho): Rascunho {
   return {
     ...atual,
     caminho,
-    produto: atual.produto === 'sob-medida' ? null : atual.produto,
+    // na turma o livro é sempre o de história, com dedicatória: a escolha de formato saiu (dono, 31/10/2026)
+    produto: caminho === 'turma' ? 'presente' : atual.produto === 'sob-medida' ? null : atual.produto,
     tema: atual.tema && caminhoDoTema(atual.tema) === caminho ? atual.tema : null,
   };
 }
@@ -125,7 +126,7 @@ function primeiraEtapaQueFalta(r: Rascunho): Etapa {
 /** a ordem dos passos depende do caminho e de o tema ter personagem */
 function ordemDasEtapas(caminho: Caminho | null, temPersonagem: boolean): Etapa[] {
   if (caminho === 'sob-medida') return [6, 2, 3, 4, 7, 5];
-  if (caminho === 'turma') return temPersonagem ? [6, 1, 0, 2, 3, 4, 5] : [6, 1, 0, 2, 5];
+  if (caminho === 'turma') return temPersonagem ? [6, 1, 2, 3, 4, 5] : [6, 1, 2, 5];
   return temPersonagem ? [6, 0, 1, 2, 3, 4, 5] : [6, 0, 1, 2, 5];
 }
 
@@ -136,6 +137,8 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
   const [r, setR] = useState<Rascunho>(VAZIO);
   const [etapa, setEtapa] = useState<Etapa>(0);
   const [pronto, setPronto] = useState(false);
+  /** quem chega pela página inicial já escolheu o caminho (e, na turma, a aventura): o começo e a escolha somem (dono, 31/10/2026) */
+  const [veioDaPagina, setVeioDaPagina] = useState(false);
   const [erros, setErros] = useState<ErrosDoPedido>({});
   const [enviando, setEnviando] = useState(false);
   const [falha, setFalha] = useState<string | null>(null);
@@ -173,6 +176,7 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
     };
     const inicial = caminho ? noCaminho(comLink, caminho) : comLink;
     setR(inicial);
+    setVeioDaPagina(Boolean(ehCaminho(caminhoPedido) || ehTema(tema) || produto === 'sob-medida') && Boolean(inicial.tema));
     const falta = primeiraEtapaQueFalta(inicial);
     const completo = falta === 2 && !problemaDoNome(inicial.nome);
     const comPersonagem = Boolean(inicial.tema && TEMAS[inicial.tema].comPersonagem);
@@ -221,7 +225,7 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
   const problema = r.nome.trim() ? problemaDoNome(r.nome) : null;
   const nomeNaCapa = problema === 'bloqueado' ? '' : nome;
   const temPersonagem = Boolean(r.tema && TEMAS[r.tema].comPersonagem);
-  const ordem = ordemDasEtapas(r.caminho, temPersonagem);
+  const ordem = ordemDasEtapas(r.caminho, temPersonagem).filter((e) => !(veioDaPagina && (e === 6 || e === 1)));
   // a ficha aprovada só vale para o desenho de agora: mudou cabelo ou idade, desenha de novo
   const fichaEmDia = r.fichaAprovada && r.fichaDoDesenho === chaveDoDesenho(r.personagem, r.idade);
   const posicao = Math.max(0, ordem.indexOf(etapa));
@@ -368,7 +372,16 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
         ))}
       </ol>
       {etapa !== 6 && (
-        <button type="button" className="voltar" onClick={() => (etapa === 3 && parte > 0 ? mudarParte(parte - 1) : irPara(ordem[posicao - 1] ?? 6))}>
+        <button
+          type="button"
+          className="voltar"
+          onClick={() => {
+            if (etapa === 3 && parte > 0) mudarParte(parte - 1);
+            // no primeiro passo de quem veio da página, voltar é voltar para a página
+            else if (posicao === 0 && veioDaPagina) router.push(sobMedida ? '/#propria' : r.caminho === 'turma' ? '/#fazer-parte' : '/');
+            else irPara(ordem[posicao - 1] ?? 6);
+          }}
+        >
           ← Voltar
         </button>
       )}
@@ -467,7 +480,8 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
                     onClick={() => {
                       muda('tema', tema);
                       registrar('tema_escolhido', { tema });
-                      irPara(r.produto ? 2 : 0);
+                      setR((atual) => ({ ...atual, produto: 'presente' }));
+                      irPara(2);
                     }}
                   >
                     {capaImg}
