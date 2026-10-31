@@ -478,3 +478,158 @@ p { margin: 0 0 1em; }
 .escolha-em-breve { opacity: 0.75; cursor: default; }
 .em-breve-capa { width: 90px; height: auto; border-radius: 8px; border: 2px solid var(--contorno-suave); }
 .selo-em-breve { align-self: flex-start; padding: 2px 10px; border-radius: 99px; background: var(--nuvem); font-weight: 800; font-size: 0.85rem; }
+
+/* ===== Página inicial redesenhada (31/10/2026): o filho na história da turma ou numa história só dele ===== */
+.titulo-lp { text-align: center; margin: 0 auto 10px; max-width: 22ch; }
+.titulo-esquerda { text-align: left; margin-left: 0; }
+.sub-lp { text-align: center; color: var(--grafite-suave); max-width: 60ch; margin: 0 auto 28px; }
+.titulo-lp + .dois-caminhos, .titulo-lp + .veja-como-fica { margin-top: 26px; }
+
+/* topo */
+.topo { padding: 16px 0 40px; overflow: hidden; }
+.topo-grade { display: grid; gap: 20px; align-items: center; }
+.topo h1 { font-size: clamp(2.5rem, 7.5vw, 4.1rem); line-height: 1.02; margin: 8px 0 20px; }
+.topo-sub { font-size: 1.2rem; color: var(--grafite-suave); max-width: 30ch; margin-bottom: 22px; }
+.topo-arte img { width: 100%; height: auto; -webkit-mask-image: radial-gradient(ellipse 72% 70% at 50% 50%, #000 70%, transparent 100%); mask-image: radial-gradient(ellipse 72% 70% at 50% 50%, #000 70%, transparent 100%); }
+@media (min-width: 960px) {
+  .topo { padding: 28px 0 56px; }
+  .topo-grade { grid-template-columns: 0.85fr 1.15fr; gap: 32px; }
+  .topo-arte { margin-right: -40px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .topo-texto > * { animation: subir 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .topo-texto > *:nth-child(2) { animation-delay: 0.08s; }
+  .topo-texto > *:nth-child(3) { animation-delay: 0.16s; }
+  .topo-arte { animation: subir 0.8s 0.1s cubic-bezier(0.16, 1, 0.3, 1) both; }
+}
+@keyframes subir { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+
+/* o nome do filho */
+.campo-do-nome { display: grid; gap: 8px; max-width: 460px; }
+.campo-do-nome label { font-weight: 800; font-size: 1.05rem; }
+.campo-do-nome-linha { display: flex; gap: 10px; flex-wrap: wrap; }
+.campo-do-nome input {
+  flex: 1 1 200px; min-width: 0; min-height: 56px; padding: 0 20px; border-radius: 999px;
+  border: 2px solid var(--grafite); background: var(--branco); color: var(--grafite);
+  font: 700 1.2rem var(--fonte-texto), system-ui, sans-serif;
+}
+.campo-do-nome input::placeholder { color: #8a8c9c; font-weight: 600; }
+.campo-do-nome .botao { flex: 0 0 auto; }
+.campo-do-nome .ajuda { color: var(--grafite-suave); font-size: 0.92rem; }
+.campo-do-nome .erro { font-size: 0.92rem; }
+
+/* os dois caminhos */
+.dois-caminhos { display: grid; gap: 20px; }
+@media (min-width: 900px) { .dois-caminhos { grid-template-columns: 1.15fr 1fr; align-items: stretch; } }
+.caminho-grande { display: flex; flex-direction: column; border: 2px solid var(--grafite); border-radius: 28px; overflow: hidden; box-shadow: 0 6px 0 var(--grafite); }
+.caminho-grande-turma { background: #fff3c9; }
+.caminho-grande-sob-medida { background: #fde4ec; }
+.caminho-grande-arte { width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; border-bottom: 2px solid var(--grafite); }
+.caminho-grande-sob-medida .caminho-grande-arte { object-position: 50% 30%; }
+.caminho-grande-corpo { display: flex; flex-direction: column; gap: 10px; padding: 22px 22px 26px; flex: 1; }
+.caminho-grande-corpo h3 { font-size: clamp(1.5rem, 3.4vw, 1.9rem); margin: 0; }
+.caminho-grande-corpo p { margin: 0; }
+.caminho-grande-corpo .botao { margin-top: auto; align-self: flex-start; }
+.caminho-passos { list-style: none; counter-reset: passo; padding: 0; margin: 6px 0 14px; display: grid; gap: 10px; }
+.caminho-passos li { counter-increment: passo; position: relative; padding: 3px 0 0 42px; min-height: 30px; }
+.caminho-passos li::before { content: counter(passo); position: absolute; left: 0; top: 0; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--branco); border: 2px solid var(--grafite); font-weight: 800; font-family: var(--fonte-titulo), system-ui, sans-serif; }
+
+/* veja como fica: abas e o livro para folhear */
+.abas { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 6px; margin: 0 auto 26px; width: 100%; max-width: 520px; border-radius: 999px; background: var(--branco); border: 2px solid var(--grafite); }
+.abas button { border: 0; background: transparent; padding: 10px 8px; border-radius: 999px; font: 800 clamp(0.85rem, 3.4vw, 1rem) / 1.2 var(--fonte-titulo), system-ui, sans-serif; color: var(--grafite); cursor: pointer; }
+.abas button[aria-selected='true'] { background: var(--laranja); box-shadow: inset 0 0 0 2px var(--grafite); }
+.exemplo-turma, .exemplo-sob-medida { display: grid; gap: 16px; justify-items: center; }
+.livro-aberto { width: min(380px, 86vw); perspective: 1200px; }
+.folha { position: relative; margin: 0; aspect-ratio: 2 / 3; background: var(--branco); border: 2px solid var(--grafite); border-radius: 8px 18px 18px 8px; box-shadow: -8px 8px 0 #e8e1d3, 0 18px 40px rgba(43, 45, 66, 0.12); overflow: hidden; }
+.folha-arte { width: 100%; height: 100%; object-fit: cover; }
+.folha-texto { position: absolute; left: 9%; right: 9%; bottom: 9%; text-align: center; font: 700 clamp(1rem, 3.6vw, 1.2rem) / 1.35 var(--fonte-titulo), system-ui, sans-serif; }
+.folha-numero { position: absolute; right: 14px; bottom: 10px; font-size: 0.85rem; color: var(--grafite-suave); }
+.folha-capa { display: grid; grid-template-rows: auto 1fr; background: #fff3c9; }
+.folha-capa-arte { width: 100%; height: auto; }
+.folha-capa figcaption { display: grid; align-content: center; gap: 8px; padding: 18px 22px; text-align: center; }
+.folha-capa-titulo { font: 800 clamp(1.7rem, 6vw, 2.2rem) / 1.05 var(--fonte-titulo), system-ui, sans-serif; }
+@media (prefers-reduced-motion: no-preference) {
+  .folha { animation: virar 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; transform-origin: left center; }
+}
+@keyframes virar { from { opacity: 0.2; transform: rotateY(-28deg); } to { opacity: 1; transform: none; } }
+.folhear { display: flex; align-items: center; gap: 14px; }
+.folhear .botao { min-width: 52px; font-size: 1.3rem; }
+.folhear-onde { min-width: 120px; text-align: center; font-weight: 800; }
+.exemplo-nota { max-width: 46ch; text-align: center; margin: 0; }
+.exemplo-escolhas { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; }
+.chip-mostra { cursor: default; background: #fff3c9; border-color: var(--grafite); }
+.exemplo-texto { width: min(640px, 100%); background: var(--branco); border: 2px solid var(--grafite); border-radius: 24px; padding: 20px; }
+.exemplo-titulo { display: block; font: 800 1.5rem var(--fonte-titulo), system-ui, sans-serif; margin-bottom: 4px; }
+.exemplo-texto .historia-paginas { margin: 12px 0; }
+
+/* a turma, num trilho que rola de lado */
+.turma-trilho { list-style: none; margin: 0; padding: 4px 16px 18px; display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding: 16px; }
+@media (min-width: 1152px) { .turma-trilho { justify-content: center; } }
+.amigo-cartao { flex: 0 0 220px; scroll-snap-align: start; display: flex; flex-direction: column; gap: 2px; padding: 12px 12px 16px; border: 2px solid var(--grafite); border-radius: 24px; color: var(--grafite); }
+.amigo-cartao strong { font: 800 1.35rem var(--fonte-titulo), system-ui, sans-serif; margin-top: 8px; }
+.amigo-cartao p { font-size: 0.95rem; margin: 6px 0 8px; }
+.amigo-cartao .amigo-livro { margin-top: auto; font-size: 0.92rem; }
+.amigo-retrato { display: block; width: 100%; aspect-ratio: 1 / 1.05; border-radius: 18px; border: 2px solid var(--grafite); background: url('/artes/turma-em-fila.webp') 0 25% / 380% auto no-repeat, var(--branco); }
+.amigo-retrato-letra { display: grid; place-items: center; background: var(--branco); font: 800 4rem var(--fonte-titulo), system-ui, sans-serif; }
+
+/* as aventuras da turma */
+.aventuras { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(230px, 100%), 1fr)); gap: 18px; }
+.aventura { display: flex; flex-direction: column; background: var(--branco); border: 2px solid var(--grafite); border-radius: 24px; overflow: hidden; }
+.aventura-capa { width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; object-position: top; border-bottom: 2px solid var(--grafite); }
+.aventura-corpo { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px 18px; flex: 1; }
+.aventura-corpo h3 { font-size: 1.2rem; margin: 0; }
+.aventura-corpo .letra-miuda { margin: 0; }
+.aventura-corpo .botao { align-self: flex-start; margin-top: auto; }
+.aventura-em-breve { margin-top: auto; font-weight: 700; color: var(--grafite-suave); font-size: 0.95rem; }
+.aventura-original { border-top: 2px solid var(--nuvem); padding-top: 8px; font-size: 0.92rem; }
+.aventura-original summary { cursor: pointer; font-weight: 700; color: var(--grafite-suave); }
+.aventura-original .edicao { border-top: 0; }
+
+/* feito com cuidado */
+.cuidado { display: grid; gap: 28px; align-items: center; }
+@media (min-width: 900px) { .cuidado { grid-template-columns: 1.2fr 0.8fr; } }
+.cuidados { list-style: none; padding: 0; margin: 18px 0 0; display: grid; gap: 18px; }
+@media (min-width: 640px) { .cuidados { grid-template-columns: 1fr 1fr; } }
+.cuidados li { display: flex; gap: 12px; align-items: flex-start; }
+.cuidados p { margin: 2px 0 0; color: var(--grafite-suave); font-size: 0.98rem; }
+.cuidado-arte { width: min(440px, 88vw); height: auto; justify-self: center; background: var(--branco); border: 2px solid var(--grafite); border-radius: 18px; transform: rotate(2deg); box-shadow: 0 6px 0 var(--grafite); }
+
+/* chamada final */
+.chamada-final { text-align: center; display: grid; gap: 18px; justify-items: center; }
+.chamada-final h2 { margin: 0; }
+.chamada-final-botoes { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+
+/* /criar: os passos com nome (no celular, só a barrinha; o nome do passo atual fica no texto acima) */
+.etapas li span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+@media (min-width: 760px) {
+  .etapa-nome { display: none; }
+  .etapas { gap: 8px; margin-bottom: 26px; }
+  .etapas li { height: auto; padding: 8px 6px 7px; border-radius: 999px; text-align: center; font-weight: 800; font-size: 0.85rem; line-height: 1.15; color: var(--grafite-suave); background: var(--branco); }
+  .etapas li span { position: static; display: block; width: auto; height: auto; overflow: visible; clip: auto; white-space: normal; }
+  .etapas li span::first-letter { text-transform: uppercase; }
+  .etapas li.feita { color: var(--grafite); }
+  .etapas li.atual { color: var(--grafite); box-shadow: 0 3px 0 var(--grafite); }
+}
+
+/* /criar: o livro em construção, ao lado do personagem, do desenho e da história */
+.livro-em-construcao { display: none; }
+@media (min-width: 1040px) {
+  .criar-com-painel { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 36px; align-items: start; }
+  .livro-em-construcao { display: grid; gap: 14px; position: sticky; top: 96px; padding: 18px; background: var(--branco); border: 2px solid var(--grafite); border-radius: 24px; box-shadow: 0 6px 0 var(--grafite); }
+}
+.painel-titulo { font: 800 1.25rem var(--fonte-titulo), system-ui, sans-serif; }
+.painel-lista { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.painel-lista li { display: grid; gap: 2px; padding: 10px 12px 10px 38px; border-radius: 14px; background: var(--nuvem); position: relative; }
+.painel-lista li::before { content: ''; position: absolute; left: 12px; top: 13px; width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--grafite-suave); }
+.painel-lista li.feito { background: #e3f4e2; }
+.painel-lista li.feito::before { content: '✓'; display: grid; place-items: center; font-size: 0.7rem; font-weight: 900; color: var(--branco); background: var(--verde); border-color: var(--verde); }
+.painel-lista span { font-size: 0.8rem; color: var(--grafite-suave); font-weight: 700; }
+.painel-lista strong { font-size: 0.95rem; }
+.painel-ficha { width: 100%; height: auto; margin-top: 6px; border-radius: 10px; border: 2px solid var(--grafite); }
+/* no celular, cada aventura numa linha: capa pequena e o texto do lado */
+@media (max-width: 599px) {
+  .aventura { display: grid; grid-template-columns: 112px 1fr; }
+  .aventura-capa { height: 100%; aspect-ratio: auto; border-bottom: 0; border-right: 2px solid var(--grafite); }
+  .aventura-corpo { padding: 12px 14px 14px; }
+  .aventura-corpo .letra-miuda { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+}

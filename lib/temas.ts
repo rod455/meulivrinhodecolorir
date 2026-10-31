@@ -88,11 +88,11 @@ export const TEMAS: Record<TemaId, Tema> = {
     faixas: ['todos', 'bebes', 'maiores'],
     amostras: ['{nome} é a estrela desta história', 'Uma aventura escrita só para {nome}'],
     historia: 'Era uma vez {nome}, e uma ideia que não cabia no bolso…',
-    vitrine: { src: '/artes/turma-comemorando.webp', largura: 600, altura: 600 },
+    vitrine: { src: '/artes/turma-saindo-do-livro.webp', largura: 1536, altura: 1024 },
     comPersonagem: true,
     sobMedida: true,
     artes: {
-      capa: '/artes/turma-comemorando.webp',
+      capa: '/artes/turma-saindo-do-livro.webp',
       amostras: ['/artes/turma-no-banco.webp', '/artes/turma-em-fila.webp'],
     },
   },

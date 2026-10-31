@@ -14,15 +14,15 @@ export function Cabecalho({ semMenu = false }: { semMenu?: boolean }) {
         ) : (
           <>
             <nav aria-label="Seções">
-              <a href="#turma">A turma</a>
-              <a href="#do-zero">Do zero</a>
-              <a href="#produtos">Preços</a>
-              <a href="#duvidas">Dúvidas</a>
+              <a href="/#caminhos">Como funciona</a>
+              <a href="/#exemplo">Exemplo</a>
+              <a href="/#turma">A turma</a>
+              <a href="/#duvidas">Dúvidas</a>
             </nav>
             <div className="cabecalho-acoes">
               <LinkDaConta />
-              <Link href="/criar" className="botao botao-pequeno">
-                Criar meu livrinho
+              <Link href="/#caminhos" className="botao botao-pequeno">
+                Começar
               </Link>
             </div>
           </>

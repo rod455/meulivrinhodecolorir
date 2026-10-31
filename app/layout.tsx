@@ -13,15 +13,15 @@ const PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
-  title: 'Livrinho de Colorir Personalizado com Nome | Lembrancinha e Presente',
+  title: 'Livro de colorir personalizado: seu filho dentro da história | Little Paws',
   description:
-    'Livrinho de colorir com o nome da criança. Lembrancinha de festa infantil ou presente, pronto em minutos para imprimir. Temas exclusivos.',
+    'Coloque seu filho no time da turma Little Paws ou peça uma história escrita só para ele. Você monta o personagem, aprova o desenho e o texto, e imprime para colorir.',
   openGraph: {
     type: 'website',
     locale: 'pt_BR',
     siteName: SITE.nome,
-    title: 'Livrinho de colorir com o nome do seu filho',
-    description: 'Lembrancinha de festa ou presente, pronto em minutos. Você recebe o arquivo e imprime quantos quiser.',
+    title: 'Seu filho dentro da história da turma Little Paws',
+    description: 'No time da turma ou numa história escrita só para ele. Você monta o personagem e aprova antes.',
   },
   alternates: { canonical: '/' },
 };

@@ -3,6 +3,16 @@
 
 export const PERGUNTAS: { pergunta: string; resposta: string }[] = [
   {
+    pergunta: 'Como meu filho entra na história da turma?',
+    resposta:
+      'Você monta o personagem escolhendo cabelo, tom de pele, roupa e superpoder, ou envia uma foto. A gente desenha o personagem no traço da turma Little Paws e você aprova antes de tudo. Ele entra no time e aparece nas páginas da aventura, com o nome no texto.',
+  },
+  {
+    pergunta: 'Como funciona a história 100% personalizada?',
+    resposta:
+      'Você conta onde a história acontece, o que ela ensina e do que seu filho gosta, e pode incluir o bichinho de estimação. A gente escreve 16 páginas no jeito da turma Little Paws, com amigos novos. Você lê a história inteira, pede até 2 ajustes e aprova antes de pagar.',
+  },
+  {
     pergunta: 'Como imprimo? Que papel uso?',
     resposta:
       'Você recebe dois arquivos: o livreto, para imprimir frente e verso em folha A4, dobrar ao meio e grampear, e as páginas soltas, para imprimir uma por folha ou levar à gráfica. O papel sulfite comum (75 g) funciona bem; o de 90 g fica mais firme para pintar. Junto vai um guia de uma página com o passo a passo.',

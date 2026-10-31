@@ -48,15 +48,17 @@ const ultimoAvisoAoN8n = () => JSON.parse(readFileSync(`${REGISTRO}.n8n`, 'utf8'
 
 const p = await novaPagina();
 
-// LP: a prévia muda a capa enquanto digita, e o botão leva o nome para o fluxo
+// LP redesenhada (31/10/2026): os dois caminhos (o filho na história da turma ou uma história só dele), e o nome
+// digitado no topo acompanha a página inteira
 await p.goto(`${SITE}/?utm_source=teste&utm_campaign=suite`);
-// a primeira escolha da LP (31/10/2026): as histórias da turma, uma do zero ou a sob medida
-assert.equal(await p.locator('.hero .caminho').count(), 3, 'o topo oferece os três caminhos');
-assert.equal(await p.locator('.hero .caminho-sob-medida').getAttribute('href'), '/criar?caminho=sob-medida', 'a sob medida leva ao criar pelo caminho dela');
-assert.equal(await p.locator('#sob-medida').getByText('R$ 39,90').count(), 1, 'a seção da sob medida mostra o preço');
-assert.equal(await p.locator('.hero .caminho-zero').getAttribute('href'), '/criar?caminho=zero', 'do zero leva ao criar pelo caminho certo');
-assert.equal(await p.locator('#turma .amigo').count(), 6, 'a turma inteira se apresenta');
-const colocar = p.locator('#little-paws').getByRole('link', { name: 'Colocar meu filho na história' });
+const caminhos = p.locator('#caminhos a.botao');
+assert.equal(await caminhos.count(), 2, 'a página oferece os dois caminhos');
+assert.equal(await caminhos.nth(0).getAttribute('href'), '/criar?caminho=turma&tema=futebol', 'a turma leva ao futebol');
+assert.equal(await caminhos.nth(1).getAttribute('href'), '/criar?caminho=sob-medida', 'a sob medida leva ao caminho dela');
+assert.equal(await p.locator('a[href*="caminho=zero"]').count(), 0, 'o caminho do zero saiu da página (o objetivo são os dois caminhos)');
+assert.equal(await p.locator('#turma .amigo-cartao').count(), 6, 'a turma inteira se apresenta');
+assert.equal(await p.locator('#little-paws').getByText(/R\$/).filter({ visible: true }).count(), 0, 'preço só aparece se a pessoa abrir o livro original');
+const colocar = p.locator('#little-paws').getByRole('link', { name: 'Colocar meu filho' });
 assert.equal(await colocar.count(), 1, 'só a história com personalizado pronto oferece colocar o filho');
 assert.equal(await colocar.getAttribute('href'), '/criar?caminho=turma&tema=futebol', 'e leva ao futebol pela turma');
 assert.equal(await p.locator('#little-paws').getByText(/Em breve: seu filho jogando com/).count(), 3, 'as outras histórias dizem em breve');
@@ -69,17 +71,22 @@ assert.equal(await publicados.filter({ hasText: 'Em português' }).count(), 1, '
 const kindles = p.locator('#little-paws a[target="_blank"]');
 assert.equal(await kindles.count(), 3, 'um Kindle por livro ilustrado');
 assert.equal(await kindles.evaluateAll((as) => as.filter((a) => !/^https:\/\/www\.amazon\.com\/dp\/[A-Z0-9]{10}$/.test(a.href)).length), 0, 'Kindle só com link da Amazon');
-assert.equal(await p.locator('#little-paws').getByRole('link', { name: 'Impresso R$ 79,90' }).count(), 7, 'cada edição tem o impresso a R$ 79,90');
-assert.equal(await p.locator('#little-paws').getByRole('link', { name: 'PDF R$ 29,90' }).count(), 7, 'cada edição tem o PDF a R$ 29,90');
+assert.equal(await p.locator('#little-paws a', { hasText: 'Impresso R$ 79,90' }).count(), 7, 'cada edição tem o impresso a R$ 79,90');
+assert.equal(await p.locator('#little-paws a', { hasText: 'PDF R$ 29,90' }).count(), 7, 'cada edição tem o PDF a R$ 29,90');
 // quem já tem conta acha o "Entrar" no cabeçalho, também no celular, onde o menu some
 const entrarNoTopo = p.locator('header').getByRole('link', { name: 'Entrar', exact: true });
 assert.ok(await entrarNoTopo.isVisible(), 'Entrar à vista no cabeçalho do celular');
 assert.equal(await entrarNoTopo.getAttribute('href'), '/entrar?next=/conta', 'Entrar leva ao login e volta para os livrinhos');
 await p.fill('#nome-lp', 'joão pedro');
-await p.locator('a[href*="nome=Jo%C3%A3o+Pedro"]').first().waitFor();
-await p.getByRole('button', { name: /Natal/ }).first().click();
-await p.getByRole('link', { name: 'Gostei! Quero esse' }).click();
-await p.waitForURL(/\/criar\?/);
+assert.equal(await p.locator('#caminhos a[href*="nome=Jo%C3%A3o+Pedro"]').count(), 2, 'o nome arrumado vai nos dois caminhos');
+await p.getByRole('heading', { name: 'Dois jeitos de colocar seu filho na história' }).waitFor();
+assert.equal(await p.locator('.folha-capa-titulo').textContent(), 'João Pedro entra em campo!', 'o livro de exemplo leva o nome');
+await p.getByRole('button', { name: 'Próxima página' }).click();
+await p.locator('.folha-texto', { hasText: 'Logo atrás dela vinha João Pedro!' }).waitFor();
+await p.getByRole('tab', { name: 'História 100% personalizada' }).click();
+await p.getByText('João Pedro e o mar de conchas').waitFor();
+// o caminho do zero continua de pé para os links antigos (anúncios), só saiu da página
+await p.goto(`${SITE}/criar?caminho=zero&tema=natal&nome=jo%C3%A3o%20pedro`);
 
 // sem produto no link: começa pela escolha do produto e pula o tema, que já veio
 await p.getByRole('button', { name: /Livrinho presente/ }).click();
@@ -135,21 +142,20 @@ assert.ok(pedido.user_id && pedido.user_id === carla, 'pedido ligado à conta');
 assert.match(pedido.dedicatoria, /^Feliz aniversário/);
 assert.equal(pedido.origem.utm_source, 'teste', 'UTM da primeira página chega no pedido');
 
-// o /criar começa pela mesma escolha: a turma mostra só as histórias com personagem; do zero, os outros temas
+// o /criar começa pela mesma escolha da página: os dois caminhos
 const vitrine = await novaPagina();
 await vitrine.goto(`${SITE}/criar`);
 await vitrine.getByRole('heading', { name: 'Como você quer começar?' }).waitFor();
+assert.equal(await vitrine.locator('.escolhas-caminho .escolha').count(), 2, 'o começo tem os dois caminhos');
 await vitrine.getByRole('button', { name: /Com a turma Little Paws/ }).click();
 await vitrine.getByRole('heading', { name: /Em que história/ }).waitFor();
 assert.equal(await vitrine.locator('.selo-personagem').count(), 1, 'na turma, o futebol com personagem');
 assert.equal(await vitrine.locator('.escolha-em-breve').count(), 3, 'e as outras histórias em breve');
 await vitrine.getByRole('button', { name: /Voltar/ }).click();
-await vitrine.getByRole('button', { name: /Uma história do zero/ }).click();
-await vitrine.getByRole('heading', { name: 'O que você quer criar?' }).waitFor();
-await vitrine.getByRole('button', { name: /Livrinho presente/ }).click();
-await vitrine.getByRole('heading', { name: 'Escolha o tema' }).waitFor();
-await vitrine.getByText('Passo 3 de 5').waitFor();
-assert.equal(await vitrine.locator('.selo-personagem').count(), 0, 'do zero não mostra os temas da turma');
+await vitrine.getByRole('button', { name: /História 100% personalizada/ }).click();
+await vitrine.getByRole('heading', { name: 'Agora, o nome' }).waitFor();
+await vitrine.getByText('Passo 2 de 6').waitFor();
+assert.equal(await vitrine.locator('.barra-fixa').getByText(/R\$/).count(), 0, 'antes de pagar, a barra fala do livro e não do preço');
 
 // futebol com foto, já com a conta aberta
 const foto = await sharp({ create: { width: 1200, height: 900, channels: 3, background: '#a86b48' } })
@@ -293,7 +299,9 @@ assert.ok(!readFileSync(`${REGISTRO}.ultima.jpg`).includes(Buffer.from('CelularD
 
 // livros da turma: o impresso pede endereço, o preço é o do servidor e o pedido aparece na conta
 await p.goto(`${SITE}/`);
-await p.locator('#little-paws article').filter({ hasText: 'Big Game' }).getByRole('link', { name: 'Impresso R$ 79,90' }).first().click();
+const bigGame = p.locator('#little-paws article').filter({ hasText: 'Big Game' });
+await bigGame.getByText('Só o livro da turma, para ler e pintar').click();
+await bigGame.getByRole('link', { name: 'Impresso R$ 79,90' }).first().click();
 await p.getByRole('heading', { name: 'Little Paws, Big Game' }).waitFor();
 await p.fill('#responsavel', 'Carla Teste');
 await p.fill('#whatsapp', '(11) 91234-5678');
@@ -368,7 +376,7 @@ await intrusa.waitForURL(/\/conta/);
 
 // a história 100% personalizada (31/10/2026): a IA escreve, a família aprova o texto e o desenho, e o nome nunca vai para a IA
 await intrusa.goto(`${SITE}/`);
-await intrusa.locator('.hero .caminho-sob-medida').click();
+await intrusa.locator('#caminhos').getByRole('link', { name: 'Escrever a história' }).click();
 await intrusa.getByRole('heading', { name: 'Agora, o nome' }).waitFor();
 assert.equal(await intrusa.locator('.etapas li').count(), 6, 'a sob medida tem seis etapas (o começo, o nome, o personagem, o desenho, a história e pagar)');
 await intrusa.fill('#nome', 'theo');

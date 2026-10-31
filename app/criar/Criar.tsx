@@ -353,14 +353,20 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
     ) : null;
   const whatsappAjuda = linkDoWhatsapp('Oi! Estou tentando fazer o pedido do livrinho e não consegui.');
 
+  // o livro em construção, ao lado, nos passos em que a família monta o personagem e a história (telas largas)
+  const comPainel = etapa === 3 || etapa === 4 || etapa === 7;
+
   return (
-    <div ref={topo} style={{ scrollMarginTop: 90 }}>
+    <div ref={topo} style={{ scrollMarginTop: 90 }} className={comPainel ? 'criar-com-painel' : undefined}>
+      <div className="criar-principal">
       <p className="etapa-nome" aria-hidden="true">
         Passo {posicao + 1} de {ordem.length}: <strong>{NOME_DA_ETAPA[etapa]}</strong>
       </p>
       <ol className="etapas" aria-label={`Etapa ${posicao + 1} de ${ordem.length}: ${NOME_DA_ETAPA[etapa]}`}>
         {ordem.map((e, i) => (
-          <li key={e} className={i < posicao ? 'feita' : i === posicao ? 'atual' : ''} />
+          <li key={e} className={i < posicao ? 'feita' : i === posicao ? 'atual' : ''}>
+            <span>{NOME_DA_ETAPA[e]}</span>
+          </li>
         ))}
       </ol>
       {etapa !== 6 && (
@@ -385,21 +391,7 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
             >
               <Image src="/artes/turma-em-fila.webp" alt="" width={970} height={600} className="caminho-arte" />
               <strong style={{ fontSize: '1.3rem', fontFamily: 'var(--fonte-titulo)' }}>Com a turma Little Paws</strong>
-              <span>{nomeNaCapa || 'Seu filho'} entra numa história da turma e vive a aventura junto com o Pip, o Bo, a Luna, a Dot e o Milo, desenhado do jeitinho que você escolher.</span>
-            </button>
-            <button
-              type="button"
-              className="cartao escolha caminho-zero"
-              aria-pressed={r.caminho === 'zero'}
-              onClick={() => {
-                setR((atual) => noCaminho(atual, 'zero'));
-                registrar('caminho_escolhido', { caminho: 'zero' });
-                irPara(r.produto && r.produto !== 'sob-medida' ? 1 : 0);
-              }}
-            >
-              <Image src="/marca/rabisco-com-livro.webp" alt="" width={220} height={353} className="caminho-arte caminho-arte-rabisco" />
-              <strong style={{ fontSize: '1.3rem', fontFamily: 'var(--fonte-titulo)' }}>Uma história do zero</strong>
-              <span>Uma história só {nomeNaCapa ? `de ${nomeNaCapa}` : 'do seu filho'}, com o nome na capa e nas páginas: Natal, fundo do mar e mais temas.</span>
+              <span>{nomeNaCapa || 'Seu filho'} entra no time e vive a aventura junto com o Pip, o Bo, a Luna, a Dot e o Milo, desenhado do jeitinho que você escolher.</span>
             </button>
             <button
               type="button"
@@ -412,11 +404,10 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
               }}
             >
               <Image src="/artes/turma-comemorando.webp" alt="" width={600} height={600} className="caminho-arte" />
-              <span className="selo-personagem">Novo</span>
               <strong style={{ fontSize: '1.3rem', fontFamily: 'var(--fonte-titulo)' }}>História 100% personalizada</strong>
               <span>
-                Você conta o lugar, a lição e do que {nomeNaCapa || 'seu filho'} gosta, e a gente escreve uma história inteira, do começo ao fim, no jeito da
-                turma Little Paws. Você lê e aprova antes de pagar. {emReais(PRODUTOS['sob-medida'].preco)}.
+                Você conta o lugar, a lição e do que {nomeNaCapa || 'seu filho'} gosta, e a gente escreve uma história inteira no jeito da turma Little
+                Paws. Você lê, ajusta e aprova.
               </span>
             </button>
           </div>
@@ -820,15 +811,55 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
       {acaoDaBarra && produto && (
         <div className="barra-fixa">
           <div className="miolo">
-            <div>
-              <div className="letra-miuda">{produto.nome}</div>
-              {/* o valor da barra já tem o desconto do Pix: dizer, para não parecer erro (revisão de CRO) */}
-              <strong style={{ fontFamily: 'var(--fonte-titulo)', fontSize: '1.4rem' }}>{emReais(total)}</strong>{' '}
-              <span className="letra-miuda">{r.pagamento === 'pix' ? 'no Pix' : 'no cartão'}</span>
-            </div>
+            {etapa === 5 ? (
+              <div>
+                <div className="letra-miuda">{produto.nome}</div>
+                {/* o valor da barra já tem o desconto do Pix: dizer, para não parecer erro (revisão de CRO) */}
+                <strong style={{ fontFamily: 'var(--fonte-titulo)', fontSize: '1.4rem' }}>{emReais(total)}</strong>{' '}
+                <span className="letra-miuda">{r.pagamento === 'pix' ? 'no Pix' : 'no cartão'}</span>
+              </div>
+            ) : (
+              // antes do pagamento, a barra fala do livro, não do preço (dono, 31/10/2026: funcionalidade antes de preço)
+              <div>
+                <div className="letra-miuda">{sobMedida ? 'História 100% personalizada' : r.tema ? TEMAS[r.tema].nome : produto.nome}</div>
+                <strong style={{ fontFamily: 'var(--fonte-titulo)', fontSize: '1.25rem' }}>{nomeNaCapa ? `O livro de ${nomeNaCapa}` : 'O seu livro'}</strong>
+              </div>
+            )}
             {acaoDaBarra}
           </div>
         </div>
+      )}
+      </div>
+      {comPainel && r.tema && r.produto && (
+        <aside className="livro-em-construcao" aria-label="O livro em construção">
+          <strong className="painel-titulo">{nomeNaCapa ? `O livro de ${nomeNaCapa}` : 'O seu livro'}</strong>
+          <CapaLivrinho id="painel-capa" tema={r.tema} produto={livroComHistoria ? 'presente' : 'lembrancinha'} nome={nomeNaCapa} idade={r.idade} corte={0.6} />
+          <ul className="painel-lista">
+            <li className={nomeNaCapa ? 'feito' : ''}>
+              <span>Nome</span>
+              <strong>{nomeNaCapa ? `${nomeNaCapa}, ${r.idade} ${r.idade === 1 ? 'ano' : 'anos'}` : 'falta'}</strong>
+            </li>
+            <li className={fichaEmDia ? 'feito' : ''}>
+              <span>Personagem</span>
+              <strong>{fichaEmDia ? 'desenho aprovado' : r.fichaId ? 'desenho para aprovar' : 'em criação'}</strong>
+              {fichaEmDia && r.fichaId && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={`/api/ficha/${r.fichaId}/previa`} alt="" className="painel-ficha" />
+              )}
+            </li>
+            {sobMedida ? (
+              <li className={historiaEmDia ? 'feito' : ''}>
+                <span>História</span>
+                <strong>{historiaEmDia && r.historiaTitulo ? r.historiaTitulo : 'escrita por nós, aprovada por você'}</strong>
+              </li>
+            ) : (
+              <li className="feito">
+                <span>Aventura</span>
+                <strong>{TEMAS[r.tema].nome}</strong>
+              </li>
+            )}
+          </ul>
+        </aside>
       )}
     </div>
   );
