@@ -90,9 +90,15 @@ const publicados = p.locator('#little-paws article');
 assert.equal(await publicados.count(), 4, 'os quatro livros publicados da turma aparecem na LP');
 assert.equal(await publicados.filter({ hasText: 'Em inglês' }).count(), 3, 'os três primeiros dizem que são em inglês');
 assert.equal(await publicados.filter({ hasText: 'Em português' }).count(), 1, 'o de futebol diz que é em português');
-const kindles = p.locator('#little-paws a[target="_blank"]');
-assert.equal(await kindles.count(), 3, 'um Kindle por livro ilustrado');
-assert.equal(await kindles.evaluateAll((as) => as.filter((a) => !/^https:\/\/www\.amazon\.com\/dp\/[A-Z0-9]{10}$/.test(a.href)).length), 0, 'Kindle só com link da Amazon');
+// na Amazon, à vista em cada livro: o de história, o e-book e o de colorir (dono, 31/10/2026)
+const naAmazon = p.locator('#little-paws a[target="_blank"]');
+assert.equal(await naAmazon.count(), 8, 'cinco livros físicos e três Kindle na Amazon');
+assert.equal(await naAmazon.evaluateAll((as) => as.filter((a) => !/^https:\/\/www\.amazon\.com\/dp\/[A-Z0-9]{10}$/.test(a.href)).length), 0, 'só links da Amazon');
+const botoesDo = async (titulo) => (await p.locator('#little-paws article').filter({ hasText: titulo }).locator('.na-amazon a').allTextContents()).join('|');
+assert.equal(await botoesDo('Big Game'), 'Livro de história|E-book (Kindle)|Livro de colorir', 'o Big Game com os três formatos, à vista');
+assert.equal(await botoesDo('Big Play'), 'Livro de história|E-book (Kindle)|Livro de colorir', 'o Big Play com os três formatos');
+assert.equal(await botoesDo('Big Christmas'), 'Livro de história|E-book (Kindle)', 'o Natal sem o de colorir até chegar o link');
+assert.ok(await p.locator('#livro-big-game .na-amazon a', { hasText: 'Livro de colorir' }).isVisible(), 'os links da Amazon não ficam escondidos');
 assert.equal(await p.locator('#little-paws a', { hasText: 'Impresso R$ 79,90' }).count(), 7, 'cada edição tem o impresso a R$ 79,90');
 assert.equal(await p.locator('#little-paws a', { hasText: 'PDF R$ 29,90' }).count(), 7, 'cada edição tem o PDF a R$ 29,90');
 // quem já tem conta acha o "Entrar" no cabeçalho, também no celular, onde o menu some
@@ -320,7 +326,7 @@ assert.ok(!readFileSync(`${REGISTRO}.ultima.jpg`).includes(Buffer.from('CelularD
 // livros da turma: o impresso pede endereço, o preço é o do servidor e o pedido aparece na conta
 await p.goto(`${SITE}/`);
 const bigGame = p.locator('#little-paws article').filter({ hasText: 'Big Game' });
-await bigGame.getByText('Só o livro da turma, para ler e pintar').click();
+await bigGame.getByText('Comprar impresso ou PDF com a gente').click();
 await bigGame.getByRole('link', { name: 'Impresso R$ 79,90' }).first().click();
 await p.getByRole('heading', { name: 'Little Paws, Big Game' }).waitFor();
 await p.fill('#responsavel', 'Carla Teste');

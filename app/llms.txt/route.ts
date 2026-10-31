@@ -1,6 +1,6 @@
 import { SITE } from '@/lib/config';
 import { PERGUNTAS } from '@/lib/faq';
-import { LIVROS_PUBLICADOS } from '@/lib/livros-publicados';
+import { LIVROS_PUBLICADOS, linksNaAmazon } from '@/lib/livros-publicados';
 import { TURMA } from '@/lib/turma';
 
 // /llms.txt (padrão llmstxt.org): o resumo do site para as IAs (ChatGPT,
@@ -46,9 +46,9 @@ export function GET() {
     '## Livros publicados da série',
     '',
     ...LIVROS_PUBLICADOS.map((l) => {
-      const kindle = l.edicoes.find((e) => e.kindle)?.kindle;
       const idioma = l.idioma === 'pt' ? 'em português' : 'em inglês';
-      return `- ${kindle ? `[${l.titulo}](${kindle})` : l.titulo} (${idioma}), de Rodrigo Moraes e Luana David: ${l.historia}`;
+      const amazon = linksNaAmazon(l).map((x) => `[${x.rotulo}](${x.href})`).join(', ');
+      return `- ${l.titulo} (${idioma}), de Rodrigo Moraes e Luana David: ${l.historia}${amazon ? ` Na Amazon: ${amazon}.` : ''}`;
     }),
     '',
     '## Perguntas frequentes',

@@ -666,3 +666,8 @@ p { margin: 0 0 1em; }
 }
 /* ao clicar numa porta do topo, o título da seção não fica escondido atrás do cabeçalho fixo */
 .lp section[id] { scroll-margin-top: 84px; }
+/* os livros da turma na Amazon: o de história, o e-book e o de colorir, sempre à vista */
+.na-amazon { display: grid; gap: 6px; padding: 10px 12px; border-radius: 14px; background: var(--nuvem); }
+.na-amazon-rotulo { font-weight: 800; font-size: 0.85rem; color: var(--grafite-suave); }
+.na-amazon-botoes { display: flex; flex-wrap: wrap; gap: 6px; }
+.na-amazon .botao-pequeno { min-height: 38px; padding: 6px 12px; font-size: 0.9rem; }

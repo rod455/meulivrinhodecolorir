@@ -20,8 +20,10 @@ export type Edicao = {
   tipo: 'Livro ilustrado' | 'Livro de colorir' | 'Livro de colorir e atividades';
   /** caminho em public/, a capa de verdade; null até o dono mandar o arquivo original */
   capa: { src: string; largura: number; altura: number } | null;
-  /** página do Kindle na Amazon internacional; só os ilustrados têm */
+  /** página do Kindle (e-book) na Amazon internacional; só os ilustrados têm */
   kindle: string | null;
+  /** página do livro físico (capa comum) na Amazon internacional; null se ainda não está lá */
+  amazon: string | null;
 };
 
 export type LivroPublicado = {
@@ -53,7 +55,7 @@ export const LIVROS_PUBLICADOS: LivroPublicado[] = [
     subtitulo: 'Uma história sobre prestar atenção',
     historia:
       'O Milo repara em tudo, menos na bola. Foi assim que ele achou o Kiko, o porco-espinho novo do bairro, que completou o time para a grande final. Agora só falta o Milo aprender a olhar para a bola na hora certa.',
-    edicoes: [{ id: 'grande-final-ilustrado', tipo: 'Livro ilustrado', capa: { src: '/livros/grande-final-ilustrado.webp', largura: 800, altura: 1001 }, kindle: null }],
+    edicoes: [{ id: 'grande-final-ilustrado', tipo: 'Livro ilustrado', capa: { src: '/livros/grande-final-ilustrado.webp', largura: 800, altura: 1001 }, kindle: null, amazon: null }],
   },
   {
     id: 'big-game',
@@ -66,8 +68,8 @@ export const LIVROS_PUBLICADOS: LivroPublicado[] = [
     historia:
       'No basquete, Pip quer fazer a cesta decisiva sozinho. Descobrindo o que cada amigo faz de melhor, aprende a jogar em equipe, e o time termina unido, ganhando ou perdendo.',
     edicoes: [
-      { id: 'big-game-ilustrado', tipo: 'Livro ilustrado', capa: { src: '/livros/big-game-ilustrado.webp', largura: 800, altura: 1280 }, kindle: 'https://www.amazon.com/dp/B0HKW6ZHSD' },
-      { id: 'big-game-colorir', tipo: 'Livro de colorir', capa: null, kindle: null },
+      { id: 'big-game-ilustrado', tipo: 'Livro ilustrado', capa: { src: '/livros/big-game-ilustrado.webp', largura: 800, altura: 1280 }, kindle: 'https://www.amazon.com/dp/B0HKW6ZHSD', amazon: 'https://www.amazon.com/dp/B0HKWG1SNH' },
+      { id: 'big-game-colorir', tipo: 'Livro de colorir', capa: null, kindle: null, amazon: 'https://www.amazon.com/dp/B0HLFPY4DM' },
     ],
   },
   {
@@ -81,8 +83,8 @@ export const LIVROS_PUBLICADOS: LivroPublicado[] = [
     historia:
       'Bo é o maior do time, mas no flag football ninguém derruba ninguém: é preciso puxar a bandeirinha com jeito. Com a ajuda dos amigos e da Vovó Ursa, ele descobre o que é força de verdade.',
     edicoes: [
-      { id: 'big-play-ilustrado', tipo: 'Livro ilustrado', capa: { src: '/livros/big-play-ilustrado.webp', largura: 800, altura: 1280 }, kindle: 'https://www.amazon.com/dp/B0HMHXCS84' },
-      { id: 'big-play-colorir', tipo: 'Livro de colorir', capa: null, kindle: null },
+      { id: 'big-play-ilustrado', tipo: 'Livro ilustrado', capa: { src: '/livros/big-play-ilustrado.webp', largura: 800, altura: 1280 }, kindle: 'https://www.amazon.com/dp/B0HMHXCS84', amazon: 'https://www.amazon.com/dp/B0HMKMX2SY' },
+      { id: 'big-play-colorir', tipo: 'Livro de colorir', capa: null, kindle: null, amazon: 'https://www.amazon.com/dp/B0HMG6R5KR' },
     ],
   },
   {
@@ -96,14 +98,27 @@ export const LIVROS_PUBLICADOS: LivroPublicado[] = [
     historia:
       'Dot é a mais devagar da turma e pede ao Papai Noel para ser rápida. Mas, quando o vento leva a estrela da árvore de Natal, é ela quem para, olha com calma e encontra o caminho.',
     edicoes: [
-      { id: 'big-christmas-ilustrado', tipo: 'Livro ilustrado', capa: { src: '/livros/big-christmas-ilustrado.webp', largura: 800, altura: 1280 }, kindle: 'https://www.amazon.com/dp/B0HNP3RTXB' },
-      { id: 'big-christmas-colorir', tipo: 'Livro de colorir e atividades', capa: null, kindle: null },
+      { id: 'big-christmas-ilustrado', tipo: 'Livro ilustrado', capa: { src: '/livros/big-christmas-ilustrado.webp', largura: 800, altura: 1280 }, kindle: 'https://www.amazon.com/dp/B0HNP3RTXB', amazon: 'https://www.amazon.com/dp/B0HNS52FMK' },
+      // o de colorir do Natal existe na Amazon, mas o dono ainda não mandou o link (31/10/2026)
+      { id: 'big-christmas-colorir', tipo: 'Livro de colorir e atividades', capa: null, kindle: null, amazon: null },
     ],
   },
 ];
 
 /** Só Kindle da Amazon, no formato amazon.*\/dp/ASIN: o que vai para a LP nunca aponta para outro lugar. */
 export const linkValido = (link: string): boolean => /^https:\/\/(www\.)?amazon\.[a-z.]+\/dp\/[A-Z0-9]{10}$/.test(link);
+
+/** Os links da Amazon de um livro, na ordem da vitrine: o de história (físico), o e-book e o de colorir. */
+export function linksNaAmazon(l: LivroPublicado): { rotulo: string; href: string }[] {
+  const ilustrado = l.edicoes.find((e) => e.tipo === 'Livro ilustrado');
+  const colorir = l.edicoes.find((e) => e.tipo !== 'Livro ilustrado');
+  const links = [
+    { rotulo: 'Livro de história', href: ilustrado?.amazon ?? null },
+    { rotulo: 'E-book (Kindle)', href: ilustrado?.kindle ?? null },
+    { rotulo: 'Livro de colorir', href: colorir?.amazon ?? null },
+  ];
+  return links.filter((x): x is { rotulo: string; href: string } => Boolean(x.href && linkValido(x.href)));
+}
 
 export function acharEdicao(id: unknown): { livro: LivroPublicado; edicao: Edicao } | null {
   for (const livro of LIVROS_PUBLICADOS) {

@@ -10,7 +10,7 @@ import { FacaParte, HistoriaPropria } from '@/components/lp/Caminhos';
 import { Rodape } from '@/components/Rodape';
 import { SITE } from '@/lib/config';
 import { PERGUNTAS } from '@/lib/faq';
-import { LIVROS_PUBLICADOS, linkValido, PRECO_DO_FORMATO } from '@/lib/livros-publicados';
+import { LIVROS_PUBLICADOS, linksNaAmazon, PRECO_DO_FORMATO } from '@/lib/livros-publicados';
 import { emReais } from '@/lib/produtos';
 import { TURMA } from '@/lib/turma';
 
@@ -50,7 +50,7 @@ const dadosEstruturados = {
     },
     ...LIVROS_PUBLICADOS.map((l) => {
       const capa = l.edicoes.find((e) => e.capa)?.capa;
-      const kindle = l.edicoes.find((e) => e.kindle)?.kindle;
+      const naAmazon = linksNaAmazon(l).map((x) => x.href);
       return {
         '@type': 'Book',
         '@id': `${SITE.url}/#livro-${l.id}`,
@@ -61,7 +61,7 @@ const dadosEstruturados = {
         isPartOf: { '@id': SERIE },
         description: l.historia,
         ...(capa ? { image: `${SITE.url}${capa.src}` } : {}),
-        ...(kindle ? { sameAs: kindle } : {}),
+        ...(naAmazon.length ? { sameAs: naAmazon } : {}),
       };
     }),
     {
@@ -187,6 +187,18 @@ export default function Inicio() {
                       <span className="selo-ingles">{l.idioma === 'pt' ? 'Em português' : 'Em inglês'}</span>
                       <h3 lang={l.idioma === 'en' ? 'en' : undefined}>{l.titulo}</h3>
                       <p className="letra-miuda">{l.historia}</p>
+                      {linksNaAmazon(l).length > 0 && (
+                        <div className="na-amazon">
+                          <span className="na-amazon-rotulo">Na Amazon</span>
+                          <div className="na-amazon-botoes">
+                            {linksNaAmazon(l).map((x) => (
+                              <a key={x.href} className="botao botao-secundario botao-pequeno" href={x.href} target="_blank" rel="noopener noreferrer">
+                                {x.rotulo}
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                       {l.temaPersonalizado ? (
                         <Link className="botao botao-pequeno" href={`/criar?caminho=turma&tema=${l.temaPersonalizado}`}>
                           Colocar meu filho
@@ -195,16 +207,11 @@ export default function Inicio() {
                         <span className="aventura-em-breve">Em breve: seu filho jogando com {l.protagonista}</span>
                       )}
                       <details className="aventura-original">
-                        <summary>Só o livro da turma, para ler e pintar</summary>
+                        <summary>Comprar impresso ou PDF com a gente</summary>
                         {l.edicoes.map((e) => (
                           <div key={e.id} className="edicao">
                             <strong>{e.tipo}</strong>
                             <div className="edicao-botoes">
-                              {e.kindle && linkValido(e.kindle) && (
-                                <a className="botao botao-secundario botao-pequeno" href={e.kindle} target="_blank" rel="noopener noreferrer">
-                                  Kindle na Amazon
-                                </a>
-                              )}
                               <Link className="botao botao-secundario botao-pequeno" href={`/turma/comprar?edicao=${e.id}&formato=impresso`}>
                                 Impresso {emReais(PRECO_DO_FORMATO.impresso)}
                               </Link>

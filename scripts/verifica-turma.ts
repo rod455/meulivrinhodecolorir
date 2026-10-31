@@ -4,7 +4,7 @@
 //
 // Rode com: npm run conferir:turma
 import assert from 'node:assert/strict';
-import { acharEdicao, LIVROS_PUBLICADOS, lerPedidoDaTurma, linkValido, PRECO_DO_FORMATO } from '../lib/livros-publicados.ts';
+import { acharEdicao, LIVROS_PUBLICADOS, lerPedidoDaTurma, linkValido, PRECO_DO_FORMATO, linksNaAmazon } from '../lib/livros-publicados.ts';
 
 let casos = 0;
 const ok = (cond: boolean, msg: string) => {
@@ -19,6 +19,15 @@ ok(PRECO_DO_FORMATO.impresso === 7990 && PRECO_DO_FORMATO.pdf === 2990, 'impress
 const edicoes = LIVROS_PUBLICADOS.flatMap((l) => l.edicoes);
 ok(new Set(edicoes.map((e) => e.id)).size === edicoes.length, 'cada edição tem um id só seu');
 ok(edicoes.every((e) => e.kindle === null || linkValido(e.kindle)), 'todo Kindle é amazon.*/dp/ASIN');
+ok(edicoes.every((e) => e.amazon === null || linkValido(e.amazon)), 'todo livro físico na Amazon é amazon.*/dp/ASIN');
+// os links que o dono mandou (26/10/2026), na ordem dos prints da Amazon
+const amazonDe = (id: string) => edicoes.find((e) => e.id === id)?.amazon;
+ok(amazonDe('big-game-colorir') === 'https://www.amazon.com/dp/B0HLFPY4DM', 'Big Game de colorir: o link da barra do navegador no print');
+ok(amazonDe('big-game-ilustrado') === 'https://www.amazon.com/dp/B0HKWG1SNH' && amazonDe('big-play-ilustrado') === 'https://www.amazon.com/dp/B0HMKMX2SY' && amazonDe('big-play-colorir') === 'https://www.amazon.com/dp/B0HMG6R5KR' && amazonDe('big-christmas-ilustrado') === 'https://www.amazon.com/dp/B0HNS52FMK', 'cada link no seu livro e formato');
+ok(new Set(edicoes.flatMap((e) => [e.kindle, e.amazon]).filter(Boolean)).size === edicoes.flatMap((e) => [e.kindle, e.amazon]).filter(Boolean).length, 'nenhum link repetido em duas edições');
+const bigGame = LIVROS_PUBLICADOS.find((l) => l.id === 'big-game')!;
+ok(linksNaAmazon(bigGame).map((x) => x.rotulo).join('|') === 'Livro de história|E-book (Kindle)|Livro de colorir', 'o Big Game mostra os três formatos na Amazon');
+ok(linksNaAmazon(LIVROS_PUBLICADOS.find((l) => l.id === 'grande-final')!).length === 0, 'livro que não está na Amazon não mostra botão');
 ok(edicoes.filter((e) => e.kindle).every((e) => e.tipo === 'Livro ilustrado'), 'Kindle só nos ilustrados');
 ok(!linkValido('https://golpe.example/dp/B0HKW6ZHSD') && !linkValido('http://www.amazon.com/dp/B0HKW6ZHSD'), 'link de fora da Amazon ou sem https não passa');
 ok(acharEdicao('big-play-colorir')?.livro.id === 'big-play' && acharEdicao('qualquer') === null, 'acha a edição pelo id');
