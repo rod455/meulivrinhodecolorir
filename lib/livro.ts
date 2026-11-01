@@ -94,7 +94,19 @@ export function itensDoLivro(tema: TemaId, plano: PlanoDoLivro, prontas: readonl
   if (!historia || !LIVROS_AUTOMATICOS[tema]) return [];
   const itens: ItemDoLivro[] = [];
   const areaDaCapa = historia.capa.areaPx;
-  if (areaDaCapa) itens.push({ chave: 'capa', cena: historia.capa.cenaBaseColorida, area: areaDaCapa, trava: areaDaCapa, prompt: comOrdemEArea(plano.capa.promptColorido, areaDaCapa, 'colorida') });
+  if (plano.capa.publicada) {
+    // a capa publicada com a criança: imagem inteira, sem área (a criança entra no grupo da capa)
+    const inteira: [number, number, number, number] = [0, 0, 1024, 1536];
+    itens.push({
+      chave: 'capa',
+      cena: plano.capa.publicada.cenaBase,
+      area: inteira,
+      trava: inteira,
+      prompt: `The FIRST attached image is a published children's book cover. The SECOND attached image is the approved character sheet of the child (use the colored version on its left).\n${plano.capa.publicada.prompt}`,
+    });
+  } else if (areaDaCapa) {
+    itens.push({ chave: 'capa', cena: historia.capa.cenaBaseColorida, area: areaDaCapa, trava: areaDaCapa, prompt: comOrdemEArea(plano.capa.promptColorido, areaDaCapa, 'colorida') });
+  }
   for (const n of plano.presente ?? []) {
     const pg = plano.paginas.find((p) => p.pagina === n);
     const daHistoria = historia.paginas.find((p) => p.pagina === n);

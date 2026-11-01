@@ -32,7 +32,8 @@ export type PlanoDoLivro = {
   subtitulo: string;
   /** aprovada: a ficha que a família aprovou antes de pagar; o livro usa ela e não gera outra */
   ficha: { prompt: string; usaFoto: boolean; caminhoDaFoto: string | null; aprovada: { id: string; caminho: string } | null };
-  capa: { cenaBase: string; cenaBaseColorida: string; prompt: string; promptColorido: string };
+  /** publicada: a capa do livro publicado com a criança (o livro automático usa esta quando existe) */
+  capa: { cenaBase: string; cenaBaseColorida: string; prompt: string; promptColorido: string; publicada?: { cenaBase: string; prompt: string } };
   paginas: PaginaDoPlano[];
   /** quais páginas entram em cada arquivo do pedido */
   lembrancinha: number[] | null;
@@ -79,6 +80,18 @@ export function planoDoLivro(entrada: { tema: TemaId; nome: string; idade: numbe
   })
     // a capa tem arte até embaixo (o título vai em cima): o rodapé branco é só das páginas
     .replace(' Keep the bottom 22% of the page completely white.', '');
+  // a capa publicada com a criança (dono, 01/11/2026): o título e os autores são letras da arte,
+  // então o prompt pede para não mexer nelas; o nome da criança nunca entra aqui
+  const publicada = historia.capaPublicada
+    ? {
+        cenaBase: historia.capaPublicada.arte,
+        prompt: [
+          `Add exactly ONE new character to the cover illustration: the child (${crianca}), wearing ${ROUPA_DO_TIME}, ${historia.capaPublicada.acao}. Height: ${altura}. Fully visible, in the same soft crayon-like flat colors and outlines as the cover; color the child exactly as in the color version of the character sheet (skin, hair, eyes).`,
+          `Keep EVERYTHING else as it is. These texts must stay identical, letter by letter, in the same place, font and color: ${historia.capaPublicada.textos.map((t) => `"${t}"`).join(', ')}. Do not add any other text.`,
+          'Do not move or redraw the other characters more than needed to fit the child. Fill the whole canvas: extend the sky at the top and the ground at the bottom naturally, leaving a little margin above the top text and below the authors\' names.',
+        ].join('\n'),
+      }
+    : undefined;
   const querLembrancinha = produto === 'lembrancinha' || produto === 'combo';
   const querPresente = produto === 'presente' || produto === 'combo';
   const superpoder = SUPERPODERES.find((s) => s.id === personagem.superpoder)!;
@@ -103,6 +116,7 @@ export function planoDoLivro(entrada: { tema: TemaId; nome: string; idade: numbe
         'no gray, no shading, no color.',
         'same soft crayon-like flat colors as the scene.',
       ),
+      publicada,
     },
     // só gera as páginas que algum arquivo do pedido usa
     paginas: paginas.filter((p) => usadas.has(p.pagina)),

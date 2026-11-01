@@ -239,6 +239,8 @@ export const HISTORIA_FUTEBOL: HistoriaDaTurma = {
   paginaDaCamisa: PAGINA_DA_CAMISA,
   paginas: PAGINAS,
   capa: CAPA,
+  // a capa publicada (public/livros), copiada para assets/ em 01/11/2026
+  capaPublicada: { arte: 'temas/futebol/capa-publicada.jpg', textos: ['LITTLE TEAM TALES', 'LITTLE PAWS', 'A GRANDE FINAL', 'DE FUTEBOL', 'Uma história sobre prestar atenção', 'Olho na bola!', 'Rodrigo Moraes & Luana David'], acao: 'running with the team in the front row, big happy smile' },
   certificado: CERTIFICADO,
   lembrancinha: PAGINAS_DA_LEMBRANCINHA,
   roupaDoTime: ROUPA_DO_TIME,

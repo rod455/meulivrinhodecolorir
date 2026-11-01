@@ -6,20 +6,16 @@
 import type { ModeloA5 } from './livro-pdf.ts';
 import type { TemaId } from './temas.ts';
 
-const AZUL_DO_BASQUETE: [number, number, number] = [0.098039, 0.211765, 0.294118];
-const VERDE_DO_FUTEBOL: [number, number, number] = [0.094118, 0.294118, 0.313725];
 
 const BASQUETE: ModeloA5 = {
   fontes: { titulo: 'livro/fontes/Baloo2-Bold.woff', texto: 'livro/fontes/NunitoSans-Regular.woff' },
   paginasFixas: 'temas/basquete/modelo.pdf',
   capa: {
-    arte: { x: 39.118, y: 0, largura: 341.291, altura: 511.937 },
-    blocos: [
-      { texto: '{NOME}', fonte: 'titulo', tamanho: 30, base: 526.58, cor: AZUL_DO_BASQUETE, encolher: 344 },
-      { texto: 'entra na quadra!', fonte: 'titulo', tamanho: 30, base: 492.08, cor: AZUL_DO_BASQUETE },
-      { texto: 'Uma aventura de basquete com a turma Little Paws', fonte: 'texto', tamanho: 11, base: 459.27, cor: AZUL_DO_BASQUETE },
-      { texto: 'Rodrigo Moraes & Luana David', fonte: 'texto', tamanho: 8, base: 12.83, cor: AZUL_DO_BASQUETE },
-    ],
+    // a capa publicada com a criança (dono, 01/11/2026), na página inteira: a imagem é 2:3 e a
+    // página A5 é um pouco mais larga, então sobram 34 pt de altura, cortados 30 em cima (céu) e 4 embaixo
+    // basquete: o título começa perto do topo da capa e os autores quase no pé; o corte fica todo no céu
+    arte: { x: 0, y: 0, largura: 419.528, altura: 629.292 },
+    blocos: [],
   },
   dedicatoria: {
     blocos: [
@@ -49,13 +45,11 @@ const FUTEBOL: ModeloA5 = {
   fontes: { titulo: 'livro/fontes/Fredoka-Bold.woff', texto: 'livro/fontes/Fredoka-Medium.woff' },
   paginasFixas: 'temas/futebol/modelo.pdf',
   capa: {
-    arte: { x: 31.1811, y: 26.7874, largura: 357.1654, altura: 535.748 },
-    blocos: [
-      { texto: 'MEU LIVRINHO DE COLORIR', fonte: 'texto', tamanho: 8, base: 572.39, cor: VERDE_DO_FUTEBOL },
-      { texto: '{NOME}', fonte: 'titulo', tamanho: 29, base: 523.42, cor: VERDE_DO_FUTEBOL, encolher: 360 },
-      { texto: 'entra em campo!', fonte: 'titulo', tamanho: 29, base: 488.29, cor: VERDE_DO_FUTEBOL },
-      { texto: 'Uma aventura de futebol\ncom a turma Little Paws', fonte: 'texto', tamanho: 10.7, entrelinha: 13.375, base: 470.28, cor: VERDE_DO_FUTEBOL },
-    ],
+    // a capa publicada com a criança (dono, 01/11/2026), na página inteira: a imagem é 2:3 e a
+    // página A5 é um pouco mais larga, então sobram 34 pt de altura, cortados 30 em cima (céu) e 4 embaixo
+    // futebol: "LITTLE TEAM TALES" fica rente ao topo e sobra gramado embaixo; 10 pt em cima, 24 embaixo
+    arte: { x: 0, y: -24, largura: 419.528, altura: 629.292 },
+    blocos: [],
   },
   dedicatoria: {
     blocos: [

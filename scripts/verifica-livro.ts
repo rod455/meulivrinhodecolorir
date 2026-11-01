@@ -94,8 +94,12 @@ for (const tema of ['basquete', 'futebol'] as const) {
 const plano = planoDoLivro({ tema: 'basquete', nome: 'Maria Eduarda', idade: 6, produto: 'presente', personagem: PERSONAGEM_INICIAL });
 const itens = itensDoLivro('basquete', plano);
 ok(itens.length === 17 && itens[0].chave === 'capa' && itens.at(-1)!.chave === 'p16', 'capa e as 16 páginas');
-ok(itens.every((i) => /^The FIRST attached image is the base scene/.test(i.prompt) && /SECOND attached image is the approved character sheet/.test(i.prompt)), 'todo prompt diz qual imagem é a cena e qual é a ficha');
-ok(itens.every((i) => /roughly from \d+% to \d+% of the width/.test(i.prompt)), 'todo prompt diz onde fica a área');
+ok(itens.slice(1).every((i) => /^The FIRST attached image is the base scene/.test(i.prompt)) && itens.every((i) => /SECOND attached image is the approved character sheet/.test(i.prompt)), 'todo prompt diz qual imagem é a cena e qual é a ficha');
+// a capa é a publicada com a criança (dono, 01/11/2026): o título e os autores da arte não podem mudar
+ok(itens[0].cena === 'temas/basquete/capa-publicada.jpg' && /published children's book cover/.test(itens[0].prompt), 'a capa parte da capa publicada');
+ok(['LITTLE PAWS, BIG GAME', 'A Story About Teamwork', 'Rodrigo Moraes & Luana David'].every((t) => itens[0].prompt.includes(`"${t}"`)), 'o prompt da capa manda manter as letras da capa publicada');
+ok(/wearing the Little Paws basketball uniform/.test(itens[0].prompt), 'na capa, a criança de uniforme do time');
+ok(itens.slice(1).every((i) => /roughly from \d+% to \d+% of the width/.test(i.prompt)), 'todo prompt de página diz onde fica a área');
 ok(itens.every((i) => !i.prompt.includes('Maria') && !i.prompt.includes('Eduarda') && !/[{}]/.test(i.prompt)), 'o nome nunca vai para o prompt e nada de variável sobrando');
 ok(itens[0].prompt.includes('colored version') && itens.slice(1).every((i) => i.prompt.includes('line-art version')), 'a capa usa a ficha colorida; as páginas, a de contorno');
 ok(JSON.stringify(itensDoLivro('basquete', plano, ['capa', 'p01']).map((i) => i.chave).slice(0, 2)) === '["p02","p03"]', 'refazer pula as que já estão prontas');

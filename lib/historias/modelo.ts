@@ -46,6 +46,12 @@ export type HistoriaDaTurma = {
   paginaDaCamisa: number;
   paginas: PaginaDaHistoria[];
   capa: { cenaBase: string; cenaBaseColorida: string; acao: string; area: string; areaPx?: [number, number, number, number] };
+  /**
+   * a capa do livro publicado da turma, com a criança inserida (decisão do dono, 01/11/2026:
+   * "pode ser a capa original, que temos publicada"); `textos` são as letras que a OpenAI não
+   * pode mudar, e `acao`, onde a criança entra
+   */
+  capaPublicada?: { arte: string; textos: string[]; acao: string };
   /** a arte do certificado não muda entre pedidos; só o texto */
   certificado: { cenaBase: string; texto: string };
   /** as nove páginas da Lembrancinha, na ordem */

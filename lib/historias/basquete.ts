@@ -236,6 +236,8 @@ export const HISTORIA_BASQUETE: HistoriaDaTurma = {
   paginaDaCamisa: PAGINA_DA_CAMISA,
   paginas: PAGINAS,
   capa: CAPA,
+  // a capa publicada (public/livros), copiada para assets/ em 01/11/2026
+  capaPublicada: { arte: 'temas/basquete/capa-publicada.jpg', textos: ['Little Team Tales', 'LITTLE PAWS, BIG GAME', 'A Story About Teamwork', 'Rodrigo Moraes & Luana David'], acao: 'standing in the front row among the friends, big happy smile, one hand waving' },
   certificado: CERTIFICADO,
   lembrancinha: PAGINAS_DA_LEMBRANCINHA,
   roupaDoTime: ROUPA_DO_TIME_BASQUETE,
