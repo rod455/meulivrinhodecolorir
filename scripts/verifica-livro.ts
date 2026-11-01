@@ -109,7 +109,14 @@ const [px, py] = [680, 650];
 const cobre = (t: number[]) => px >= t[0] && px <= t[0] + t[2] && py >= t[1] && py <= t[1] + t[3];
 ok(cobre(p13('bom_humor').trava) && !cobre(p13('coragem').trava), 'a trava da 13 cobre o rosto do Pip só no bom humor');
 ok(JSON.stringify(p13('bom_humor').area) === JSON.stringify(p13('coragem').area), 'e o lugar da criança no prompt não muda');
-ok(itens.filter((i) => i.chave !== 'p13').every((i) => JSON.stringify(i.trava) === JSON.stringify(i.area)), 'nas outras páginas, a trava é só a área da criança');
+ok(itens.filter((i) => i.chave !== 'p13' && i.chave !== 'p15').every((i) => JSON.stringify(i.trava) === JSON.stringify(i.area)), 'nas outras páginas, a trava é só a área da criança');
+// a bola da 15 (teste do Tito, 01/11/2026): a trava apagava a bola do arremesso; o caminho dela entra na trava
+for (const tema of ['basquete', 'futebol'] as const) {
+  const i15 = itensDoLivro(tema, planoDoLivro({ tema, nome: 'Bia', idade: 5, produto: 'presente', personagem: PERSONAGEM_INICIAL })).find((i) => i.chave === 'p15')!;
+  const extra = HISTORIAS_DA_TURMA[tema]!.paginas[14].travaExtraPx!;
+  const dentro = (t: number[], x: number, y: number) => x >= t[0] && x <= t[0] + t[2] && y >= t[1] && y <= t[1] + t[3];
+  ok(dentro(i15.trava, extra[0] + extra[2] - 5, extra[1] + 5) && !dentro(i15.area, extra[0] + extra[2] - 5, extra[1] + 5), `${tema}: a trava da 15 deixa a bola aparecer fora da área da criança`);
+}
 const folga = areaComFolga([10, 20, 100, 200]);
 ok(folga.left === 0 && folga.top === 0 && folga.width === 170 && folga.height === 280, 'a folga não sai da cena');
 const g = areaComFolga([1000, 1500, 24, 36]);

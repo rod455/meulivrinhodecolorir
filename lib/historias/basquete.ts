@@ -192,6 +192,8 @@ export const PAGINAS: PaginaDaHistoria[] = [
     pagina: 15,
     cenaBase: base(15),
     areaPx: [41, 338, 307, 799],
+    // a bola sobe da mão da criança até o aro, no alto à direita: sem isto, a trava apagava a bola (teste do Tito, 01/11/2026)
+    travaExtraPx: [30, 100, 610, 330],
     texto: '{NOME} quicou, olhou e arremessou bem alto, com o time inteiro torcendo.',
     // a cena base não tem bola: a única bola é a que sai da mão da criança (checagem 8 do tema)
     acao: 'jumping and releasing a high shot toward the hoop at the top right, the basketball just leaving the fingertips with motion lines (the only ball in the scene, drawn with its curved seam lines only)',

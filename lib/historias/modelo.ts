@@ -13,6 +13,11 @@ export type PaginaDaHistoria = {
   cenaBase: string;
   /** onde a criança entra, em pixels da cena base (x, y, largura, altura), do guia de inserção do dono */
   areaPx?: [number, number, number, number];
+  /**
+   * onde a ação da criança passa da área dela (a bola do arremesso ou do chute), em pixels:
+   * a trava do livro automático deixa a OpenAI desenhar ali também (teste do Tito, 01/11/2026)
+   */
+  travaExtraPx?: [number, number, number, number];
   /** texto do rodapé, aplicado pelo script; {NOME} vira o nome */
   texto: string;
   acao: string;

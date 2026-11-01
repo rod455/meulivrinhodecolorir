@@ -192,6 +192,8 @@ export const PAGINAS: PaginaDaHistoria[] = [
     pagina: 15,
     cenaBase: base(15),
     areaPx: [7, 358, 361, 802],
+    // a bola sai do pé da criança para a direita, no gramado: sem isto, a trava apagava a bola (teste do Tito, 01/11/2026)
+    travaExtraPx: [360, 650, 220, 520],
     texto: '{NOME} tocou para Luna, Luna tocou para Pip, Pip devolveu… e {NOME} chutou com toda a força!',
     // no teste de 21/10/2026 a bola saiu na direção do Pip e virou passe: a direção precisa ser explícita
     acao: 'kicking the soccer ball toward the goal in the background in a strong, balanced kick, the ball just leaving the foot and flying toward the frog goalkeeper, away from Pip, with motion lines (the ball has outlined white patches)',

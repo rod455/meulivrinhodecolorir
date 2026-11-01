@@ -95,7 +95,7 @@ export function itensDoLivro(tema: TemaId, plano: PlanoDoLivro, prontas: readonl
     if (!pg || !area) continue;
     // a variante do superpoder que mexe na cena (o Pip rindo) vem gravada no prompt do plano
     const ajuste = Object.values(daHistoria.porSuperpoder ?? {}).find((v) => v.ajusteDaCena && pg.prompt.includes(v.ajusteDaCena));
-    itens.push({ chave: chaveDaPagina(n), cena: pg.cenaBase, area, trava: juntar(area, ajuste?.areaDoAjustePx), prompt: comOrdemEArea(pg.prompt, area, 'contorno') });
+    itens.push({ chave: chaveDaPagina(n), cena: pg.cenaBase, area, trava: juntar(juntar(area, ajuste?.areaDoAjustePx), daHistoria.travaExtraPx), prompt: comOrdemEArea(pg.prompt, area, 'contorno') });
   }
   return itens.filter((i) => !prontas.includes(i.chave));
 }
