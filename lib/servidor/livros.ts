@@ -85,10 +85,12 @@ export async function mudancaForaDaArea(gerada: Buffer, cena: Buffer, area: [num
   return fora ? (100 * mudou) / fora : 0;
 }
 
-/** A página como vai para o livro: a imagem da OpenAI no tamanho da cena, em JPEG. */
-export async function paginaDoLivro(gerada: Buffer, cena: Buffer): Promise<Buffer> {
-  const { width = 0, height = 0 } = await sharp(cena).metadata();
-  return sharp(gerada).resize(width, height, { fit: 'fill' }).jpeg({ quality: 92 }).toBuffer();
+/**
+ * A página como vai para o livro: 1024 x 1536 (2:3, o que a OpenAI devolve), em JPEG. Não usa
+ * o tamanho da cena: a capa publicada é 800 x 1280 e sairia achatada.
+ */
+export async function paginaDoLivro(gerada: Buffer): Promise<Buffer> {
+  return sharp(gerada).resize(1024, 1536, { fit: 'fill' }).jpeg({ quality: 92 }).toBuffer();
 }
 
 /** Um aviso para o dono olhar na revisão (acréscimo atômico: as páginas chegam juntas). */

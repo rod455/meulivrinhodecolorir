@@ -81,7 +81,8 @@ async function n8nLivro({ tipo, pedido_id, token }) {
     const { width, height } = await sharp(cena).metadata();
     const tinta = await sharp({ create: { width, height, channels: 4, background: { r: 255, g: 0, b: 0, alpha: 0.45 } } }).png().toBuffer();
     const quadrado = await sharp({ create: { width: 150, height: 150, channels: 3, background: '#000' } }).png().toBuffer();
-    const desenho = await sharp(cena).composite([{ input: tinta }, { input: quadrado, left: 0, top: 0 }]).png().toBuffer();
+    // a OpenAI devolve sempre 1024 x 1536, qualquer que seja o tamanho da cena (a capa publicada é 800 x 1280)
+    const desenho = await sharp(await sharp(cena).composite([{ input: tinta }, { input: quadrado, left: 0, top: 0 }]).png().toBuffer()).resize(1024, 1536, { fit: 'fill' }).png().toBuffer();
     const dados = new FormData();
     for (const [k, v] of Object.entries({ pedido_id, token, chave: item.chave })) dados.append(k, v);
     dados.append('imagem', new Blob([desenho], { type: 'image/png' }), 'data.png');

@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     // a proporção tem que ser a da cena (2:3); outra proporção é imagem errada, não página
     if (Math.abs(width / height - 2 / 3) > 0.02) throw new Error(`proporção ${width}x${height}`);
     const cena = lerAsset(item.cena);
-    await guardarPagina(pedido, item.chave, await paginaDoLivro(imagem, cena));
+    await guardarPagina(pedido, item.chave, await paginaDoLivro(imagem));
     // a página fica inteira (colar só a área deixava emendas); a trava agora mede e avisa
     const mudou = await mudancaForaDaArea(imagem, cena, item.trava);
     const limite = item.chave === 'capa' ? LIMITE_DE_MUDANCA.capa : LIMITE_DE_MUDANCA.pagina;

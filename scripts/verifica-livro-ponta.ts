@@ -90,6 +90,9 @@ const dentro = await pixel(p04, ax + Math.round(aw / 2), ay + Math.round(ah / 2)
 ok(dentro[0] - dentro[1] > 60, `dentro da área fica o que a OpenAI desenhou (${dentro})`);
 const quadrado = await pixel(p04, 40, 40);
 ok(quadrado[0] < 60 && quadrado[1] < 60, `fora da área a página também é a da OpenAI, sem emenda (${quadrado})`);
+const capaGuardada = await arquivo(`paginas/${(montadoNoBanco.livro_paginas as string[]).find((c) => c.endsWith('/capa.jpg'))}`);
+const { width: cw, height: ch } = await sharp(capaGuardada).metadata();
+ok(cw === 1024 && ch === 1536, `a capa publicada com a criança fica em 2:3, sem achatar (${cw}x${ch})`);
 const avisos = montadoNoBanco.livro_avisos as string[];
 ok(avisos.some((a) => a.startsWith('p04: a cena mudou')), `a mudança fora da área vira aviso para o dono (${avisos.length} avisos)`);
 const tela0 = await (await fetch(`${SITE}/livro/revisar/${id}?chave=${String(montadoNoBanco.livro_revisao)}`)).text();
