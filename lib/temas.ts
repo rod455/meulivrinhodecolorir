@@ -1,6 +1,6 @@
 // Temas do MVP (seção 8). Os da fase 2 ficam listados para a vitrine dizer "em breve".
 
-export type TemaId = 'futebol' | 'natal' | 'fundo-do-mar' | 'sob-medida';
+export type TemaId = 'futebol' | 'basquete' | 'natal' | 'fundo-do-mar' | 'sob-medida';
 
 export type Tema = {
   id: TemaId;
@@ -53,6 +53,24 @@ export const TEMAS: Record<TemaId, Tema> = {
       amostras: ['/artes/turma-comemorando.webp', '/artes/turma-no-banco.webp'],
     },
   },
+  // 01/11/2026: o segundo livro da turma com vaga para a criança (lib/historias/basquete.ts)
+  basquete: {
+    id: 'basquete',
+    emoji: '🏀',
+    nome: 'Basquete com a turma Little Paws',
+    descricao: 'Pip, Bo, Luna, Milo e Dot no torneio de basquete da praça, aprendendo a passar a bola.',
+    tituloDaHistoria: 'e a cesta da vitória',
+    cor: 'azul',
+    faixas: ['todos', 'bebes', 'maiores'],
+    amostras: ['{nome} arremessou bem alto!', 'Pinte a regata do time de {nome}'],
+    historia: 'Uma bola quicou para fora da quadra… e quem devolveu foi {nome}, com um passe certeiro!',
+    vitrine: { src: '/livros/big-game-ilustrado.webp', largura: 800, altura: 1280 },
+    comPersonagem: true,
+    artes: {
+      capa: '/livros/big-game-ilustrado.webp',
+      amostras: ['/livros/big-game-ilustrado.webp', '/artes/turma-em-fila.webp'],
+    },
+  },
   natal: {
     id: 'natal',
     emoji: '🎄',
@@ -98,7 +116,7 @@ export const TEMAS: Record<TemaId, Tema> = {
   },
 };
 
-export const LISTA_DE_TEMAS: Tema[] = [TEMAS.futebol, TEMAS.natal, TEMAS['fundo-do-mar']];
+export const LISTA_DE_TEMAS: Tema[] = [TEMAS.futebol, TEMAS.basquete, TEMAS.natal, TEMAS['fundo-do-mar']];
 
 /**
  * A primeira escolha do site (pedido do dono, 31/10/2026): ou a história da
@@ -126,7 +144,7 @@ export const TEMAS_EM_BREVE = [
 ];
 
 export function ehTema(valor: unknown): valor is TemaId {
-  return valor === 'futebol' || valor === 'natal' || valor === 'fundo-do-mar' || valor === 'sob-medida';
+  return valor === 'futebol' || valor === 'basquete' || valor === 'natal' || valor === 'fundo-do-mar' || valor === 'sob-medida';
 }
 
 export function comNome(frase: string, nome: string): string {

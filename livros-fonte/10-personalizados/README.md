@@ -6,7 +6,7 @@ Cada livro publicado da turma (Big Game, Big Play, Big Christmas, A Grande Final
 | Tema | Arquivo | Livro de origem | Situação |
 |---|---|---|---|
 | Futebol | `futebol-little-paws.md` | (anterior aos livros; deu origem ao *A Grande Final de Futebol*) | No site, falta gerar as cenas base |
-| Basquete | `basquete-little-paws.md` | *Little Paws, Big Game* | Pronto para gerar as cenas base |
+| Basquete | `basquete-little-paws.md` | *Little Paws, Big Game* | No site desde 01/11/2026 (`lib/historias/basquete.ts`); PDF de prova aprovado; falta subir as cenas base para `temas/basquete/base/` |
 | Flag football | `flag-football-little-paws.md` | *Little Paws, Big Play* | Pronto para gerar as cenas base |
 | Natal | `natal-little-paws.md` | *Little Paws, Big Christmas* | Pronto para gerar as cenas base |
 
@@ -58,7 +58,7 @@ Quando as cenas base estiverem aprovadas:
 
 1. Criar `lib/historias/<tema>.ts` no formato de `lib/historias/futebol.ts` (as 16 páginas, a capa, a página da troca de roupa e as variantes da página 13), com o texto **igual** ao do `.md`.
 2. Marcar o tema com `comPersonagem: true` em `lib/temas.ts`, com a vitrine e as amostras.
-3. Ligar o tema em `lib/geracao.ts` (hoje o plano do livro só conhece o futebol).
+3. Ligar o tema em `HISTORIAS_DA_TURMA` (`lib/geracao.ts`) e marcar o livro com `temaPersonalizado` em `lib/livros-publicados.ts`.
 4. Acrescentar os casos do tema em `scripts/verifica-personagem.ts`: nenhum texto com gênero para a criança, o nome fora dos prompts de imagem, a troca de roupa na página certa.
 5. Conferir com `npm run conferir` e a suíte de navegador.
 

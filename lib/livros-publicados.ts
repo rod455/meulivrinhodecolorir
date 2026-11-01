@@ -59,7 +59,7 @@ export const LIVROS_PUBLICADOS: LivroPublicado[] = [
   },
   {
     id: 'big-game',
-    temaPersonalizado: null,
+    temaPersonalizado: 'basquete',
     protagonista: 'o Pip',
     idioma: 'en',
     tema: 'Basquete com a turma',

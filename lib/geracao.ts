@@ -3,19 +3,18 @@
 // chama a API de imagem é o n8n, porque o livro leva minutos e a Vercel corta.
 // Puro: conferido por `npm run conferir:personagem`.
 
-import {
-  CAPA,
-  CERTIFICADO,
-  ID_DO_MODELO,
-  PAGINA_DA_CAMISA,
-  PAGINAS,
-  PAGINAS_DA_LEMBRANCINHA,
-  PROMPT_DE_INSERCAO,
-  SUBTITULO,
-  TITULO,
-} from './historias/futebol.ts';
-import { alturaNaCena, descreverCrianca, promptDaFicha, ROUPA_DO_TIME, roupaPropria, SUPERPODERES, type Personagem } from './personagem.ts';
+import { HISTORIA_BASQUETE } from './historias/basquete.ts';
+import { HISTORIA_FUTEBOL } from './historias/futebol.ts';
+import { PROMPT_DE_INSERCAO, type HistoriaDaTurma } from './historias/modelo.ts';
+import { alturaNaCena, descreverCrianca, promptDaFicha, roupaPropria, SUPERPODERES, type Personagem } from './personagem.ts';
 import type { ProdutoId } from './produtos.ts';
+import type { TemaId } from './temas.ts';
+
+/** As histórias da turma com vaga para a criança, por tema (o tema precisa de comPersonagem em lib/temas.ts). */
+export const HISTORIAS_DA_TURMA: Partial<Record<TemaId, HistoriaDaTurma>> = {
+  futebol: HISTORIA_FUTEBOL,
+  basquete: HISTORIA_BASQUETE,
+};
 
 export type PaginaDoPlano = {
   pagina: number;
@@ -47,8 +46,11 @@ function preencher(modelo: string, valores: Record<string, string>): string {
   return modelo.replace(/\{([A-Z_]+)\}/g, (inteiro, chave: string) => valores[chave] ?? inteiro);
 }
 
-export function planoDoLivro(entrada: { nome: string; idade: number; produto: ProdutoId; personagem: Personagem }): PlanoDoLivro {
-  const { nome, idade, produto, personagem } = entrada;
+export function planoDoLivro(entrada: { tema: TemaId; nome: string; idade: number; produto: ProdutoId; personagem: Personagem }): PlanoDoLivro {
+  const { tema, nome, idade, produto, personagem } = entrada;
+  const historia = HISTORIAS_DA_TURMA[tema];
+  if (!historia) throw new Error(`o tema ${tema} não tem história com personagem`);
+  const { paginas: PAGINAS, paginaDaCamisa: PAGINA_DA_CAMISA, roupaDoTime: ROUPA_DO_TIME, capa: CAPA, certificado: CERTIFICADO, lembrancinha: PAGINAS_DA_LEMBRANCINHA } = historia;
   const crianca = descreverCrianca(personagem, idade);
   const altura = alturaNaCena(personagem);
 
@@ -82,9 +84,9 @@ export function planoDoLivro(entrada: { nome: string; idade: number; produto: Pr
   const usadas = new Set<number>([...(querLembrancinha ? PAGINAS_DA_LEMBRANCINHA : []), ...(querPresente ? PAGINAS.map((p) => p.pagina) : [])]);
 
   return {
-    modelo: ID_DO_MODELO,
-    titulo: comNomeNoTexto(TITULO, nome),
-    subtitulo: SUBTITULO,
+    modelo: historia.modelo,
+    titulo: comNomeNoTexto(historia.titulo, nome),
+    subtitulo: historia.subtitulo,
     ficha: {
       prompt: promptDaFicha(personagem, idade),
       usaFoto: personagem.jeito === 'foto',

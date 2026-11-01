@@ -3,24 +3,11 @@
 // livros-fonte/10-personalizados/futebol-little-paws.md (seções 4, 5 e 7).
 // Puro: conferido por `npm run conferir:personagem`.
 
-import type { SuperpoderId } from '../personagem.ts';
+import { ROUPA_DO_TIME } from '../personagem.ts';
+import { PROMPT_DE_INSERCAO, type HistoriaDaTurma, type PaginaDaHistoria } from './modelo.ts';
 
-export type Roupa = 'propria' | 'time';
-
-export type PaginaDaHistoria = {
-  pagina: number;
-  /** cena base aprovada, sem a criança; gerada uma vez só na produção do tema */
-  cenaBase: string;
-  /** texto do rodapé, aplicado pelo script; {NOME} vira o nome */
-  texto: string;
-  acao: string;
-  area: string;
-  roupa: Roupa;
-  /** legenda curta quando a página entra na Lembrancinha */
-  lembrancinha: string | null;
-  /** só a página 13: texto e ação mudam conforme o superpoder */
-  porSuperpoder?: Record<SuperpoderId, { texto: string; acao: string; ajusteDaCena?: string }>;
-};
+export { PROMPT_DE_INSERCAO };
+export type { PaginaDaHistoria, Roupa } from './modelo.ts';
 
 export const ID_DO_MODELO = 'futebol-little-paws-v1';
 export const TITULO = '{NOME} entra em campo!';
@@ -222,7 +209,14 @@ export const CERTIFICADO = {
 /** As nove páginas da Lembrancinha, nesta ordem (a troca de roupa continua fazendo sentido). */
 export const PAGINAS_DA_LEMBRANCINHA = [3, 4, 6, 8, 9, 10, 14, 15, 16];
 
-export const PROMPT_DE_INSERCAO = `Edit the attached base scene. Add exactly ONE new character: the child from the attached approved character sheet ({CHILD_SHORT}), {ACTION}, placed in the empty area at {AREA}. Height: {CHILD_HEIGHT}.
-Outfit on this page: {OUTFIT}.
-Match the child's face, hair, accessories and proportions to the character sheet exactly. Match the scene's style: same thick black outlines, white interiors, no gray, no shading, no color.
-Do NOT change, move, redraw or remove anything else in the scene. Keep the bottom 22% of the page completely white. No text.`;
+export const HISTORIA_FUTEBOL: HistoriaDaTurma = {
+  modelo: ID_DO_MODELO,
+  titulo: TITULO,
+  subtitulo: SUBTITULO,
+  paginaDaCamisa: PAGINA_DA_CAMISA,
+  paginas: PAGINAS,
+  capa: CAPA,
+  certificado: CERTIFICADO,
+  lembrancinha: PAGINAS_DA_LEMBRANCINHA,
+  roupaDoTime: ROUPA_DO_TIME,
+};

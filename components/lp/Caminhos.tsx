@@ -22,7 +22,7 @@ export function FacaParte() {
         <CampoDoNome />
         <ol className="caminho-passos">
           <li>
-            <strong>Escolha a aventura.</strong> Hoje: a grande final de futebol. Em breve: basquete, flag football e Natal.
+            <strong>Escolha a aventura.</strong> Hoje: a grande final de futebol ou o torneio de basquete. Em breve: flag football e Natal.
           </li>
           <li>
             <strong>Monte o personagem</strong> pelo cabelo, pele e roupa, ou a partir de uma foto.

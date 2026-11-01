@@ -28,9 +28,9 @@ export function useNomeNaLp(): { digitado: string; nome: string } {
   return { digitado, nome: pronto };
 }
 
-/** O link do /criar com o caminho e, se houver, o nome. */
+/** O link do /criar com o caminho e, se houver, o nome. Na turma, a família escolhe a aventura pela capa (01/11/2026: futebol ou basquete). */
 export function linkDoCaminho(caminho: 'turma' | 'sob-medida', nomePronto: string): string {
-  const busca = new URLSearchParams(caminho === 'turma' ? { caminho, tema: 'futebol' } : { caminho });
+  const busca = new URLSearchParams({ caminho });
   if (nomePronto) busca.set('nome', nomePronto);
   return `/criar?${busca.toString()}`;
 }

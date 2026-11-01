@@ -75,7 +75,7 @@ const portas = p.locator('.topo .porta');
 assert.equal(await portas.count(), 3, 'o topo oferece as três portas');
 assert.deepEqual(await portas.evaluateAll((as) => as.map((a) => a.getAttribute('href'))), ['#turma', '#fazer-parte', '#propria'], 'cada porta leva à sua seção');
 for (const id of ['turma', 'fazer-parte', 'propria']) assert.equal(await p.locator(`#${id}`).count(), 1, `a seção #${id} existe`);
-assert.equal(await p.locator('#fazer-parte a.botao').getAttribute('href'), '/criar?caminho=turma&tema=futebol', 'faça parte leva ao futebol da turma');
+assert.equal(await p.locator('#fazer-parte a.botao').getAttribute('href'), '/criar?caminho=turma', 'faça parte leva à escolha da aventura da turma (futebol ou basquete)');
 assert.equal(await p.locator('#propria a.botao').getAttribute('href'), '/criar?caminho=sob-medida', 'a sua própria história leva à sob medida');
 assert.equal(await p.locator('a[href*="caminho=zero"]').count(), 0, 'o caminho do zero saiu da página (o objetivo são os dois caminhos)');
 assert.equal(await p.locator('#turma .amigo-cartao').count(), 6, 'a turma inteira se apresenta');
@@ -83,9 +83,10 @@ const retratos = await p.locator('#turma .amigo-cartao img.amigo-retrato').evalu
 assert.equal(new Set(retratos).size, 6, 'cada amigo tem o próprio retrato, inclusive o Kiko');
 assert.equal(await p.locator('#little-paws').getByText(/R\$/).filter({ visible: true }).count(), 0, 'preço só aparece se a pessoa abrir o livro original');
 const colocar = p.locator('#little-paws').getByRole('link', { name: 'Colocar meu filho' });
-assert.equal(await colocar.count(), 1, 'só a história com personalizado pronto oferece colocar o filho');
-assert.equal(await colocar.getAttribute('href'), '/criar?caminho=turma&tema=futebol', 'e leva ao futebol pela turma');
-assert.equal(await p.locator('#little-paws').getByText(/Em breve: seu filho jogando com/).count(), 3, 'as outras histórias dizem em breve');
+// 01/11/2026: o basquete (Big Game) entrou ao lado do futebol
+assert.deepEqual(await colocar.evaluateAll((as) => as.map((a) => a.getAttribute('href')).sort()), ['/criar?caminho=turma&tema=basquete', '/criar?caminho=turma&tema=futebol'], 'o futebol e o basquete oferecem colocar o filho, cada um no seu tema');
+assert.equal(await p.locator('#livro-big-game').getByRole('link', { name: 'Colocar meu filho' }).getAttribute('href'), '/criar?caminho=turma&tema=basquete', 'o Big Game leva ao basquete');
+assert.equal(await p.locator('#little-paws').getByText(/Em breve: seu filho jogando com/).count(), 2, 'as outras histórias dizem em breve');
 assert.equal(await p.locator('#little-paws img[alt^="Capa do livro"]').count(), 4, 'cada livro com a capa de verdade');
 // as capas aparecem inteiras (sem corte) e todas na mesma altura (dono, 31/10/2026)
 const capas = await p.locator('#little-paws img.aventura-capa').evaluateAll((imgs) => imgs.map((i) => ({ h: Math.round(i.getBoundingClientRect().height), corte: getComputedStyle(i).objectFit })));
@@ -191,8 +192,8 @@ assert.equal(await vitrine.locator('.escolhas-caminho .escolha').count(), 2, 'o 
 await vitrine.getByRole('button', { name: /Com a turma Little Paws/ }).click();
 await vitrine.getByRole('heading', { name: /Em que história/ }).waitFor();
 // a escolha da aventura pelas capas de verdade: a do futebol escolhe, as outras dizem em breve
-assert.equal(await vitrine.locator('button.escolha-livro img').count(), 1, 'na turma, o futebol se escolhe pela capa');
-assert.equal(await vitrine.locator('.escolha-livro-em-breve').count(), 3, 'e as outras histórias em breve, com capa');
+assert.equal(await vitrine.locator('button.escolha-livro img').count(), 2, 'na turma, o futebol e o basquete se escolhem pela capa');
+assert.equal(await vitrine.locator('.escolha-livro-em-breve').count(), 2, 'e as outras histórias em breve, com capa');
 await vitrine.getByRole('button', { name: /Voltar/ }).click();
 await vitrine.getByRole('button', { name: /História 100% personalizada/ }).click();
 await vitrine.getByRole('heading', { name: 'Agora, o nome' }).waitFor();
@@ -203,7 +204,7 @@ assert.equal(await vitrine.locator('.barra-fixa').getByText(/R\$/).count(), 0, '
 const estante = await novaPagina();
 await estante.goto(`${SITE}/criar?caminho=turma`);
 await estante.getByRole('heading', { name: /Em que história/ }).waitFor();
-await estante.locator('button.escolha-livro').click();
+await estante.locator('button.escolha-livro', { hasText: 'Grande Final' }).click();
 await estante.getByRole('heading', { name: 'Agora, o nome' }).waitFor();
 assert.equal(await estante.locator('.estante-da-turma figure').count(), 4, 'as quatro capas ao lado do nome');
 assert.equal(await estante.locator('.estante-livro-escolhido img').getAttribute('alt'), 'A aventura escolhida: Little Paws: A Grande Final de Futebol', 'a escolhida em destaque');
@@ -224,6 +225,16 @@ assert.deepEqual(await estante.locator('.etapas li').allTextContents(), ['o nome
 assert.equal(await estante.getByText(/Lembrancinha|Combo festa/).count(), 0, 'na turma não tem escolha de formato');
 await estante.getByRole('button', { name: /Voltar/ }).click();
 await estante.waitForURL(/\/#fazer-parte$/);
+// o basquete pelo mesmo caminho: a capa do Big Game em destaque e o livro de basquete no painel
+await estante.evaluate(() => localStorage.clear());
+await estante.locator('#livro-big-game').getByRole('link', { name: 'Colocar meu filho' }).click();
+await estante.getByRole('heading', { name: 'Agora, o nome' }).waitFor();
+assert.equal(await estante.locator('.estante-livro-escolhido img').getAttribute('alt'), 'A aventura escolhida: Little Paws, Big Game', 'no basquete, o Big Game em destaque');
+await estante.fill('#nome', 'Luiza');
+await estante.getByRole('button', { name: 'Continuar' }).click();
+await estante.getByRole('heading', { name: 'Crie o personagem' }).waitFor();
+assert.ok(decodeURIComponent((await estante.locator('img.painel-capa-real').getAttribute('src')) ?? '').includes('big-game'), 'o painel mostra a capa do basquete');
+assert.ok((await estante.locator('.painel-lista').textContent()).includes('Big Game'), 'o painel diz que a aventura é o Big Game');
 await estante.close();
 
 // futebol com foto, já com a conta aberta

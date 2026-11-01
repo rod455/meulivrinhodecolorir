@@ -1,11 +1,12 @@
-// O personagem e a história de futebol: as regras do documento do tema
-// (livros-fonte/10-personalizados/futebol-little-paws.md) que, quebradas,
+// O personagem e as histórias da turma (futebol e basquete): as regras dos documentos
+// dos temas (livros-fonte/10-personalizados/) que, quebradas,
 // estragam um livro inteiro sem ninguém perceber até a família abrir o PDF.
 //
 // Rode com: npm run conferir:personagem
 import assert from 'node:assert/strict';
-import { planoDoLivro } from '../lib/geracao.ts';
-import { PAGINA_DA_CAMISA, PAGINAS, PAGINAS_DA_LEMBRANCINHA } from '../lib/historias/futebol.ts';
+import { HISTORIAS_DA_TURMA, planoDoLivro } from '../lib/geracao.ts';
+import { LIVROS_PUBLICADOS } from '../lib/livros-publicados.ts';
+import { LISTA_DE_TEMAS } from '../lib/temas.ts';
 import { lerPersonagem, PELE_DA_FOTO, PERSONAGEM_INICIAL, promptDaFicha, SUPERPODERES, VERSAO_DO_CONSENTIMENTO, type Personagem } from '../lib/personagem.ts';
 
 let casos = 0;
@@ -36,40 +37,51 @@ ok(!lerPersonagem({ ...PERSONAGEM_INICIAL, pele: PELE_DA_FOTO }).ok, '"como na f
 
 // 3. O modelo da história: 16 páginas na ordem, roupa trocando na página da camisa,
 // a página 13 com uma variante para cada superpoder.
-ok(PAGINAS.map((p) => p.pagina).join() === Array.from({ length: 16 }, (_, i) => i + 1).join(), 'páginas 1 a 16, em ordem');
+for (const [tema, historia] of Object.entries(HISTORIAS_DA_TURMA)) {
+const { paginas: PAGINAS, paginaDaCamisa: PAGINA_DA_CAMISA, lembrancinha: PAGINAS_DA_LEMBRANCINHA } = historia!;
+ok(PAGINAS.map((p) => p.pagina).join() === Array.from({ length: 16 }, (_, i) => i + 1).join(), `${tema}: páginas 1 a 16, em ordem`);
 for (const p of PAGINAS) {
-  ok(p.roupa === (p.pagina >= PAGINA_DA_CAMISA ? 'time' : 'propria'), `página ${p.pagina}: roupa certa para a página`);
-  ok(Boolean(p.area), `página ${p.pagina}: tem área livre`);
-  ok(Boolean(p.acao) || Boolean(p.porSuperpoder), `página ${p.pagina}: tem ação`);
+  ok(p.roupa === (p.pagina >= PAGINA_DA_CAMISA ? 'time' : 'propria'), `${tema}, página ${p.pagina}: roupa certa para a página`);
+  ok(Boolean(p.area), `${tema}, página ${p.pagina}: tem área livre`);
+  ok(Boolean(p.acao) || Boolean(p.porSuperpoder), `${tema}, página ${p.pagina}: tem ação`);
 }
 const p13 = PAGINAS.find((p) => p.pagina === 13)!;
-ok(SUPERPODERES.every((s) => p13.porSuperpoder?.[s.id]?.acao && p13.porSuperpoder?.[s.id]?.texto), 'página 13 cobre todos os superpoderes');
-ok(PAGINAS_DA_LEMBRANCINHA.every((n) => PAGINAS.find((p) => p.pagina === n)?.lembrancinha), 'toda página da Lembrancinha tem legenda');
+ok(SUPERPODERES.every((s) => p13.porSuperpoder?.[s.id]?.acao && p13.porSuperpoder?.[s.id]?.texto), `${tema}: página 13 cobre todos os superpoderes`);
+ok(PAGINAS_DA_LEMBRANCINHA.every((n) => PAGINAS.find((p) => p.pagina === n)?.lembrancinha), `${tema}: toda página da Lembrancinha tem legenda`);
 
 // 4. Texto neutro de gênero para a criança (seção 6 do tema): o livro serve para qualquer nome.
 const GENERO = /\b(pront[oa]|animad[oa]|sozinh[oa]|cansad[oa]|nov[oa] amig[oa]|o novo|a nova|o amigo|a amiga|menin[oa])\b/i;
 const PRONOME = /\b(ele|ela|dele|dela|nele|nela)\b/i;
-const TURMA = /\b(Pip|Bo|Luna|Dot|Milo|castor|lontra|Time da Lagoa)\b/;
+const TURMA = /\b(Pip|Bo|Luna|Dot|Milo|castor|lontra|Time da Lagoa|Zuzu|Stripes)\b/;
 // frases já revisadas em que o pronome é de outra coisa, não da criança
 const PRONOME_REVISADO = new Set([
-  'Logo atrás dela vinha {NOME}!', // "dela" é a bola
+  'Logo atrás dela vinha {NOME}!', // "dela" é a bola (futebol)
 ]);
+// "sozinho" como regra geral do time, não da criança (seção 6 do basquete-little-paws.md)
+const GENERO_REVISADO = new Set(['Então {NOME} sentou ao lado do Pip: "Ninguém joga sozinho.']);
 const frasesDaCrianca = PAGINAS.flatMap((p) => [p.texto, p.lembrancinha ?? '', ...Object.values(p.porSuperpoder ?? {}).map((v) => v.texto)])
   .flatMap((t) => t.split(/(?<=[.!?…])\s+/))
   .filter((f) => f.includes('{NOME}'));
 for (const frase of frasesDaCrianca) {
   // "Ninguém joga sozinho" é sobre o time, não sobre a criança: só olha frases com {NOME}
-  ok(!GENERO.test(frase), `palavra com gênero perto da criança: "${frase}"`);
-  ok(!PRONOME.test(frase) || TURMA.test(frase) || PRONOME_REVISADO.has(frase), `pronome que só pode ser da criança: "${frase}"`);
+  ok(!GENERO.test(frase) || GENERO_REVISADO.has(frase), `${tema}: palavra com gênero perto da criança: "${frase}"`);
+  ok(!PRONOME.test(frase) || TURMA.test(frase) || PRONOME_REVISADO.has(frase), `${tema}: pronome que só pode ser da criança: "${frase}"`);
 }
+ok(PAGINAS.every((p) => p.cenaBase.startsWith(`temas/${tema}/base/`)) && [historia!.capa.cenaBase, historia!.capa.cenaBaseColorida, historia!.certificado.cenaBase].every((c) => c.startsWith(`temas/${tema}/base/`)), `${tema}: as cenas base são da pasta do próprio tema`);
+}
+// todo tema da turma que a família pode escolher tem história; e todo livro com o botão "colocar meu filho" também
+for (const t of LISTA_DE_TEMAS.filter((t) => t.comPersonagem && !t.sobMedida)) ok(Boolean(HISTORIAS_DA_TURMA[t.id]), `tema ${t.id} escolhível sem história com personagem`);
+for (const l of LIVROS_PUBLICADOS) if (l.temaPersonalizado) ok(Boolean(HISTORIAS_DA_TURMA[l.temaPersonalizado]), `livro ${l.id} leva a um tema sem história`);
 
 // 5. O plano do pedido: nome aplicado, nada de variável sobrando e o nome NUNCA
 // dentro do prompt de imagem (a imagem não leva texto e o nome não sai para a IA).
 const personagem: Personagem = valido.ok ? valido.personagem : PERSONAGEM_INICIAL;
 const nome = 'Maria Eduarda';
-const presente = planoDoLivro({ nome, idade: 6, produto: 'presente', personagem });
-const lembrancinha = planoDoLivro({ nome, idade: 6, produto: 'lembrancinha', personagem });
-const combo = planoDoLivro({ nome, idade: 6, produto: 'combo', personagem });
+const PAGINAS = HISTORIAS_DA_TURMA.futebol!.paginas;
+const p13 = PAGINAS.find((p) => p.pagina === 13)!;
+const presente = planoDoLivro({ tema: 'futebol', nome, idade: 6, produto: 'presente', personagem });
+const lembrancinha = planoDoLivro({ tema: 'futebol', nome, idade: 6, produto: 'lembrancinha', personagem });
+const combo = planoDoLivro({ tema: 'futebol', nome, idade: 6, produto: 'combo', personagem });
 ok(presente.paginas.length === 16 && presente.certificado !== null && presente.lembrancinha === null, 'Presente: 16 páginas e certificado');
 ok(lembrancinha.paginas.length === 9 && lembrancinha.certificado === null && lembrancinha.presente === null, 'Lembrancinha: só as 9 páginas');
 ok(combo.paginas.length === 16 && combo.lembrancinha !== null && combo.presente !== null, 'Combo: gera 16 e serve aos dois');
@@ -82,7 +94,7 @@ for (const plano of [presente, lembrancinha]) {
 }
 ok(presente.titulo === 'Maria Eduarda entra em campo!', 'título com o nome');
 for (const s of SUPERPODERES) {
-  const pl = planoDoLivro({ nome, idade: 6, produto: 'presente', personagem: { ...personagem, superpoder: s.id } });
+  const pl = planoDoLivro({ tema: 'futebol', nome, idade: 6, produto: 'presente', personagem: { ...personagem, superpoder: s.id } });
   const pg = pl.paginas.find((p) => p.pagina === 13)!;
   ok(pg.texto === p13.porSuperpoder![s.id].texto.replace('{NOME}', nome), `página 13 usa o texto de ${s.rotulo}`);
   ok(pg.prompt.includes(p13.porSuperpoder![s.id].acao), `página 13 usa a ação de ${s.rotulo}`);
@@ -90,7 +102,7 @@ for (const s of SUPERPODERES) {
 }
 // teste de 21/10/2026: no bom humor o texto diz que o Bo riu, então só ali o rosto dele muda
 for (const s of SUPERPODERES) {
-  const pg = planoDoLivro({ nome, idade: 6, produto: 'presente', personagem: { ...personagem, superpoder: s.id } }).paginas.find((p) => p.pagina === 13)!;
+  const pg = planoDoLivro({ tema: 'futebol', nome, idade: 6, produto: 'presente', personagem: { ...personagem, superpoder: s.id } }).paginas.find((p) => p.pagina === 13)!;
   const muda = /exception/i.test(pg.prompt);
   ok(muda === (s.id === 'bom_humor'), `página 13 de ${s.rotulo}: ${muda ? 'muda' : 'não muda'} a cena base`);
   if (s.id === 'bom_humor') ok(/Bo's face/.test(pg.prompt) && /laugh/.test(pg.prompt), 'no bom humor, o Bo ri como o texto diz');
@@ -101,8 +113,31 @@ ok(/toward the goal/.test(presente.paginas.find((p) => p.pagina === 15)!.prompt)
 ok(presente.paginas.find((p) => p.pagina === 9)!.prompt.includes('favorite outfit'), 'página 9 ainda com a roupa própria');
 ok(presente.paginas.find((p) => p.pagina === 10)!.prompt.includes('Little Paws soccer uniform'), 'página 10 já de uniforme');
 
+// 5b. O basquete (01/11/2026): o mesmo plano, com a história, o uniforme e as cenas do basquete.
+const HB = HISTORIAS_DA_TURMA.basquete!;
+const bPresente = planoDoLivro({ tema: 'basquete', nome, idade: 6, produto: 'presente', personagem });
+const bLembrancinha = planoDoLivro({ tema: 'basquete', nome, idade: 6, produto: 'lembrancinha', personagem });
+ok(bPresente.modelo === 'basquete-little-paws-v1' && bPresente.titulo === 'Maria Eduarda entra na quadra!', 'basquete: modelo e título do basquete');
+ok(bPresente.paginas.length === 16 && bPresente.certificado!.texto.includes('Time Little Paws de basquete') && bLembrancinha.paginas.length === 9, 'basquete: Presente com 16 e certificado, Lembrancinha com 9');
+for (const plano of [bPresente, bLembrancinha]) {
+  const prompts = [plano.ficha.prompt, plano.capa.prompt, plano.capa.promptColorido, ...plano.paginas.map((p) => p.prompt)];
+  ok([plano.titulo, ...plano.paginas.flatMap((p) => [p.texto, p.legenda ?? '']), plano.certificado?.texto ?? ''].every((t) => !/[{}]/.test(t)) && prompts.every((t) => !/[{}]/.test(t)), 'basquete: nenhuma variável sobrando');
+  ok(prompts.every((t) => !t.includes('Maria') && !t.includes('Eduarda')), 'basquete: o nome da criança não vai para o prompt de imagem');
+  ok(plano.paginas.every((p) => p.cenaBase.startsWith('temas/basquete/')) && plano.capa.cenaBase.startsWith('temas/basquete/'), 'basquete: só cenas do basquete');
+  ok(prompts.every((t) => !/soccer/i.test(t)), 'basquete: nada de futebol nos prompts');
+}
+ok(bPresente.paginas.find((p) => p.pagina === 9)!.prompt.includes('favorite outfit') && bPresente.paginas.find((p) => p.pagina === 10)!.prompt.includes('Little Paws basketball uniform') && bPresente.capa.prompt.includes('basketball uniform'), 'basquete: regata a partir da página 10 e na capa');
+for (const s of SUPERPODERES) {
+  const pg = planoDoLivro({ tema: 'basquete', nome, idade: 6, produto: 'presente', personagem: { ...personagem, superpoder: s.id } }).paginas.find((p) => p.pagina === 13)!;
+  ok(pg.texto === HB.paginas[12].porSuperpoder![s.id].texto.replace('{NOME}', nome), `basquete: página 13 usa o texto de ${s.rotulo}`);
+  const muda = /exception/i.test(pg.prompt);
+  ok(muda === (s.id === 'bom_humor') && (!muda || /Pip's face/.test(pg.prompt)), `basquete: página 13 de ${s.rotulo}: só no bom humor o Pip ri`);
+}
+ok(/only ball/.test(bPresente.paginas.find((p) => p.pagina === 15)!.prompt), 'basquete: página 15 com uma bola só, a da criança');
+ok(bPresente.paginas.find((p) => p.pagina === 1)!.texto.startsWith('O Torneio de Basquete da Praça'), 'basquete: página 1 do basquete');
+
 // 6. Foto: entra só na ficha; as páginas usam a ficha desenhada (seção 2.2 do tema).
-const comFoto = planoDoLivro({ nome, idade: 6, produto: 'presente', personagem: { ...PERSONAGEM_INICIAL, jeito: 'foto', foto } });
+const comFoto = planoDoLivro({ tema: 'futebol', nome, idade: 6, produto: 'presente', personagem: { ...PERSONAGEM_INICIAL, jeito: 'foto', foto } });
 ok(comFoto.ficha.usaFoto && comFoto.ficha.caminhoDaFoto === foto.caminho, 'ficha recebe a foto');
 ok(comFoto.ficha.prompt.includes('ONLY as a loose reference'), 'ficha pede estilização, não cópia da foto');
 ok(/FIRST attached image is the STYLE REFERENCE/.test(comFoto.ficha.prompt) && /SECOND attached image is a photo/.test(comFoto.ficha.prompt), 'com foto: a turma é a primeira imagem, a foto a segunda');

@@ -103,7 +103,7 @@ export async function POST(req: Request) {
     texto && personagem && pedido.historiaId
       ? planoDaHistoria({ historiaId: pedido.historiaId, nome: pedido.nome, idade: pedido.idade, personagem, texto })
       : personagem
-        ? planoDoLivro({ nome: pedido.nome, idade: pedido.idade, produto: pedido.produto, personagem })
+        ? planoDoLivro({ tema: pedido.tema, nome: pedido.nome, idade: pedido.idade, produto: pedido.produto, personagem })
         : null;
   if (plano) plano.ficha.aprovada = fichaAprovada;
   // a foto só serviu para a ficha; fica ligada ao pedido para sumir no prazo dela
