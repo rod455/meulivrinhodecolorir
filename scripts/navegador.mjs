@@ -28,20 +28,22 @@ const novaPagina = async () => {
   pagina.on('pageerror', (e) => erros.push(e.message));
   return pagina;
 };
-// o personagem tem telinhas curtas (quem é, cabelo, roupa e cor, superpoder; pela foto, sem a do cabelo)
+// o personagem tem telinhas curtas (quem é, características, roupa e superpoder; pela foto, sem a das características)
 const ateOCabelo = async (pg) => {
   await pg.getByRole('heading', { name: 'Quem é' }).waitFor();
   await pg.getByRole('button', { name: 'Continuar' }).click();
-  await pg.getByRole('heading', { name: 'Cabelo', exact: true }).waitFor();
+  await pg.getByRole('heading', { name: 'Características', exact: true }).waitFor();
 };
 const ateOSuperpoder = async (pg) => {
   const titulo = pg.locator('h2.parte-titulo');
-  for (let i = 0; i < 4 && (await titulo.textContent()) !== 'Superpoder'; i++) {
+  for (let i = 0; i < 4 && (await titulo.textContent()) !== 'Roupa e superpoder'; i++) {
     const antes = await titulo.textContent();
     await pg.getByRole('button', { name: 'Continuar' }).click();
     await pg.waitForFunction((t) => document.querySelector('h2.parte-titulo')?.textContent !== t, antes);
   }
-  assert.equal(await titulo.textContent(), 'Superpoder', 'chegou à telinha do superpoder');
+  assert.equal(await titulo.textContent(), 'Roupa e superpoder', 'chegou à telinha da roupa e do superpoder');
+  const partes = (await pg.locator('ol.partes li').allTextContents()).map((t) => t.replace(/^\d+/, '').trim());
+  assert.ok(partes.length <= 3 && partes.at(-1) === 'Roupa e superpoder' && !partes.includes('Superpoder') && !partes.includes('Cabelo'), `o personagem tem no máximo três telinhas, a roupa junto com o superpoder (veio ${partes.join(' / ')})`);
 };
 const estado = async () => (await fetch(`${FALSO}/__estado`)).json();
 const ultimoAvisoAoN8n = () => JSON.parse(readFileSync(`${REGISTRO}.n8n`, 'utf8').trim().split('\n').at(-1));

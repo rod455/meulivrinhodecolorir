@@ -34,13 +34,14 @@ import {
  * escolhas numa rolagem só, sem nada mudando na tela. Cada telinha é curta, e
  * a ficha no topo vai se montando com o que a família escolhe.
  */
+// 01/11/2026 (dono): "Cabelo" virou "Características" (é cabelo, óculos e detalhes) e a roupa
+// se juntou com o superpoder numa telinha só
 const PARTES = [
   { id: 'quem', titulo: 'Quem é' },
-  { id: 'cabelo', titulo: 'Cabelo' },
-  { id: 'roupa', titulo: 'Roupa e cor' },
-  { id: 'superpoder', titulo: 'Superpoder' },
+  { id: 'cabelo', titulo: 'Características' },
+  { id: 'roupa', titulo: 'Roupa e superpoder' },
 ] as const;
-/** pela foto, o cabelo vem da foto: a telinha do cabelo some */
+/** pela foto, o cabelo vem da foto: a telinha das características some */
 export const partesDoPersonagem = (jeito: Personagem['jeito']) => PARTES.filter((p) => jeito !== 'foto' || p.id !== 'cabelo');
 export type ParteDoPersonagem = number;
 
@@ -89,7 +90,7 @@ export function EtapaPersonagem({
   nome: string;
   fotoLigada: boolean;
   erro?: string;
-  /** em que telinha do personagem estamos: rosto e cabelo, roupa e cor, superpoder */
+  /** em que telinha do personagem estamos: quem é, características, roupa e superpoder */
   parte: ParteDoPersonagem;
   onParte: (parte: ParteDoPersonagem) => void;
   /** a idade muda o desenho, então ela é escolhida aqui (dono, 31/10/2026) */
@@ -285,12 +286,7 @@ export function EtapaPersonagem({
           <>
             <Escolha titulo="Roupa favorita (nas primeiras páginas)" lista={ROUPAS} valor={personagem.roupa} onEscolher={(v) => muda('roupa', v)} />
             <Escolha titulo="Cor favorita" lista={CORES} valor={personagem.cor} onEscolher={(v) => muda('cor', v)} bolinhas />
-          </>
-        )}
-
-        {atual === 'superpoder' && (
-          <>
-            <p className="letra-miuda">O superpoder muda o que {quem} faz para ajudar o time no intervalo do jogo.</p>
+            <p className="letra-miuda">O superpoder muda o que {quem} faz para ajudar o time na hora mais difícil da história, e vai no certificado.</p>
             <Escolha titulo={`O superpoder de ${quem}`} lista={SUPERPODERES} valor={personagem.superpoder} onEscolher={(v) => muda('superpoder', v as Personagem['superpoder'])} />
           </>
         )}
