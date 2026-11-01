@@ -92,6 +92,15 @@ ok(itens[0].prompt.includes('colored version') && itens.slice(1).every((i) => i.
 ok(JSON.stringify(itensDoLivro('basquete', plano, ['capa', 'p01']).map((i) => i.chave).slice(0, 2)) === '["p02","p03"]', 'refazer pula as que já estão prontas');
 ok(itensDoLivro('futebol', planoDoLivro({ tema: 'futebol', nome: 'Bia', idade: 5, produto: 'presente', personagem: PERSONAGEM_INICIAL })).length === 0, 'o futebol ainda não sai sozinho (falta o modelo A5 dele)');
 ok(chavesDoLivro('basquete', plano).length === 17, 'o livro só monta com as 17 imagens');
+ok(!/bottom 22%/.test(itens[0].prompt) && itens.slice(1).every((i) => /bottom 22%/.test(i.prompt)), 'a capa não pede rodapé branco; as páginas pedem');
+// no bom humor o Pip ri (o texto diz): a trava da 13 deixa o rosto dele vir da OpenAI; nos outros superpoderes, não
+const p13 = (sp: 'bom_humor' | 'coragem') =>
+  itensDoLivro('basquete', planoDoLivro({ tema: 'basquete', nome: 'Bia', idade: 5, produto: 'presente', personagem: { ...PERSONAGEM_INICIAL, superpoder: sp } })).find((i) => i.chave === 'p13')!;
+const [px, py] = [680, 650];
+const cobre = (t: number[]) => px >= t[0] && px <= t[0] + t[2] && py >= t[1] && py <= t[1] + t[3];
+ok(cobre(p13('bom_humor').trava) && !cobre(p13('coragem').trava), 'a trava da 13 cobre o rosto do Pip só no bom humor');
+ok(JSON.stringify(p13('bom_humor').area) === JSON.stringify(p13('coragem').area), 'e o lugar da criança no prompt não muda');
+ok(itens.filter((i) => i.chave !== 'p13').every((i) => JSON.stringify(i.trava) === JSON.stringify(i.area)), 'nas outras páginas, a trava é só a área da criança');
 const folga = areaComFolga([10, 20, 100, 200]);
 ok(folga.left === 0 && folga.top === 0 && folga.width === 170 && folga.height === 280, 'a folga não sai da cena');
 const g = areaComFolga([1000, 1500, 24, 36]);

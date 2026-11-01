@@ -169,6 +169,8 @@ export const PAGINAS: PaginaDaHistoria[] = [
         acao: 'doing a silly bouncing dance, pretending to dribble an invisible ball, tongue out playfully',
         // o texto diz que o Pip riu; na cena base ele está triste (como no futebol com o Bo)
         ajusteDaCena: "change ONLY Pip's face (the rabbit sitting on the bench) to a big, happy laugh with closed eyes; keep his pose, body and everything else exactly the same",
+        // o Pip no banco, na cena base (medido em 01/11/2026): fora da área da criança
+        areaDoAjustePx: [590, 520, 190, 260],
       },
       curiosidade: {
         texto: `${INTERVALO} Então {NOME} contou uma descoberta: "A Zuzu sempre dribla para a esquerda!"`,

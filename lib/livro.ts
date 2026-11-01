@@ -50,8 +50,17 @@ export type ItemDoLivro = {
   prompt: string;
   /** a cena base, em assets/ */
   cena: string;
-  /** onde a criança entra, em pixels da cena */
+  /** onde a criança entra, em pixels da cena (é o que o prompt diz) */
   area: [number, number, number, number];
+  /** o que a trava deixa vir da OpenAI: a área da criança e, se a página pede um ajuste na cena, o lugar do ajuste */
+  trava: [number, number, number, number];
+};
+
+const juntar = (a: [number, number, number, number], b?: [number, number, number, number]): [number, number, number, number] => {
+  if (!b) return a;
+  const x = Math.min(a[0], b[0]);
+  const y = Math.min(a[1], b[1]);
+  return [x, y, Math.max(a[0] + a[2], b[0] + b[2]) - x, Math.max(a[1] + a[3], b[1] + b[3]) - y];
 };
 
 const pct = (v: number, total: number) => Math.round((100 * v) / total);
@@ -75,12 +84,15 @@ export function itensDoLivro(tema: TemaId, plano: PlanoDoLivro, prontas: readonl
   if (!historia || !LIVROS_AUTOMATICOS[tema]) return [];
   const itens: ItemDoLivro[] = [];
   const areaDaCapa = historia.capa.areaPx;
-  if (areaDaCapa) itens.push({ chave: 'capa', cena: historia.capa.cenaBaseColorida, area: areaDaCapa, prompt: comOrdemEArea(plano.capa.promptColorido, areaDaCapa, 'colorida') });
+  if (areaDaCapa) itens.push({ chave: 'capa', cena: historia.capa.cenaBaseColorida, area: areaDaCapa, trava: areaDaCapa, prompt: comOrdemEArea(plano.capa.promptColorido, areaDaCapa, 'colorida') });
   for (const n of plano.presente ?? []) {
     const pg = plano.paginas.find((p) => p.pagina === n);
-    const area = historia.paginas.find((p) => p.pagina === n)?.areaPx;
+    const daHistoria = historia.paginas.find((p) => p.pagina === n);
+    const area = daHistoria?.areaPx;
     if (!pg || !area) continue;
-    itens.push({ chave: chaveDaPagina(n), cena: pg.cenaBase, area, prompt: comOrdemEArea(pg.prompt, area, 'contorno') });
+    // a variante do superpoder que mexe na cena (o Pip rindo) vem gravada no prompt do plano
+    const ajuste = Object.values(daHistoria.porSuperpoder ?? {}).find((v) => v.ajusteDaCena && pg.prompt.includes(v.ajusteDaCena));
+    itens.push({ chave: chaveDaPagina(n), cena: pg.cenaBase, area, trava: juntar(area, ajuste?.areaDoAjustePx), prompt: comOrdemEArea(pg.prompt, area, 'contorno') });
   }
   return itens.filter((i) => !prontas.includes(i.chave));
 }

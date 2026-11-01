@@ -34,7 +34,7 @@ export async function POST(req: Request) {
     if (!format || !['jpeg', 'png', 'webp'].includes(format) || !width || !height) throw new Error(`formato ${format}`);
     // a proporção tem que ser a da cena (2:3); outra proporção é imagem errada, não página
     if (Math.abs(width / height - 2 / 3) > 0.02) throw new Error(`proporção ${width}x${height}`);
-    const pagina = await comCenaOriginal(imagem, lerAsset(item.cena), item.area);
+    const pagina = await comCenaOriginal(imagem, lerAsset(item.cena), item.trava);
     await guardarPagina(pedido, item.chave, pagina);
     return NextResponse.json({ ok: true, guardada: true });
   } catch (e) {

@@ -21,7 +21,16 @@ export type PaginaDaHistoria = {
   /** legenda curta quando a página entra na Lembrancinha */
   lembrancinha: string | null;
   /** só a página 13: texto e ação mudam conforme o superpoder */
-  porSuperpoder?: Record<SuperpoderId, { texto: string; acao: string; ajusteDaCena?: string }>;
+  porSuperpoder?: Record<
+    SuperpoderId,
+    {
+      texto: string;
+      acao: string;
+      ajusteDaCena?: string;
+      /** onde fica o que o ajuste muda (o rosto do Pip), em pixels: a trava do livro automático deixa mudar ali também */
+      areaDoAjustePx?: [number, number, number, number];
+    }
+  >;
 };
 
 export type HistoriaDaTurma = {

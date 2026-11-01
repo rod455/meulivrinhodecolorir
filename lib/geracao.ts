@@ -76,7 +76,9 @@ export function planoDoLivro(entrada: { tema: TemaId; nome: string; idade: numbe
     AREA: CAPA.area,
     CHILD_HEIGHT: altura,
     OUTFIT: ROUPA_DO_TIME,
-  });
+  })
+    // a capa tem arte até embaixo (o título vai em cima): o rodapé branco é só das páginas
+    .replace(' Keep the bottom 22% of the page completely white.', '');
   const querLembrancinha = produto === 'lembrancinha' || produto === 'combo';
   const querPresente = produto === 'presente' || produto === 'combo';
   const superpoder = SUPERPODERES.find((s) => s.id === personagem.superpoder)!;
