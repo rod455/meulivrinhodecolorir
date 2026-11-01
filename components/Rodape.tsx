@@ -30,7 +30,7 @@ export function Rodape() {
             )}
             {SITE.email && (
               <li>
-                <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
+                Contato: <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
               </li>
             )}
             <li>

@@ -177,6 +177,7 @@ http
       if (u.pathname === '/__estado') return responder(r, 200, { usuarios: [...usuarios.values()].map((x) => x.email), pedidos, pedidosTurma, fotos: [...fotos.values()], consentimentos, fichas, historias, trabalhosRecebidos, trabalhosDeHistoria, arquivos: [...arquivos.keys()] });
       if (u.pathname === '/__n8n-falha') { n8nFalha = u.searchParams.get('ligar') === '1'; return responder(r, 200, { n8nFalha }); }
       if (u.pathname === '/n8n-historia') { n8nHistoria(json()).catch((e) => console.error('n8n falso', e)); return responder(r, 200, { recebido: true }); }
+      if (u.pathname === '/n8n-contato') { appendFileSync(`${registro}.contato`, `${corpo.toString()}\n`); return responder(r, 200, { recebido: true }); }
       if (u.pathname === '/n8n-livro') { n8nLivro(json()).catch((e) => console.error('n8n falso (livro)', e)); return responder(r, 200, { recebido: true }); }
       if (u.pathname === '/__n8n-livro-falha') { livroFalhaNaPagina = u.searchParams.get('pagina'); return responder(r, 200, { livroFalhaNaPagina }); }
       if (u.pathname === '/__livro') return responder(r, 200, livrosDoN8n);

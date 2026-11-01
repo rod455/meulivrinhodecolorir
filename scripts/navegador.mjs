@@ -126,6 +126,20 @@ assert.equal(await p.locator('#fazer-parte a.botao[href*="nome=Jo%C3%A3o+Pedro"]
 assert.equal(await p.locator('.folha-capa-titulo').textContent(), 'João Pedro entra em campo!', 'o livro de exemplo leva o nome');
 await p.getByRole('button', { name: 'Próxima página' }).click();
 await p.locator('.folha-texto', { hasText: 'Logo atrás dela vinha João Pedro!' }).waitFor();
+// o "?" flutuante (dono, 01/11/2026): o e-mail é obrigatório e a mensagem chega com o responder certo
+await p.getByRole('button', { name: 'Fale com a gente' }).click();
+await p.fill('#ajuda-mensagem', 'Vocês fazem livro de dinossauro?');
+await p.getByRole('button', { name: 'Enviar mensagem' }).click();
+await p.locator('#ajuda-erro-email').waitFor();
+assert.ok(!existsSync(`${REGISTRO}.contato`), 'sem e-mail, nada sai para o n8n');
+await p.fill('#ajuda-email', 'carla@teste.com');
+await p.getByRole('button', { name: 'Enviar mensagem' }).click();
+await p.getByText('Recebemos!').waitFor();
+const contato = JSON.parse(readFileSync(`${REGISTRO}.contato`, 'utf8').trim().split('\n').at(-1));
+assert.equal(contato.responderPara, 'carla@teste.com', 'o responder vai para quem escreveu');
+assert.ok(contato.html.includes('dinossauro'), 'a mensagem vai no e-mail');
+await p.getByRole('button', { name: 'Fechar' }).click();
+assert.equal(await p.locator('footer').getByText('contato@meulivrinhodecolorir.com.br').count(), 1, 'o rodapé mostra o e-mail de contato');
 // sem spoiler (dono, 01/11/2026): o exemplo para no começo da história e termina numa folha de "continua"
 await p.getByRole('button', { name: 'Próxima página' }).click();
 await p.getByRole('button', { name: 'Próxima página' }).click();

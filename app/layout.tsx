@@ -1,3 +1,4 @@
+import { BotaoAjuda } from '@/components/BotaoAjuda';
 import type { Metadata, Viewport } from 'next';
 import { Baloo_2, Nunito_Sans } from 'next/font/google';
 import Script from 'next/script';
@@ -48,6 +49,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <GuardaOrigem />
         {children}
+        <BotaoAjuda />
         {GA_ID && (
           <>
             <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />

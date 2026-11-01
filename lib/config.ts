@@ -6,7 +6,8 @@ export const SITE = {
   nome: 'Meu Livrinho de Colorir',
   /** só dígitos, com 55 e DDD */
   whatsapp: process.env.NEXT_PUBLIC_WHATSAPP ?? '',
-  email: process.env.NEXT_PUBLIC_EMAIL_CONTATO ?? '',
+  // o e-mail de contato do rodapé (dono, 01/11/2026); a variável na Vercel ainda pode trocar
+  email: process.env.NEXT_PUBLIC_EMAIL_CONTATO || 'contato@meulivrinhodecolorir.com.br',
   cnpj: process.env.NEXT_PUBLIC_CNPJ ?? '',
   razaoSocial: process.env.NEXT_PUBLIC_RAZAO_SOCIAL ?? '',
 };
