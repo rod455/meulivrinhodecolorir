@@ -119,8 +119,9 @@ export async function linkAssinado(bucket: string, caminho: string, segundos: nu
 
 /** Avisa o fluxo "Meu Livrinho | livro" do n8n; o corpo leva só id e bilhete. */
 export async function avisarN8nDoLivro(corpo: { tipo: 'gerar' | 'avisar'; pedido_id: string; token: string }): Promise<boolean> {
-  const destino = process.env.N8N_WEBHOOK_LIVRO;
-  if (!destino) return false;
+  // o endereço não é segredo: o fluxo só aceita id e bilhete, e o site recusa o resto (os fluxos
+  // do n8n também fixam o endereço do site). A variável existe para os testes apontarem ao falso.
+  const destino = process.env.N8N_WEBHOOK_LIVRO || 'https://n8n.vocaboost.com.br/webhook/meu-livrinho-livro';
   const r = await fetch(destino, { method: 'POST', headers: json, body: JSON.stringify(corpo), signal: AbortSignal.timeout(15000) }).catch(() => null);
   return Boolean(r?.ok);
 }
