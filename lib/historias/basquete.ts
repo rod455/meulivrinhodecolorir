@@ -15,7 +15,8 @@ export const PAGINA_DA_CAMISA = 10;
 export const ROUPA_DO_TIME_BASQUETE =
   'the Little Paws basketball uniform: sleeveless tank-top jersey with the outlined paw emblem, basketball shorts, ankle socks and high-top sneakers, plus the same glasses and hair accessories from the sheet';
 
-const base = (n: number) => `temas/basquete/base/p${String(n).padStart(2, '0')}.png`;
+// as cenas base moram em assets/temas/basquete (guia do dono, 01/11/2026), fora do que o site publica
+const base = (n: number) => `temas/basquete/p${String(n).padStart(2, '0')}.jpg`;
 
 const INTERVALO = 'No intervalo, o time estava cabisbaixo.';
 
@@ -23,6 +24,7 @@ export const PAGINAS: PaginaDaHistoria[] = [
   {
     pagina: 1,
     cenaBase: base(1),
+    areaPx: [778, 230, 215, 415],
     texto: 'O Torneio de Basquete da Praça ia começar! Pip já sonhava com a cesta da vitória. (Psiu… quem está lá na arquibancada?)',
     acao: 'sitting on the top row of the bleachers, peeking over the railing with a curious smile, holding their own basketball on the lap',
     area: 'the right side, top row of the bleachers',
@@ -32,6 +34,7 @@ export const PAGINAS: PaginaDaHistoria[] = [
   {
     pagina: 2,
     cenaBase: base(2),
+    areaPx: [15, 246, 184, 323],
     texto: 'No treino, Pip quis arremessar todas as bolas. E errou quase todas! (Da arquibancada, alguém ria baixinho…)',
     acao: 'sitting on the bleachers, covering a giggle with one hand, eyes following the ball',
     area: 'the left background, on the bleachers',
@@ -41,6 +44,7 @@ export const PAGINAS: PaginaDaHistoria[] = [
   {
     pagina: 3,
     cenaBase: base(3),
+    areaPx: [36, 430, 297, 691],
     texto: 'Uma bola quicou para fora da quadra… e quem devolveu foi {NOME}, com um passe certeiro!',
     acao: 'having just thrown a two-handed chest pass, arms stretched forward, proud little smile',
     area: 'the left third of the page',
@@ -50,6 +54,7 @@ export const PAGINAS: PaginaDaHistoria[] = [
   {
     pagina: 4,
     cenaBase: base(4),
+    areaPx: [717, 430, 276, 707],
     texto: '"Joga com a gente?", perguntou Luna. {NOME} topou antes de a Luna terminar a pergunta.',
     acao: 'stepping forward with both hands out to take the ball, big excited smile',
     area: 'the right side, facing Luna',
@@ -59,6 +64,7 @@ export const PAGINAS: PaginaDaHistoria[] = [
   {
     pagina: 5,
     cenaBase: base(5),
+    areaPx: [26, 768, 276, 415],
     texto: 'Bo pegava os rebotes, Luna pensava nas jogadas, Dot reparava em tudo e Milo fazia piada. E o Pip só queria a bola.',
     acao: 'watching Pip with a gentle, amused smile, hands on knees',
     area: 'the lower left foreground',
@@ -68,6 +74,7 @@ export const PAGINAS: PaginaDaHistoria[] = [
   {
     pagina: 6,
     cenaBase: base(6),
+    areaPx: [707, 461, 287, 676],
     texto: 'No jogo-treino, {NOME} ficou livre, livre, livre. Mas o Pip arremessou sozinho de novo.',
     acao: 'standing completely open near the hoop, both arms raised and waving to ask for the ball',
     area: 'the right side, near the hoop',
@@ -77,6 +84,7 @@ export const PAGINAS: PaginaDaHistoria[] = [
   {
     pagina: 7,
     cenaBase: base(7),
+    areaPx: [26, 676, 276, 476],
     texto: 'A bola bateu no aro, tóin!, quicou na cabeça do Bo e caiu no colo do Milo. Todo mundo riu, menos o Pip.',
     acao: 'laughing with both hands on the belly',
     area: 'the left foreground',
@@ -86,6 +94,7 @@ export const PAGINAS: PaginaDaHistoria[] = [
   {
     pagina: 8,
     cenaBase: base(8),
+    areaPx: [737, 430, 256, 707],
     texto: '{NOME} ensinou um truque: "Quica, olha e passa!" Luna desenhou na prancheta um lugar para cada um do time.',
     acao: 'dribbling the basketball with one hand while looking up at the team, the other hand pointing forward as if passing',
     area: 'the right side, next to the ball',
@@ -95,6 +104,7 @@ export const PAGINAS: PaginaDaHistoria[] = [
   {
     pagina: 9,
     cenaBase: base(9),
+    areaPx: [696, 415, 297, 737],
     texto: 'No fim do treino, Bo trouxe uma surpresa: uma regata com a patinha do time, do tamanho certinho de {NOME}.',
     acao: 'holding up a Little Paws basketball tank-top jersey with the outlined paw emblem in both hands, delighted, eyes sparkling',
     area: 'the right side, close to Bo',
@@ -105,6 +115,7 @@ export const PAGINAS: PaginaDaHistoria[] = [
   {
     pagina: 10,
     cenaBase: base(10),
+    areaPx: [379, 553, 256, 430],
     texto: 'Chegou o dia do torneio! A quadra estava cheia de bandeirinhas e de torcida, e a Vovó Ursa acenava da primeira fila.',
     acao: 'walking proudly with the team, waving to the crowd',
     area: 'the center of the group, between Pip and Luna',
@@ -114,6 +125,7 @@ export const PAGINAS: PaginaDaHistoria[] = [
   {
     pagina: 11,
     cenaBase: base(11),
+    areaPx: [20, 645, 246, 492],
     texto: 'Do outro lado estavam Zuzu e os Stripes, rapidinhos que só. Antes de começar, todo mundo se cumprimentou.',
     acao: 'giving a friendly high five to the otter of the other team',
     area: 'the left foreground',
@@ -123,6 +135,7 @@ export const PAGINAS: PaginaDaHistoria[] = [
   {
     pagina: 12,
     cenaBase: base(12),
+    areaPx: [686, 614, 297, 522],
     texto: 'Zuzu fazia cesta, cesta e mais cesta. No intervalo, os Stripes estavam na frente.',
     acao: 'watching the ball go in, a little worried but determined, fists closed',
     area: 'the right middle ground',
@@ -132,6 +145,7 @@ export const PAGINAS: PaginaDaHistoria[] = [
   {
     pagina: 13,
     cenaBase: base(13),
+    areaPx: [748, 492, 256, 676],
     texto: INTERVALO,
     acao: '',
     area: 'the right end of the bench / just in front of it',
@@ -165,6 +179,7 @@ export const PAGINAS: PaginaDaHistoria[] = [
   {
     pagina: 14,
     cenaBase: base(14),
+    areaPx: [737, 415, 256, 722],
     texto: 'No último minuto, o Pip estava com a bola. Ele olhou para o aro… e passou para {NOME}!',
     acao: 'catching the basketball with both hands, surprised and happy',
     area: 'the right side, near the hoop',
@@ -174,6 +189,7 @@ export const PAGINAS: PaginaDaHistoria[] = [
   {
     pagina: 15,
     cenaBase: base(15),
+    areaPx: [41, 338, 307, 799],
     texto: '{NOME} quicou, olhou e arremessou bem alto, com o time inteiro torcendo.',
     // a cena base não tem bola: a única bola é a que sai da mão da criança (checagem 8 do tema)
     acao: 'jumping and releasing a high shot toward the hoop at the top right, the basketball just leaving the fingertips with motion lines (the only ball in the scene, drawn with its curved seam lines only)',
@@ -184,6 +200,7 @@ export const PAGINAS: PaginaDaHistoria[] = [
   {
     pagina: 16,
     cenaBase: base(16),
+    areaPx: [410, 568, 256, 568],
     texto: 'Chuá! O time venceu por um ponto, e o Pip abraçou {NOME}: "Jogar em time é bem melhor!"',
     acao: 'jumping with both arms up in the middle of the team, being hugged by Pip, huge smile',
     area: 'the center of the circle',
@@ -193,14 +210,16 @@ export const PAGINAS: PaginaDaHistoria[] = [
 ];
 
 export const CAPA = {
-  cenaBase: 'temas/basquete/base/capa-contorno.png',
-  cenaBaseColorida: 'temas/basquete/base/capa-colorida.png',
+  // o Presente usa só a capa colorida; o guia não tem a de contorno
+  cenaBase: 'temas/basquete/capa-colorida.jpg',
+  cenaBaseColorida: 'temas/basquete/capa-colorida.jpg',
+  areaPx: [399, 599, 205, 660] as [number, number, number, number],
   acao: 'standing proudly in front center, spinning the basketball on one finger, big confident smile',
   area: 'front and center, standing right behind the ball',
 };
 
 export const CERTIFICADO = {
-  cenaBase: 'temas/basquete/base/certificado.png',
+  cenaBase: 'temas/basquete/certificado.jpg',
   texto: 'Certificado oficial: {NOME} faz parte do Time Little Paws de basquete! Superpoder: {SUPERPODER_NOME}.',
 };
 

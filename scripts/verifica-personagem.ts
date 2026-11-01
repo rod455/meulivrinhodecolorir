@@ -67,7 +67,7 @@ for (const frase of frasesDaCrianca) {
   ok(!GENERO.test(frase) || GENERO_REVISADO.has(frase), `${tema}: palavra com gênero perto da criança: "${frase}"`);
   ok(!PRONOME.test(frase) || TURMA.test(frase) || PRONOME_REVISADO.has(frase), `${tema}: pronome que só pode ser da criança: "${frase}"`);
 }
-ok(PAGINAS.every((p) => p.cenaBase.startsWith(`temas/${tema}/base/`)) && [historia!.capa.cenaBase, historia!.capa.cenaBaseColorida, historia!.certificado.cenaBase].every((c) => c.startsWith(`temas/${tema}/base/`)), `${tema}: as cenas base são da pasta do próprio tema`);
+ok(PAGINAS.every((p) => p.cenaBase.startsWith(`temas/${tema}/`)) && [historia!.capa.cenaBase, historia!.capa.cenaBaseColorida, historia!.certificado.cenaBase].every((c) => c.startsWith(`temas/${tema}/`)), `${tema}: as cenas base são da pasta do próprio tema`);
 }
 // todo tema da turma que a família pode escolher tem história; e todo livro com o botão "colocar meu filho" também
 for (const t of LISTA_DE_TEMAS.filter((t) => t.comPersonagem && !t.sobMedida)) ok(Boolean(HISTORIAS_DA_TURMA[t.id]), `tema ${t.id} escolhível sem história com personagem`);

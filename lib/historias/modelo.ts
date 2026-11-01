@@ -11,6 +11,8 @@ export type PaginaDaHistoria = {
   pagina: number;
   /** cena base aprovada, sem a criança; gerada uma vez só na produção do tema */
   cenaBase: string;
+  /** onde a criança entra, em pixels da cena base (x, y, largura, altura), do guia de inserção do dono */
+  areaPx?: [number, number, number, number];
   /** texto do rodapé, aplicado pelo script; {NOME} vira o nome */
   texto: string;
   acao: string;
@@ -29,7 +31,7 @@ export type HistoriaDaTurma = {
   /** a partir desta página a criança veste o uniforme do time */
   paginaDaCamisa: number;
   paginas: PaginaDaHistoria[];
-  capa: { cenaBase: string; cenaBaseColorida: string; acao: string; area: string };
+  capa: { cenaBase: string; cenaBaseColorida: string; acao: string; area: string; areaPx?: [number, number, number, number] };
   /** a arte do certificado não muda entre pedidos; só o texto */
   certificado: { cenaBase: string; texto: string };
   /** as nove páginas da Lembrancinha, na ordem */
