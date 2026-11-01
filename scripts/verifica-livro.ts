@@ -8,9 +8,9 @@ import { existsSync, readFileSync } from 'node:fs';
 import fontkit from '@pdf-lib/fontkit';
 import { PDFDocument } from 'pdf-lib';
 import { HISTORIAS_DA_TURMA, planoDoLivro } from '../lib/geracao.ts';
-import { areaComFolga, chavesDoLivro, emailDeFalha, emailDeRevisao, emailParaFamilia, itensDoLivro } from '../lib/livro.ts';
+import { areaComFolga, chaveDaPagina, chavesDoLivro, emailDeFalha, emailDeRevisao, emailParaFamilia, entradaDoLivro, itensDoLivro, LIVROS_AUTOMATICOS } from '../lib/livro.ts';
 import { PERSONAGEM_INICIAL } from '../lib/personagem.ts';
-import { LAYOUT_A5, montarLivroA5, PAGINA_A5, quebrarLinhas } from '../lib/livro-pdf.ts';
+import { montarLivroA5, PAGINA_A5, quebrarLinhas } from '../lib/livro-pdf.ts';
 
 let casos = 0;
 const ok = (cond: boolean, msg: string) => {
@@ -31,55 +31,64 @@ function tamanhoDoJpeg(b: Buffer): [number, number] | null {
   return null;
 }
 
-// 1. Os arquivos do basquete: cada cena que o plano cita existe, é JPEG 1024 x 1536 e a área da criança cabe nela.
-const H = HISTORIAS_DA_TURMA.basquete!;
-for (const c of [...H.paginas.map((p) => p.cenaBase), H.capa.cenaBaseColorida, H.certificado.cenaBase]) {
-  ok(existsSync(A + c), `basquete: falta a cena ${c}`);
-  const t = tamanhoDoJpeg(ler(c));
-  ok(t?.[0] === 1024 && t?.[1] === 1536, `basquete: ${c} não é 1024 x 1536 (veio ${t})`);
+// 1. Os arquivos de cada tema: cada cena que o plano cita existe, é JPEG 1024 x 1536, a área da
+// criança cabe nela, e o modelo (fontes e páginas fixas) está em assets/.
+for (const tema of ['basquete', 'futebol'] as const) {
+  const H = HISTORIAS_DA_TURMA[tema]!;
+  const L = LIVROS_AUTOMATICOS[tema];
+  ok(Boolean(L), `${tema}: tem livro automático`);
+  for (const c of [...H.paginas.map((p) => p.cenaBase), H.capa.cenaBaseColorida, H.certificado.cenaBase]) {
+    ok(existsSync(A + c), `${tema}: falta a cena ${c}`);
+    const t = tamanhoDoJpeg(ler(c));
+    ok(t?.[0] === 1024 && t?.[1] === 1536, `${tema}: ${c} não é 1024 x 1536 (veio ${t})`);
+  }
+  for (const [nome, area] of [...H.paginas.map((p) => [`página ${p.pagina}`, p.areaPx] as const), ['capa', H.capa.areaPx] as const]) {
+    ok(Boolean(area) && area![0] >= 0 && area![1] >= 0 && area![0] + area![2] <= 1024 && area![1] + area![3] <= 1536 && area![2] > 100 && area![3] > 200, `${tema}, ${nome}: área da criança fora da cena`);
+  }
+  for (const f of [L!.modelo.paginasFixas, L!.modelo.fontes.titulo, L!.modelo.fontes.texto]) ok(existsSync(A + f), `${tema}: falta ${f}`);
+  ok((await PDFDocument.load(ler(L!.modelo.paginasFixas))).getPageCount() === 2, `${tema}: o modelo traz o fundo da dedicatória e a contracapa`);
 }
-for (const [nome, area] of [...H.paginas.map((p) => [`página ${p.pagina}`, p.areaPx] as const), ['capa', H.capa.areaPx] as const]) {
-  ok(Boolean(area) && area![0] >= 0 && area![1] >= 0 && area![0] + area![2] <= 1024 && area![1] + area![3] <= 1536 && area![2] > 100 && area![3] > 200, `basquete, ${nome}: área da criança fora da cena`);
-}
-for (const f of ['temas/basquete/contracapa.pdf', 'livro/fontes/Baloo2-Bold.woff', 'livro/fontes/NunitoSans-Regular.woff']) ok(existsSync(A + f), `falta ${f}`);
 
-// 2. A quebra de linha igual à do modelo do dono (conferida contra o PDF dele em 01/11/2026).
-const doc = await PDFDocument.create();
-doc.registerFontkit(fontkit);
-const nunito = await doc.embedFont(ler('livro/fontes/NunitoSans-Regular.woff'));
-const T = LAYOUT_A5.historia.texto;
-const quebra = (t: string) => quebrarLinhas(t, nunito, T.tamanho, T.largura);
-const p5 = quebra(H.paginas[4].texto);
-ok(p5.length === 3 && p5[1].endsWith('queria a') && p5[2] === 'bola.', `página 5 quebra como no modelo: ${JSON.stringify(p5)}`);
-const p1 = quebra(H.paginas[0].texto);
-ok(p1.at(-1) === '(Psiu… quem está lá na arquibancada?)', `o parêntese da página 1 começa linha nova: ${JSON.stringify(p1)}`);
-const C = LAYOUT_A5.certificado.texto;
-const cert = quebrarLinhas('{NOME} faz parte do Time Little Paws de basquete!', nunito, C.tamanho, C.largura);
-ok(cert.length === 2 && cert[1].startsWith('Little Paws'), `no certificado, "Little Paws" não se separa: ${JSON.stringify(cert)}`);
+// 2. A quebra de linha igual à dos modelos do dono (conferida contra os PDFs dele em 01/11/2026).
+const fonteDo = async (tema: 'basquete' | 'futebol') => {
+  const d = await PDFDocument.create();
+  d.registerFontkit(fontkit);
+  return d.embedFont(ler(LIVROS_AUTOMATICOS[tema]!.modelo.fontes.texto));
+};
+const MB = LIVROS_AUTOMATICOS.basquete!.modelo;
+const nunito = await fonteDo('basquete');
+const T = MB.historia.texto;
+const quebra = (t: string) => quebrarLinhas(t, nunito, T.tamanho, T.largura, T.parenteseNovaLinha);
+const HB = HISTORIAS_DA_TURMA.basquete!;
+const p5 = quebra(HB.paginas[4].texto);
+ok(p5.length === 3 && p5[1].endsWith('queria a') && p5[2] === 'bola.', `basquete, página 5 quebra como no modelo: ${JSON.stringify(p5)}`);
+ok(quebra(HB.paginas[0].texto).at(-1) === '(Psiu… quem está lá na arquibancada?)', 'basquete: o parêntese da página 1 começa linha nova');
+const blocoDoCert = MB.certificado.blocos[1];
+const cert = quebrarLinhas(blocoDoCert.texto.replace('{NOME}', '{NOME}'), nunito, blocoDoCert.tamanho, blocoDoCert.largura!, false);
+ok(cert.length === 2 && cert[1].startsWith('Little\u00a0Paws'), `basquete: no certificado, "Little Paws" não se separa: ${JSON.stringify(cert)}`);
 ok(quebra('palavra '.repeat(80)).every((l) => nunito.widthOfTextAtSize(l, T.tamanho) <= T.largura * 1.005), 'nenhuma linha passa da largura');
+const fredoka = await fonteDo('futebol');
+const TF = LIVROS_AUTOMATICOS.futebol!.modelo.historia.texto;
+const f1 = quebrarLinhas(HISTORIAS_DA_TURMA.futebol!.paginas[0].texto, fredoka, TF.tamanho, TF.largura, TF.parenteseNovaLinha);
+ok(f1.length === 3 && f1[1].endsWith('(Psiu… tem alguém') && f1[2] === 'atrás da árvore!)', `futebol: no modelo o parêntese segue na mesma linha: ${JSON.stringify(f1)}`);
 
-// 3. O livro inteiro: 20 páginas A5, nome com acento e nome comprido sem quebrar a montagem.
-async function livro(nome: string) {
-  return montarLivroA5({
-    nome,
-    restoDoTitulo: 'entra na quadra!',
-    subtitulo: H.subtitulo,
-    autores: 'Rodrigo Moraes & Luana David',
-    quemPresenteia: 'sua família',
-    dedicatoria: 'Que cada passe seja uma amizade e cada tentativa, uma nova aventura!',
-    capa: ler(H.capa.cenaBaseColorida),
-    paginas: H.paginas.map((p) => ({ pagina: p.pagina, imagem: ler(p.cenaBase), texto: (p.porSuperpoder?.coragem.texto ?? p.texto).replaceAll('{NOME}', nome) })),
-    certificado: { arte: ler(H.certificado.cenaBase), linhas: `${nome} faz parte do Time Little Paws de basquete!`, superpoder: 'Coragem' },
-    contracapa: ler('temas/basquete/contracapa.pdf'),
-    fontes: { titulo: ler('livro/fontes/Baloo2-Bold.woff'), texto: ler('livro/fontes/NunitoSans-Regular.woff') },
-  });
+// 3. O livro inteiro de cada tema: 20 páginas A5, completo (capa, dedicatória, 16, certificado,
+// contracapa), com nome com acento e nome comprido.
+for (const tema of ['basquete', 'futebol'] as const) {
+  const H = HISTORIAS_DA_TURMA[tema]!;
+  const livro = async (nome: string) => {
+    const plano = planoDoLivro({ tema, nome, idade: 6, produto: 'presente', personagem: PERSONAGEM_INICIAL });
+    const cena = new Map([['capa', ler(H.capa.cenaBaseColorida)], ...H.paginas.map((p) => [chaveDaPagina(p.pagina), ler(p.cenaBase)] as [string, Buffer])]);
+    return montarLivroA5(entradaDoLivro(tema, plano, { nome, dedicatoria: null, superpoder: 'Coragem' }, { imagem: (c) => cena.get(c)!, asset: (c) => ler(c) }));
+  };
+  const bytes = await livro('Ângela Conceição');
+  const pdf = await PDFDocument.load(bytes);
+  ok(pdf.getPageCount() === 20, `${tema}: o Presente tem 20 páginas`);
+  ok(pdf.getPages().every((p) => Math.abs(p.getWidth() - PAGINA_A5.largura) < 0.1 && Math.abs(p.getHeight() - PAGINA_A5.altura) < 0.1), `${tema}: todas as páginas em A5`);
+  ok(bytes.length < 15_000_000, `${tema}: o PDF cabe num e-mail e no bucket (${(bytes.length / 1e6).toFixed(1)} MB)`);
+  ok(pdf.getTitle() === H.titulo.replace('{NOME}', 'Ângela Conceição'), `${tema}: o título do arquivo é o do livro`);
+  ok((await PDFDocument.load(await livro('Maria Valentina Eduarda'))).getPageCount() === 20, `${tema}: nome comprido também monta`);
 }
-const bytes = await livro('Ângela Conceição');
-const pdf = await PDFDocument.load(bytes);
-ok(pdf.getPageCount() === 20, 'o Presente tem 20 páginas');
-ok(pdf.getPages().every((p) => Math.abs(p.getWidth() - PAGINA_A5.largura) < 0.1 && Math.abs(p.getHeight() - PAGINA_A5.altura) < 0.1), 'todas as páginas em A5');
-ok(bytes.length < 15_000_000, `o PDF cabe num e-mail e no bucket (${(bytes.length / 1e6).toFixed(1)} MB)`);
-ok((await PDFDocument.load(await livro('Maria Valentina Eduarda'))).getPageCount() === 20, 'nome comprido também monta');
 
 // 4. O que a OpenAI recebe: capa + 16 páginas, a ordem das imagens dita, a área em %, e nunca o nome.
 const plano = planoDoLivro({ tema: 'basquete', nome: 'Maria Eduarda', idade: 6, produto: 'presente', personagem: PERSONAGEM_INICIAL });
@@ -90,7 +99,7 @@ ok(itens.every((i) => /roughly from \d+% to \d+% of the width/.test(i.prompt)), 
 ok(itens.every((i) => !i.prompt.includes('Maria') && !i.prompt.includes('Eduarda') && !/[{}]/.test(i.prompt)), 'o nome nunca vai para o prompt e nada de variável sobrando');
 ok(itens[0].prompt.includes('colored version') && itens.slice(1).every((i) => i.prompt.includes('line-art version')), 'a capa usa a ficha colorida; as páginas, a de contorno');
 ok(JSON.stringify(itensDoLivro('basquete', plano, ['capa', 'p01']).map((i) => i.chave).slice(0, 2)) === '["p02","p03"]', 'refazer pula as que já estão prontas');
-ok(itensDoLivro('futebol', planoDoLivro({ tema: 'futebol', nome: 'Bia', idade: 5, produto: 'presente', personagem: PERSONAGEM_INICIAL })).length === 0, 'o futebol ainda não sai sozinho (falta o modelo A5 dele)');
+ok(itensDoLivro('futebol', planoDoLivro({ tema: 'futebol', nome: 'Bia', idade: 5, produto: 'presente', personagem: PERSONAGEM_INICIAL })).length === 17, 'o futebol também sai sozinho: capa e 16 páginas');
 ok(chavesDoLivro('basquete', plano).length === 17, 'o livro só monta com as 17 imagens');
 ok(!/bottom 22%/.test(itens[0].prompt) && itens.slice(1).every((i) => /bottom 22%/.test(i.prompt)), 'a capa não pede rodapé branco; as páginas pedem');
 // no bom humor o Pip ri (o texto diz): a trava da 13 deixa o rosto dele vir da OpenAI; nos outros superpoderes, não

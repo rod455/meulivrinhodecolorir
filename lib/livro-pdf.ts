@@ -1,7 +1,8 @@
 // Monta o PDF do Livrinho Presente (A5, 20 páginas) a partir das imagens já com a
-// criança. As medidas vêm do modelo do dono (basquete-presente-base-A5.pdf, gerado
-// pelo script Python dele com ReportLab): mesma página, mesmas caixas, mesmas fontes
-// (Baloo 2 nos títulos, Nunito Sans no texto), mesmo texto alinhado ao centro.
+// criança. Cada tema traz o seu modelo (lib/modelos-a5.ts), com as medidas tiradas do
+// PDF do dono (gerado pelo script Python dele com ReportLab): as caixas das artes, os
+// blocos de texto e as duas páginas que não mudam de desenho (o fundo da dedicatória e a
+// contracapa), copiadas do próprio PDF dele sem as marcações do guia.
 // Puro: recebe os bytes e devolve os bytes; quem lê arquivos e o banco é o servidor.
 // Conferido por `npm run conferir:livro`.
 
@@ -11,71 +12,89 @@ import { PDFDocument, rgb, type PDFFont, type PDFPage } from 'pdf-lib';
 /** A5 em pontos */
 export const PAGINA_A5 = { largura: 419.528, altura: 595.276 } as const;
 
-type Caixa = { x: number; y: number; largura: number; altura: number };
+export type Caixa = { x: number; y: number; largura: number; altura: number };
+type Cor = [number, number, number];
 
-/** Medidas do modelo A5, em pontos, com a origem embaixo à esquerda (como no PDF). */
-export const LAYOUT_A5 = {
-  capa: {
-    arte: { x: 39.118, y: 0, largura: 341.291, altura: 511.937 },
-    titulo: { tamanho: 30, entrelinha: 34.5, primeiraBase: 526.58 },
-    subtitulo: { tamanho: 11, base: 459.27 },
-    autores: { tamanho: 8, base: 12.83 },
-  },
-  dedicatoria: {
-    varal: { y: 523.843, x0: 50.343, x1: 369.184, primeiraBandeira: 71.32, passo: 45.309, largura: 20.976, ponta: 504.964 },
-    para: { tamanho: 18, entrelinha: 24.84, primeiraBase: 398.69, largura: 310 },
-    texto: { tamanho: 14, entrelinha: 19.32, primeiraBase: 277.69, largura: 285 },
-  },
+/**
+ * Um parágrafo centralizado, como o Paragraph do ReportLab: a primeira linha fica na
+ * `base` e as outras descem a `entrelinha`. "\n" força linha nova. Os marcadores
+ * ({NOME}, {QUEM_PRESENTEIA}, {DEDICATORIA}, {SUPERPODER_NOME}) são trocados antes.
+ */
+export type Bloco = {
+  texto: string;
+  fonte: 'titulo' | 'texto';
+  tamanho: number;
+  entrelinha?: number;
+  /** a base da primeira linha; ou, com `abaixoDoAnterior`, a distância da última linha do bloco anterior */
+  base: number;
+  abaixoDoAnterior?: boolean;
+  /** largura para quebrar; sem ela, uma linha só */
+  largura?: number;
+  /** centro horizontal; sem ele, o centro da página */
+  centro?: number;
+  cor?: Cor;
+  /** largura máxima de uma linha só: diminui a letra se não couber (o nome na capa e no certificado) */
+  encolher?: number;
+};
+
+export type ModeloA5 = {
+  fontes: { titulo: string; texto: string };
+  /** PDF com duas páginas tiradas do modelo do dono: [0] o fundo da dedicatória, [1] a contracapa */
+  paginasFixas: string;
+  capa: { arte: Caixa; blocos: Bloco[] };
+  dedicatoria: { blocos: Bloco[] };
   historia: {
-    arte: { x: 27.213, y: 47.622, largura: 365.102, altura: 547.654 },
-    texto: { tamanho: 14, entrelinha: 18.62, primeiraBase: 109.22, x: 37.757, largura: 344.01 },
-    numero: { tamanho: 8, base: 20.835 },
-  },
-  certificado: {
-    arte: { x: 11.339, y: 0, largura: 396.85, altura: 595.276 },
-    titulo: { tamanho: 16, base: 469.15 },
-    texto: { tamanho: 13, entrelinha: 17.94, primeiraBase: 433.46, largura: 201.37 },
-    superpoder: { tamanho: 10, distancia: 17.76 },
-    desenhe: { tamanho: 10, base: 305.5 },
-  },
-} as const;
-
-const AZUL_DA_CAPA = rgb(0.098039, 0.211765, 0.294118);
-const PRETO = rgb(0, 0, 0);
+    arte: Caixa;
+    artePorPagina: Record<number, Caixa>;
+    texto: {
+      fonte: 'titulo' | 'texto';
+      tamanho: number;
+      entrelinha: number;
+      primeiraBase: number;
+      x: number;
+      largura: number;
+      cor?: Cor;
+      /** no basquete o parêntese da brincadeira de achar começa linha nova; no futebol, não */
+      parenteseNovaLinha: boolean;
+    };
+    numero: { fonte: 'titulo' | 'texto'; tamanho: number; base: number; doisDigitos: boolean };
+  };
+  certificado: { arte: Caixa; blocos: Bloco[] };
+};
 
 export type EntradaDoLivro = {
-  /** já com o nome: "Laura entra na quadra!"; a primeira linha é o nome, como no modelo */
-  nome: string;
-  restoDoTitulo: string;
-  subtitulo: string;
+  modelo: ModeloA5;
+  /** os valores dos marcadores: NOME, QUEM_PRESENTEIA, DEDICATORIA, SUPERPODER_NOME */
+  valores: Record<string, string>;
+  titulo: string;
   autores: string;
-  /** "sua família" no modelo aprovado */
-  quemPresenteia: string;
-  /** a da família, ou a frase do tema quando ela não escreveu */
-  dedicatoria: string;
   capa: Uint8Array;
-  paginas: { pagina: number; imagem: Uint8Array; texto: string; arte?: Caixa }[];
-  certificado: { arte: Uint8Array; linhas: string; superpoder: string };
-  /** a contracapa do modelo, copiada inteira (não muda entre pedidos) */
-  contracapa: Uint8Array;
+  paginas: { pagina: number; imagem: Uint8Array; texto: string }[];
+  certificado: Uint8Array;
+  paginasFixas: Uint8Array;
   fontes: { titulo: Uint8Array; texto: Uint8Array };
 };
 
+const PRETO: Cor = [0, 0, 0];
+
 /**
  * Quebra o texto em linhas que cabem na largura, como o Paragraph do ReportLab (por palavras).
- * O parêntese da brincadeira de achar ("(Psiu… quem está lá?)") começa linha nova, como no modelo.
+ * "\n" força linha nova; o parêntese da brincadeira de achar ("(Psiu… quem está lá?)") também,
+ * como no modelo do basquete. O espaço que não quebra ("Little Paws") mantém as palavras juntas.
  */
-export function quebrarLinhas(texto: string, fonte: PDFFont, tamanho: number, largura: number): string[] {
-  const partes = texto.split(/\s+(?=\()/);
-  if (partes.length > 1) return partes.flatMap((p) => quebrarLinhas(p, fonte, tamanho, largura));
+export function quebrarLinhas(texto: string, fonte: PDFFont, tamanho: number, largura: number, parenteseNovaLinha = true): string[] {
+  if (texto.includes('\n')) return texto.split('\n').flatMap((p) => quebrarLinhas(p, fonte, tamanho, largura, parenteseNovaLinha));
+  if (parenteseNovaLinha) {
+    const partes = texto.split(/\s+(?=\()/);
+    if (partes.length > 1) return partes.flatMap((p) => quebrarLinhas(p, fonte, tamanho, largura, false));
+  }
   const linhas: string[] = [];
   const medir = (t: string) => fonte.widthOfTextAtSize(t.replaceAll(' ', ' '), tamanho);
   let atual = '';
   // \s inclui o espaço que não quebra; por isso a quebra é só no espaço comum
-  for (const palavra of texto.split(/[ \t\n]+/).filter(Boolean)) {
+  for (const palavra of texto.split(/[ \t]+/).filter(Boolean)) {
     const tentativa = atual ? `${atual} ${palavra}` : palavra;
-    // folga de 0,5%: as medidas da fonte estática diferem um fio das do ReportLab, e sem ela
-    // "queria a" desce uma palavra antes do modelo
+    // folga de 0,5%: as medidas da fonte estática diferem um fio das do ReportLab
     if (atual && medir(tentativa) > largura * 1.005) {
       linhas.push(atual);
       atual = palavra;
@@ -85,16 +104,29 @@ export function quebrarLinhas(texto: string, fonte: PDFFont, tamanho: number, la
   return linhas;
 }
 
-/** O espaço que não quebra ("Little Paws") vira espaço comum na hora de desenhar. */
-function centrado(pagina: PDFPage, textoComNbsp: string, fonte: PDFFont, tamanho: number, base: number, cor = PRETO, centro = PAGINA_A5.largura / 2) {
-  const texto = textoComNbsp.replaceAll('\u00a0', ' ');
-  pagina.drawText(texto, { x: centro - fonte.widthOfTextAtSize(texto, tamanho) / 2, y: base, size: tamanho, font: fonte, color: cor });
+function centrado(pagina: PDFPage, textoComNbsp: string, fonte: PDFFont, tamanho: number, base: number, cor: Cor = PRETO, centro = PAGINA_A5.largura / 2) {
+  const texto = textoComNbsp.replaceAll(' ', ' ');
+  pagina.drawText(texto, { x: centro - fonte.widthOfTextAtSize(texto, tamanho) / 2, y: base, size: tamanho, font: fonte, color: rgb(...cor) });
 }
 
-/** Tamanho que faz a linha caber na largura, sem passar do tamanho do modelo (nomes longos). */
-function tamanhoQueCabe(texto: string, fonte: PDFFont, tamanho: number, largura: number): number {
-  const w = fonte.widthOfTextAtSize(texto, tamanho);
-  return w <= largura ? tamanho : Math.floor((tamanho * largura) / w);
+export const preencher = (texto: string, valores: Record<string, string>) => texto.replace(/\{([A-Z_]+)\}/g, (inteiro, chave: string) => valores[chave] ?? inteiro);
+
+/** Desenha os blocos de uma página; devolve a base da última linha (para o bloco seguinte). */
+function desenharBlocos(pagina: PDFPage, blocos: Bloco[], fontes: { titulo: PDFFont; texto: PDFFont }, valores: Record<string, string>) {
+  let ultimaBase = 0;
+  for (const b of blocos) {
+    const fonte = fontes[b.fonte];
+    const texto = preencher(b.texto, valores);
+    let tamanho = b.tamanho;
+    if (b.encolher) {
+      const w = fonte.widthOfTextAtSize(texto, tamanho);
+      if (w > b.encolher) tamanho = Math.floor((tamanho * b.encolher) / w);
+    }
+    const linhas = b.largura ? quebrarLinhas(texto, fonte, tamanho, b.largura, false) : texto.split('\n');
+    const primeira = b.abaixoDoAnterior ? ultimaBase - b.base : b.base;
+    linhas.forEach((linha, i) => centrado(pagina, linha, fonte, tamanho, primeira - i * (b.entrelinha ?? tamanho * 1.25), b.cor, b.centro));
+    ultimaBase = primeira - (linhas.length - 1) * (b.entrelinha ?? tamanho * 1.25);
+  }
 }
 
 const emPontos = (c: Caixa) => ({ x: c.x, y: c.y, width: c.largura, height: c.altura });
@@ -105,73 +137,46 @@ async function imagem(doc: PDFDocument, bytes: Uint8Array) {
 }
 
 export async function montarLivroA5(e: EntradaDoLivro): Promise<Uint8Array> {
+  const m = e.modelo;
   const doc = await PDFDocument.create();
   doc.registerFontkit(fontkit);
   // subset: o arquivo leva só as letras usadas, como o do modelo
-  const titulo = await doc.embedFont(e.fontes.titulo, { subset: true });
-  const texto = await doc.embedFont(e.fontes.texto, { subset: true });
-  const L = LAYOUT_A5;
+  const fontes = { titulo: await doc.embedFont(e.fontes.titulo, { subset: true }), texto: await doc.embedFont(e.fontes.texto, { subset: true }) };
+  const fixas = await PDFDocument.load(e.paginasFixas);
+  const [fundoDaDedicatoria, contracapa] = await doc.copyPages(fixas, [0, 1]);
   const nova = () => doc.addPage([PAGINA_A5.largura, PAGINA_A5.altura]);
-  doc.setTitle(`${e.nome} ${e.restoDoTitulo}`);
+  doc.setTitle(e.titulo);
   doc.setAuthor(e.autores);
   doc.setProducer('meulivrinhodecolorir.com.br');
   doc.setCreator('meulivrinhodecolorir.com.br');
 
-  // 1. capa: a arte colorida com a criança, o nome em cima e o resto do título embaixo
+  // 1. capa: a arte colorida com a criança e os textos do modelo por cima
   const capa = nova();
-  capa.drawImage(await imagem(doc, e.capa), emPontos(L.capa.arte));
-  const t = L.capa.titulo;
-  const larguraUtil = PAGINA_A5.largura - 2 * 37.757;
-  centrado(capa, e.nome, titulo, tamanhoQueCabe(e.nome, titulo, t.tamanho, larguraUtil), t.primeiraBase, AZUL_DA_CAPA);
-  centrado(capa, e.restoDoTitulo, titulo, t.tamanho, t.primeiraBase - t.entrelinha, AZUL_DA_CAPA);
-  centrado(capa, e.subtitulo, texto, L.capa.subtitulo.tamanho, L.capa.subtitulo.base, AZUL_DA_CAPA);
-  centrado(capa, e.autores, texto, L.capa.autores.tamanho, L.capa.autores.base, AZUL_DA_CAPA);
+  capa.drawImage(await imagem(doc, e.capa), emPontos(m.capa.arte));
+  desenharBlocos(capa, m.capa.blocos, fontes, e.valores);
 
-  // 2. dedicatória, com o varal de bandeirinhas do modelo
-  const ded = nova();
-  const v = L.dedicatoria.varal;
-  ded.drawLine({ start: { x: v.x0, y: v.y }, end: { x: v.x1, y: v.y }, thickness: 1.1, color: PRETO });
-  for (let i = 0; i < 7; i++) {
-    const x = v.primeiraBandeira + i * v.passo;
-    ded.drawSvgPath(`M ${x} ${PAGINA_A5.altura - v.y} L ${x + v.largura} ${PAGINA_A5.altura - v.y} L ${x + v.largura / 2} ${PAGINA_A5.altura - v.ponta} Z`, {
-      x: 0,
-      y: PAGINA_A5.altura,
-      borderColor: PRETO,
-      borderWidth: 1.1,
-    });
-  }
-  const para = L.dedicatoria.para;
-  quebrarLinhas(`Para ${e.nome}, com carinho de ${e.quemPresenteia}.`, titulo, para.tamanho, para.largura).forEach((linha, i) =>
-    centrado(ded, linha, titulo, para.tamanho, para.primeiraBase - i * para.entrelinha),
-  );
-  const dt = L.dedicatoria.texto;
-  quebrarLinhas(e.dedicatoria, texto, dt.tamanho, dt.largura).forEach((linha, i) => centrado(ded, linha, texto, dt.tamanho, dt.primeiraBase - i * dt.entrelinha));
+  // 2. dedicatória sobre o fundo do modelo (varal, moldura)
+  doc.addPage(fundoDaDedicatoria);
+  desenharBlocos(fundoDaDedicatoria, m.dedicatoria.blocos, fontes, e.valores);
 
   // 3 a 18. a história: a arte, o texto no rodapé (de cima para baixo) e o número
-  const h = L.historia;
+  const h = m.historia;
   for (const p of e.paginas) {
     const pg = nova();
-    pg.drawImage(await imagem(doc, p.imagem), emPontos(p.arte ?? h.arte));
-    quebrarLinhas(p.texto, texto, h.texto.tamanho, h.texto.largura).forEach((linha, i) =>
-      centrado(pg, linha, texto, h.texto.tamanho, h.texto.primeiraBase - i * h.texto.entrelinha, PRETO, h.texto.x + h.texto.largura / 2),
+    pg.drawImage(await imagem(doc, p.imagem), emPontos(h.artePorPagina[p.pagina] ?? h.arte));
+    const fonte = fontes[h.texto.fonte];
+    quebrarLinhas(p.texto, fonte, h.texto.tamanho, h.texto.largura, h.texto.parenteseNovaLinha).forEach((linha, i) =>
+      centrado(pg, linha, fonte, h.texto.tamanho, h.texto.primeiraBase - i * h.texto.entrelinha, h.texto.cor, h.texto.x + h.texto.largura / 2),
     );
-    centrado(pg, String(p.pagina), texto, h.numero.tamanho, h.numero.base);
+    centrado(pg, h.numero.doisDigitos ? String(p.pagina).padStart(2, '0') : String(p.pagina), fontes[h.numero.fonte], h.numero.tamanho, h.numero.base);
   }
 
   // 19. certificado
-  const c = L.certificado;
   const cert = nova();
-  cert.drawImage(await imagem(doc, e.certificado.arte), emPontos(c.arte));
-  centrado(cert, 'Certificado oficial', titulo, c.titulo.tamanho, c.titulo.base);
-  const linhas = quebrarLinhas(e.certificado.linhas, texto, c.texto.tamanho, c.texto.largura);
-  linhas.forEach((linha, i) => centrado(cert, linha, texto, c.texto.tamanho, c.texto.primeiraBase - i * c.texto.entrelinha));
-  const baseDoSuperpoder = c.texto.primeiraBase - (linhas.length - 1) * c.texto.entrelinha - c.superpoder.distancia;
-  centrado(cert, `Superpoder: ${e.certificado.superpoder}.`, titulo, c.superpoder.tamanho, baseDoSuperpoder);
-  centrado(cert, 'Desenhe você com o time aqui!', texto, c.desenhe.tamanho, c.desenhe.base);
+  cert.drawImage(await imagem(doc, e.certificado), emPontos(m.certificado.arte));
+  desenharBlocos(cert, m.certificado.blocos, fontes, e.valores);
 
-  // 20. contracapa do modelo
-  const modelo = await PDFDocument.load(e.contracapa);
-  const [contracapa] = await doc.copyPages(modelo, [0]);
+  // 20. contracapa do modelo, inteira
   doc.addPage(contracapa);
 
   return doc.save();

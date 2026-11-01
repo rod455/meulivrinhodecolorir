@@ -5,7 +5,8 @@
 // Conferido por `npm run conferir:livro`.
 
 import { HISTORIAS_DA_TURMA, type PlanoDoLivro } from './geracao.ts';
-import type { EntradaDoLivro } from './livro-pdf.ts';
+import type { EntradaDoLivro, ModeloA5 } from './livro-pdf.ts';
+import { MODELOS_A5 } from './modelos-a5.ts';
 import type { TemaId } from './temas.ts';
 
 /** Quem revisa o livro antes de a família receber (decisão do dono, 01/11/2026). */
@@ -17,28 +18,30 @@ export const PEDIDO_DA_PAGINA = { tamanho: '1024x1536', qualidade: 'medium' } as
 /** Quanto da cena gerada entra além da área da criança, para braços e bola que passam da caixa. */
 export const FOLGA_DA_AREA = 60;
 
-type Caixa = { x: number; y: number; largura: number; altura: number };
-
 export type LivroDoTema = {
-  /** a contracapa do modelo do dono, em assets/ */
-  contracapa: string;
-  linhasDoCertificado: string;
+  /** quando a família não escreve dedicatória */
   dedicatoriaPadrao: string;
   quemPresenteia: string;
   autores: string;
-  /** páginas com a arte numa caixa diferente da padrão (a 13 do basquete ganhou margem) */
-  artePorPagina: Record<number, Caixa>;
+  /** as medidas do PDF do dono para este tema (lib/modelos-a5.ts) */
+  modelo: ModeloA5;
 };
 
 /** Os temas cujo livro já sai sozinho: só os que têm o modelo A5 do dono em assets/. */
 export const LIVROS_AUTOMATICOS: Partial<Record<TemaId, LivroDoTema>> = {
   basquete: {
-    contracapa: 'temas/basquete/contracapa.pdf',
-    linhasDoCertificado: '{NOME} faz parte do Time Little Paws de basquete!',
+    // a do PDF de prova aprovado pelo dono (Laura, revisão 3)
     dedicatoriaPadrao: 'Que cada passe seja uma amizade e cada tentativa, uma nova aventura!',
     quemPresenteia: 'sua família',
     autores: 'Rodrigo Moraes & Luana David',
-    artePorPagina: { 13: { x: 39.685, y: 85.039, largura: 340.158, altura: 510.236 } },
+    modelo: MODELOS_A5.basquete!,
+  },
+  futebol: {
+    // uma das dedicatórias prontas do site (lib/pedido.ts)
+    dedicatoriaPadrao: 'Uma história só sua, para pintar e sonhar. Com carinho.',
+    quemPresenteia: 'sua família',
+    autores: 'Rodrigo Moraes & Luana David',
+    modelo: MODELOS_A5.futebol!,
   },
 };
 
@@ -117,24 +120,21 @@ export function entradaDoLivro(
 ): EntradaDoLivro {
   const historia = HISTORIAS_DA_TURMA[tema]!;
   const livro = LIVROS_AUTOMATICOS[tema]!;
-  const comNome = (t: string) => t.replaceAll('{NOME}', dados.nome);
   return {
-    nome: dados.nome,
-    restoDoTitulo: historia.titulo.replace('{NOME}', '').trim(),
-    subtitulo: historia.subtitulo,
+    modelo: livro.modelo,
+    valores: {
+      NOME: dados.nome,
+      QUEM_PRESENTEIA: livro.quemPresenteia,
+      DEDICATORIA: dados.dedicatoria?.trim() || livro.dedicatoriaPadrao,
+      SUPERPODER_NOME: dados.superpoder,
+    },
+    titulo: historia.titulo.replace('{NOME}', dados.nome),
     autores: livro.autores,
-    quemPresenteia: livro.quemPresenteia,
-    dedicatoria: dados.dedicatoria?.trim() || livro.dedicatoriaPadrao,
     capa: arquivos.imagem('capa'),
-    paginas: (plano.presente ?? []).map((n) => ({
-      pagina: n,
-      imagem: arquivos.imagem(chaveDaPagina(n)),
-      texto: plano.paginas.find((p) => p.pagina === n)!.texto,
-      arte: livro.artePorPagina[n],
-    })),
-    certificado: { arte: arquivos.asset(historia.certificado.cenaBase), linhas: comNome(livro.linhasDoCertificado), superpoder: dados.superpoder },
-    contracapa: arquivos.asset(livro.contracapa),
-    fontes: { titulo: arquivos.asset('livro/fontes/Baloo2-Bold.woff'), texto: arquivos.asset('livro/fontes/NunitoSans-Regular.woff') },
+    paginas: (plano.presente ?? []).map((n) => ({ pagina: n, imagem: arquivos.imagem(chaveDaPagina(n)), texto: plano.paginas.find((p) => p.pagina === n)!.texto })),
+    certificado: arquivos.asset(historia.certificado.cenaBase),
+    paginasFixas: arquivos.asset(livro.modelo.paginasFixas),
+    fontes: { titulo: arquivos.asset(livro.modelo.fontes.titulo), texto: arquivos.asset(livro.modelo.fontes.texto) },
   };
 }
 
