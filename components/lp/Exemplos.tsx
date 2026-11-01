@@ -12,11 +12,14 @@ import { useNomeNaLp } from './nomeNaLp';
 
 const textoDa = (n: number) => PAGINAS.find((p) => p.pagina === n)?.texto ?? '';
 
-/** as páginas do exemplo da turma: arte em traço para colorir + o texto da página */
+/**
+ * as páginas do exemplo da turma: arte em traço para colorir + o texto da página. Só do
+ * começo da história: a última página contava o final do jogo (dono, 01/11/2026: "estamos
+ * mostrando a última página e dando spoiler"); no lugar dela, uma folha de "continua".
+ */
 const PAGINAS_DA_TURMA = [
   { pagina: 3, arte: '/artes/exemplo-pagina-3.webp' },
   { pagina: 9, arte: '/artes/exemplo-pagina-9.webp' },
-  { pagina: 16, arte: '/artes/exemplo-pagina-16.webp' },
 ];
 
 /** um exemplo de história sob medida: praia, enfrentar um medo, o cachorro Pipoca e o superpoder coragem */
@@ -41,14 +44,24 @@ const useQuem = () => {
 
 export function ExemploTurma() {
   const { nome, quem } = useQuem();
-  // 0 é a capa; depois, as páginas do exemplo
+  // 0 é a capa; depois, as páginas do exemplo; por último, a folha de "continua" (sem o final)
   const [folha, setFolha] = useState(0);
-  const total = PAGINAS_DA_TURMA.length + 1;
-  const pagina = folha > 0 ? PAGINAS_DA_TURMA[folha - 1] : null;
+  const total = PAGINAS_DA_TURMA.length + 2;
+  const naContinuacao = folha === total - 1;
+  const pagina = folha > 0 && !naContinuacao ? PAGINAS_DA_TURMA[folha - 1] : null;
   return (
     <div className="exemplo-turma">
       <div className="livro-aberto" aria-live="polite">
-        {pagina ? (
+        {naContinuacao ? (
+          <figure className="folha folha-continua" key="continua">
+            <figcaption className="folha-texto">
+              <strong className="folha-capa-titulo">E agora?</strong>
+              <span>
+                O Festival está só começando. Será que o time de {quem} vai dar conta da grande final? O resto da história está no livro, para ler e pintar juntos.
+              </span>
+            </figcaption>
+          </figure>
+        ) : pagina ? (
           <figure className="folha" key={folha}>
             <Image src={pagina.arte} alt={`Página ${pagina.pagina} para colorir: ${quem} com a turma Little Paws`} width={1024} height={1536} className="folha-arte" sizes="(min-width: 960px) 380px, 80vw" />
             <figcaption className="folha-texto">{comNome(textoDa(pagina.pagina), quem)}</figcaption>
@@ -68,7 +81,7 @@ export function ExemploTurma() {
         <button type="button" className="botao botao-secundario botao-pequeno" disabled={folha === 0} onClick={() => setFolha(folha - 1)} aria-label="Página anterior">
           ←
         </button>
-        <span className="folhear-onde">{folha === 0 ? 'Capa' : `Página ${pagina?.pagina} de 16`}</span>
+        <span className="folhear-onde">{folha === 0 ? 'Capa' : naContinuacao ? 'Continua no livro' : `Página ${pagina?.pagina} de 16`}</span>
         <button type="button" className="botao botao-secundario botao-pequeno" disabled={folha === total - 1} onClick={() => setFolha(folha + 1)} aria-label="Próxima página">
           →
         </button>

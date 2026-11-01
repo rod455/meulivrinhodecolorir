@@ -544,6 +544,9 @@ p { margin: 0 0 1em; }
 .folha-texto { position: absolute; left: 9%; right: 9%; bottom: 9%; text-align: center; font: 700 clamp(1rem, 3.6vw, 1.2rem) / 1.35 var(--fonte-titulo), system-ui, sans-serif; }
 .folha-numero { position: absolute; right: 14px; bottom: 10px; font-size: 0.85rem; color: var(--grafite-suave); }
 .folha-capa { display: grid; grid-template-rows: auto 1fr; background: #fff3c9; }
+/* a folha de "continua" no lugar da última página (sem spoiler do final) */
+.folha-continua { display: grid; place-items: center; background: #fff3c9; }
+.folha-continua .folha-texto { position: static; display: grid; gap: 14px; padding: 0 12%; font-weight: 600; }
 .folha-capa-arte { width: 100%; height: auto; }
 .folha-capa figcaption { display: grid; align-content: center; gap: 8px; padding: 18px 22px; text-align: center; }
 .folha-capa-titulo { font: 800 clamp(1.7rem, 6vw, 2.2rem) / 1.05 var(--fonte-titulo), system-ui, sans-serif; }

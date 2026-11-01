@@ -126,6 +126,13 @@ assert.equal(await p.locator('#fazer-parte a.botao[href*="nome=Jo%C3%A3o+Pedro"]
 assert.equal(await p.locator('.folha-capa-titulo').textContent(), 'João Pedro entra em campo!', 'o livro de exemplo leva o nome');
 await p.getByRole('button', { name: 'Próxima página' }).click();
 await p.locator('.folha-texto', { hasText: 'Logo atrás dela vinha João Pedro!' }).waitFor();
+// sem spoiler (dono, 01/11/2026): o exemplo para no começo da história e termina numa folha de "continua"
+await p.getByRole('button', { name: 'Próxima página' }).click();
+await p.getByRole('button', { name: 'Próxima página' }).click();
+await p.locator('.folha-continua').waitFor();
+assert.equal(await p.locator('.folhear-onde').textContent(), 'Continua no livro', 'a última folha do exemplo é a de continua');
+assert.ok(await p.getByRole('button', { name: 'Próxima página' }).isDisabled(), 'e não há página depois dela');
+assert.equal(await p.locator('.exemplo-turma').getByText(/GOOOL|terminou empatado/).count(), 0, 'o final do jogo não aparece no exemplo');
 await p.locator('#propria').getByText('João Pedro e o mar de conchas').waitFor();
 // o caminho do zero continua de pé para os links antigos (anúncios), só saiu da página
 await p.goto(`${SITE}/criar?caminho=zero&tema=natal&nome=jo%C3%A3o%20pedro`);
