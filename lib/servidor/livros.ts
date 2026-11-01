@@ -80,10 +80,14 @@ export async function guardarPagina(pedido: PedidoDoLivro, chave: string, jpeg: 
     body: new Uint8Array(jpeg),
   });
   if (!r.ok) throw new Error(`storage ${r.status}: ${await r.text()}`);
-  // o n8n manda uma página por vez; relê para não perder a que chegou antes
-  const atual = await pedidoDoLivro(pedido.id);
-  const paginas = [...new Set([...(atual?.livro_paginas ?? []), caminho])];
-  await mudarPedidoDoLivro(pedido.id, { livro_paginas: paginas });
+  // o n8n manda as páginas ao mesmo tempo: o acréscimo à lista é uma operação só no banco
+  // (migração 0009), porque ler, acrescentar e regravar perdia páginas (execução 9402)
+  const r2 = await comChaveDeServico('/rest/v1/rpc/anotar_pagina_do_livro', {
+    method: 'POST',
+    headers: json,
+    body: JSON.stringify({ pid: pedido.id, caminho }),
+  });
+  if (!r2.ok) throw new Error(`anotar página ${r2.status}: ${await r2.text()}`);
 }
 
 export async function lerPagina(caminho: string): Promise<Buffer> {

@@ -69,6 +69,8 @@ async function n8nLivro({ tipo, pedido_id, token }) {
   const trabalho = await t.json();
   livrosDoN8n.push({ tipo, pedido_id, status: t.status, itens: (trabalho.itens ?? []).map((i) => i.chave), ficha_url: trabalho.ficha_url });
   if (!t.ok) return;
+  // como o n8n de verdade (execução 9402, 01/11/2026): o nó HTTP manda as páginas ao mesmo tempo
+  const desenhos = [];
   for (const item of trabalho.itens) {
     if (livroFalhaNaPagina === item.chave) {
       livroFalhaNaPagina = null;
@@ -83,8 +85,9 @@ async function n8nLivro({ tipo, pedido_id, token }) {
     const dados = new FormData();
     for (const [k, v] of Object.entries({ pedido_id, token, chave: item.chave })) dados.append(k, v);
     dados.append('imagem', new Blob([desenho], { type: 'image/png' }), 'data.png');
-    await fetch(`${site}/api/livro-auto/pagina`, { method: 'POST', body: dados });
+    desenhos.push(dados);
   }
+  await Promise.all(desenhos.map((dados) => fetch(`${site}/api/livro-auto/pagina`, { method: 'POST', body: dados })));
   const m = await fetch(`${site}/api/livro-auto/montar`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ pedido_id, token }) });
   livrosDoN8n.push({ tipo: 'montar', pedido_id, status: m.status, ...(await m.json()) });
 }
@@ -240,6 +243,14 @@ http
       // REST: a chave de serviço vê tudo; uma conta só vê o que tem o user_id dela (RLS)
       const tabela = u.pathname.replace('/rest/v1/', '');
       const fontes = { pedidos, pedidos_turma: pedidosTurma, fotos: [...fotos.values()], consentimentos, fichas, historias };
+      if (tabela === 'rpc/anotar_pagina_do_livro') {
+        // como a função da migração 0009: um acréscimo só, sem ler antes
+        if (quem !== 'servico') return responder(r, 401, {});
+        const { pid, caminho } = json();
+        const p = pedidos.find((x) => x.id === pid);
+        if (p && !(p.livro_paginas ?? []).includes(caminho)) p.livro_paginas = [...(p.livro_paginas ?? []), caminho];
+        return responder(r, 204);
+      }
       if (tabela === 'rpc/anonimizar_conta') {
         if (quem !== 'servico') return responder(r, 401, {});
         const { uid } = json();
