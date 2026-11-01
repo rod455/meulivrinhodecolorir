@@ -14,14 +14,16 @@ import type { TemaId } from '@/lib/temas';
 export function CampoDaIdade({ idade, onIdade, nome }: { idade: number; onIdade: (n: number) => void; nome?: string }) {
   return (
     <div className="campo">
-      <label htmlFor="idade">Idade que {nome || 'a criança'} vai fazer</label>
-      <select id="idade" value={idade} onChange={(e) => onIdade(Number(e.target.value))}>
+      <span className="rotulo" id="rotulo-idade">
+        Idade que {nome || 'a criança'} vai fazer
+      </span>
+      <div className="opcoes idades" id="idade" role="group" aria-labelledby="rotulo-idade">
         {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
-          <option key={n} value={n}>
-            {n} {n === 1 ? 'ano' : 'anos'}
-          </option>
+          <button key={n} type="button" className="chip chip-idade" aria-pressed={idade === n} aria-label={`${n} ${n === 1 ? 'ano' : 'anos'}`} onClick={() => onIdade(n)}>
+            {n}
+          </button>
         ))}
-      </select>
+      </div>
     </div>
   );
 }

@@ -698,3 +698,32 @@ p { margin: 0 0 1em; }
 .criar-sob-medida-arte img { width: 100%; height: auto; }
 .criar-sob-medida-arte strong { font: 800 1.5rem var(--fonte-titulo), system-ui, sans-serif; }
 .painel-capa-real { width: 100%; height: auto; border-radius: 4px 8px 8px 4px; box-shadow: 0 6px 14px rgba(43, 45, 66, 0.2); }
+
+/* /criar, o personagem redesenhado (31/10/2026): sem o cartão "Ficha de", tudo mais visual */
+.sub-personagem { color: var(--grafite-suave); margin: -4px 0 16px; max-width: 52ch; }
+.partes { gap: 0; margin: 0 0 18px; border-radius: 999px; background: var(--nuvem); padding: 4px; }
+.partes button { min-height: 40px; border: 0; border-radius: 999px; background: transparent; font-size: 0.88rem; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.partes button.feita { color: var(--grafite); }
+.partes button[aria-current='step'] { background: var(--branco); box-shadow: inset 0 0 0 2px var(--grafite); }
+.partes-numero { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--branco); border: 1.5px solid currentColor; font-size: 0.75rem; }
+.partes button.feita .partes-numero { background: var(--verde); border-color: var(--verde); color: var(--branco); }
+.parte-titulo { font-size: 1.35rem; margin: 6px 0 12px; }
+.jeitos { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+.jeito { display: grid; gap: 4px; justify-items: start; text-align: left; padding: 14px; border: 2px solid var(--contorno-suave); border-radius: 18px; background: var(--branco); font: inherit; color: var(--grafite); cursor: pointer; }
+.jeito strong { font: 800 1.1rem var(--fonte-titulo), system-ui, sans-serif; }
+.jeito[aria-pressed='true'] { border-color: var(--grafite); background: #fff3c9; box-shadow: 0 3px 0 var(--grafite); }
+.jeito-icone { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; background: #e3f3fc; color: var(--grafite); margin-bottom: 4px; }
+.bolinhas { gap: 10px; }
+.bolinha { width: 44px; height: 44px; padding: 3px; border-radius: 50%; border: 2px solid transparent; background: transparent; cursor: pointer; }
+.bolinha span { display: block; width: 100%; height: 100%; border-radius: 50%; border: 1.5px solid var(--contorno-suave); }
+.bolinha[aria-pressed='true'] { border-color: var(--grafite); box-shadow: 0 2px 0 var(--grafite); }
+.idades { gap: 8px; }
+.chip-idade { min-width: 46px; justify-content: center; font-weight: 800; }
+.chip-idade[aria-pressed='true']::before { content: none; }
+ol.painel-lista { list-style: none; }
+/* o nome da telinha já está destacado na barrinha: o título fica só para leitor de tela */
+.parte-titulo { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; margin: 0; }
+@media (max-width: 559px) {
+  .partes button { font-size: 0.78rem; padding: 4px 2px; white-space: nowrap; }
+  .partes-numero { display: none; }
+}

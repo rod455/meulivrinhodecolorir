@@ -871,7 +871,14 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
               <CapaLivrinho id="painel-capa" tema={r.tema} produto={livroComHistoria ? 'presente' : 'lembrancinha'} nome={nomeNaCapa} idade={r.idade} corte={0.6} />
             );
           })()}
-          <ul className="painel-lista">
+          {/* na ordem em que a família faz: a aventura, o nome, o personagem e, na sob medida, a história (dono, 31/10/2026) */}
+          <ol className="painel-lista">
+            {!sobMedida && (
+              <li className="feito">
+                <span>Aventura</span>
+                <strong>{LIVROS_PUBLICADOS.find((l) => l.temaPersonalizado === r.tema)?.titulo.replace('Little Paws: ', '') ?? TEMAS[r.tema].nome}</strong>
+              </li>
+            )}
             <li className={nomeNaCapa ? 'feito' : ''}>
               <span>Nome</span>
               <strong>{nomeNaCapa ? `${nomeNaCapa}, ${r.idade} ${r.idade === 1 ? 'ano' : 'anos'}` : 'falta'}</strong>
@@ -884,18 +891,13 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
                 <img src={`/api/ficha/${r.fichaId}/previa`} alt="" className="painel-ficha" />
               )}
             </li>
-            {sobMedida ? (
+            {sobMedida && (
               <li className={historiaEmDia ? 'feito' : ''}>
                 <span>História</span>
                 <strong>{historiaEmDia && r.historiaTitulo ? r.historiaTitulo : 'escrita por nós, aprovada por você'}</strong>
               </li>
-            ) : (
-              <li className="feito">
-                <span>Aventura</span>
-                <strong>{TEMAS[r.tema].nome}</strong>
-              </li>
             )}
-          </ul>
+          </ol>
         </aside>
       )}
     </div>

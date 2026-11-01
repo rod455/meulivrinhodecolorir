@@ -5,8 +5,8 @@
 // só serve para desenhar a ficha e some em 7 dias. Tudo aqui vira id de
 // lista; nenhum texto livre chega ao prompt de imagem.
 
-import Image from 'next/image';
 import { useEffect, useState } from 'react';
+import { Icone } from '@/components/Icone';
 import { CampoDaIdade } from './Pecas';
 import {
   ALTURAS,
@@ -48,20 +48,26 @@ const rotulo = (lista: readonly { id: string; rotulo: string }[], id: string) =>
 
 type Lista = readonly { id: string; rotulo: string; cor?: string }[];
 
-function Escolha({ titulo, lista, valor, onEscolher }: { titulo: string; lista: Lista; valor: string; onEscolher: (id: string) => void }) {
+function Escolha({ titulo, lista, valor, onEscolher, bolinhas = false }: { titulo: string; lista: Lista; valor: string; onEscolher: (id: string) => void; bolinhas?: boolean }) {
   const id = `rotulo-${titulo.toLowerCase().replace(/\W+/g, '-')}`;
   return (
     <div className="campo">
       <span className="rotulo" id={id}>
         {titulo}
       </span>
-      <div className="opcoes" role="group" aria-labelledby={id}>
-        {lista.map((o) => (
-          <button key={o.id} type="button" className="chip" aria-pressed={valor === o.id} onClick={() => onEscolher(o.id)}>
-            {o.cor && <span className="amostra-cor" style={{ background: o.cor }} aria-hidden="true" />}
-            {o.rotulo}
-          </button>
-        ))}
+      <div className={bolinhas ? 'opcoes bolinhas' : 'opcoes'} role="group" aria-labelledby={id}>
+        {lista.map((o) =>
+          bolinhas && o.cor ? (
+            <button key={o.id} type="button" className="bolinha" aria-pressed={valor === o.id} aria-label={o.rotulo} title={o.rotulo} onClick={() => onEscolher(o.id)}>
+              <span style={{ background: o.cor }} aria-hidden="true" />
+            </button>
+          ) : (
+            <button key={o.id} type="button" className="chip" aria-pressed={valor === o.id} onClick={() => onEscolher(o.id)}>
+              {o.cor && <span className="amostra-cor" style={{ background: o.cor }} aria-hidden="true" />}
+              {o.rotulo}
+            </button>
+          ),
+        )}
       </div>
     </div>
   );
@@ -137,36 +143,10 @@ export function EtapaPersonagem({
   const partes = partesDoPersonagem(jeito);
   const atual = partes[Math.min(parte, partes.length - 1)].id;
 
-  const cabeloResumo =
-    personagem.jeito === 'foto'
-      ? 'Desenhado a partir da foto'
-      : raspado
-        ? `Cabelo raspado ${rotulo(CABELO_CORES, personagem.cabeloCor).toLowerCase()}`
-        : `Cabelo ${rotulo(CABELO_TIPOS, personagem.cabeloTipo).toLowerCase()} ${rotulo(CABELO_CORES, personagem.cabeloCor).toLowerCase()}`;
-  const resumo = [
-    personagem.aparencia === 'crianca' ? 'Criança' : rotulo(APARENCIAS, personagem.aparencia),
-    cabeloResumo,
-    personagem.jeito === 'foto' || personagem.oculos === 'nao' ? '' : rotulo(OCULOS, personagem.oculos),
-    `${rotulo(ROUPAS, personagem.roupa)} ${rotulo(CORES, personagem.cor).toLowerCase()}`,
-    `Superpoder: ${rotulo(SUPERPODERES, personagem.superpoder)}`,
-  ].filter(Boolean);
-
-
   return (
     <section className="personagem-etapa">
       <h1 style={{ fontSize: 'clamp(1.8rem, 6vw, 2.4rem)' }}>Crie o personagem</h1>
-      <div className="ficha-viva" aria-live="polite">
-        <Image src="/marca/rabisco-desenhando.webp" alt="" width={302} height={368} className="ficha-viva-rabisco" />
-        <div>
-          <strong>Ficha {nome ? `de ${nome}` : 'do personagem'}</strong>
-          <ul>
-            {resumo.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-          <span className="letra-miuda">Com isso, desenhamos {quem} no traço da turma Little Paws. Só você vê.</span>
-        </div>
-      </div>
+      <p className="sub-personagem">Com estas escolhas, desenhamos {quem} no traço da turma Little Paws. Você vê o desenho e aprova antes de tudo.</p>
       <ol className="partes" aria-label="Partes do personagem">
         {partes.map(({ titulo }, i) => (
           <li key={titulo}>
@@ -177,7 +157,8 @@ export function EtapaPersonagem({
               disabled={i > parte}
               onClick={() => onParte(i)}
             >
-              {i + 1}. {titulo}
+              <span className="partes-numero" aria-hidden="true">{i < parte ? '✓' : i + 1}</span>
+              {titulo}
             </button>
           </li>
         ))}
@@ -193,14 +174,20 @@ export function EtapaPersonagem({
         {atual === 'quem' && (
           <>
         {fotoLigada && (
-          <div className="pagamentos" role="group" aria-label="Como criar o personagem" style={{ marginBottom: 18 }}>
-            <button type="button" className="pagamento" aria-pressed={jeito === 'caracteristicas'} onClick={() => onMudar({ ...personagem, jeito: 'caracteristicas', pele: personagem.pele === PELE_DA_FOTO ? PERSONAGEM_INICIAL.pele : personagem.pele })}>
+          <div className="jeitos" role="group" aria-label="Como criar o personagem">
+            <button type="button" className="jeito" aria-pressed={jeito === 'caracteristicas'} onClick={() => onMudar({ ...personagem, jeito: 'caracteristicas', pele: personagem.pele === PELE_DA_FOTO ? PERSONAGEM_INICIAL.pele : personagem.pele })}>
+              <span className="jeito-icone" aria-hidden="true">
+                <Icone nome="mais" tamanho={26} />
+              </span>
               <strong>Pelas características</strong>
-              <div className="letra-miuda">cabelo, pele, óculos…</div>
+              <span className="letra-miuda">Você escolhe cabelo, pele e óculos</span>
             </button>
-            <button type="button" className="pagamento" aria-pressed={jeito === 'foto'} onClick={() => onMudar({ ...personagem, jeito: 'foto', pele: personagem.jeito === 'foto' ? personagem.pele : PELE_DA_FOTO })}>
+            <button type="button" className="jeito" aria-pressed={jeito === 'foto'} onClick={() => onMudar({ ...personagem, jeito: 'foto', pele: personagem.jeito === 'foto' ? personagem.pele : PELE_DA_FOTO })}>
+              <span className="jeito-icone" aria-hidden="true">
+                <Icone nome="foto" tamanho={26} />
+              </span>
               <strong>Por uma foto</strong>
-              <div className="letra-miuda">a gente desenha</div>
+              <span className="letra-miuda">A gente desenha a partir dela</span>
             </button>
           </div>
         )}
@@ -247,13 +234,13 @@ export function EtapaPersonagem({
               </span>
             )}
             {falhaDaFoto && <span className="erro">{falhaDaFoto}</span>}
-            <Escolha titulo="Tom de pele" lista={PELES_COM_FOTO} valor={personagem.pele} onEscolher={(v) => muda('pele', v)} />
+            <Escolha titulo="Tom de pele" lista={PELES_COM_FOTO} valor={personagem.pele} onEscolher={(v) => muda('pele', v)} bolinhas />
             <span className="ajuda">Se quiser, escolha o tom: luz e sombra da foto podem enganar o desenho.</span>
           </div>
         ) : (
           <>
             <Escolha titulo="Altura para a idade" lista={ALTURAS} valor={personagem.altura} onEscolher={(v) => muda('altura', v)} />
-            <Escolha titulo="Tom de pele" lista={PELES} valor={personagem.pele} onEscolher={(v) => muda('pele', v)} />
+            <Escolha titulo="Tom de pele" lista={PELES} valor={personagem.pele} onEscolher={(v) => muda('pele', v)} bolinhas />
           </>
         )}
           </>
@@ -297,7 +284,7 @@ export function EtapaPersonagem({
         {atual === 'roupa' && (
           <>
             <Escolha titulo="Roupa favorita (nas primeiras páginas)" lista={ROUPAS} valor={personagem.roupa} onEscolher={(v) => muda('roupa', v)} />
-            <Escolha titulo="Cor favorita" lista={CORES} valor={personagem.cor} onEscolher={(v) => muda('cor', v)} />
+            <Escolha titulo="Cor favorita" lista={CORES} valor={personagem.cor} onEscolher={(v) => muda('cor', v)} bolinhas />
           </>
         )}
 

@@ -242,7 +242,10 @@ await p.getByText(/Foto recebida/).waitFor();
 // o tom de pele começa "como na foto"; a família pode escolher, e o desenho segue a escolha
 assert.equal(await p.getByRole('button', { name: 'Como na foto' }).getAttribute('aria-pressed'), 'true', 'tom de pele começa como na foto');
 await p.getByRole('button', { name: 'Tom 2' }).click();
-await p.locator('.ficha-viva').getByText('Desenhado a partir da foto').waitFor();
+assert.equal(await p.getByRole('button', { name: 'Tom 2' }).getAttribute('aria-pressed'), 'true', 'o tom escolhido fica marcado');
+// sem o cartão "Ficha de": ele só repetia as escolhas (dono, 31/10/2026); e o painel segue a ordem do caminho
+assert.equal(await p.locator('.ficha-viva').count(), 0, 'o cartão da ficha saiu da tela do personagem');
+assert.deepEqual(await p.locator('ol.painel-lista li > span').allTextContents(), ['Aventura', 'Nome', 'Personagem'], 'o painel na ordem: aventura, nome, personagem');
 assert.equal(await p.getByRole('button', { name: 'Gentileza' }).count(), 0, 'o superpoder fica na última telinha, não na primeira');
 await ateOSuperpoder(p);
 await p.getByRole('button', { name: 'Gentileza' }).click();
@@ -293,10 +296,10 @@ await p.getByRole('button', { name: /Por uma foto/ }).waitFor();
 await p.getByRole('button', { name: /Pelas características/ }).click();
 await ateOCabelo(p);
 await p.getByRole('button', { name: 'Cacheado' }).click();
-await p.locator('.ficha-viva').getByText(/Cabelo cacheado/).waitFor();
+assert.equal(await p.getByRole('button', { name: 'Cacheado' }).getAttribute('aria-pressed'), 'true', 'o cabelo escolhido fica marcado');
 await ateOSuperpoder(p);
 await p.getByRole('button', { name: 'Gentileza' }).click();
-await p.locator('.ficha-viva').getByText('Superpoder: Gentileza').waitFor();
+assert.equal(await p.getByRole('button', { name: 'Gentileza' }).getAttribute('aria-pressed'), 'true', 'o superpoder escolhido fica marcado');
 await p.getByRole('button', { name: 'Continuar' }).click();
 await p.getByRole('button', { name: 'Desenhar Bia' }).click();
 await previa.waitFor({ timeout: 20000 });
@@ -450,7 +453,8 @@ assert.equal(await intrusa.locator('.etapas li').count(), 5, 'a sob medida, vind
 await intrusa.fill('#nome', 'theo');
 await intrusa.getByRole('button', { name: 'Continuar' }).click();
 await intrusa.getByRole('heading', { name: 'Crie o personagem' }).waitFor();
-await intrusa.selectOption('#idade', '5');
+await intrusa.locator('#idade').getByRole('button', { name: '5 anos' }).click();
+assert.deepEqual(await intrusa.locator('ol.painel-lista li > span').allTextContents(), ['Nome', 'Personagem', 'História'], 'na sob medida, o painel termina na história');
 await ateOSuperpoder(intrusa);
 await intrusa.getByRole('button', { name: 'Coragem' }).click();
 await intrusa.getByRole('button', { name: 'Continuar' }).click();
