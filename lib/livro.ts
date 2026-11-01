@@ -18,6 +18,13 @@ export const PEDIDO_DA_PAGINA = { tamanho: '1024x1536', qualidade: 'medium' } as
 /** Quanto da cena gerada entra além da área da criança, para braços e bola que passam da caixa. */
 export const FOLGA_DA_AREA = 60;
 
+/**
+ * Até quanto da cena pode mudar fora do lugar da criança sem aviso, em % dos pixels. Na
+ * página 4 do basquete (teste de 01/11/2026), uma inserção boa mudou 0,6%. Na capa colorida
+ * a OpenAI repinta o fundo inteiro com outro tom, então o limite é maior.
+ */
+export const LIMITE_DE_MUDANCA = { capa: 15, pagina: 3 } as const;
+
 export type LivroDoTema = {
   /** quando a família não escreve dedicatória */
   dedicatoriaPadrao: string;

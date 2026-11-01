@@ -42,6 +42,16 @@ export default async function Revisar({ params, searchParams }: { params: { id: 
           </p>
         )}
         {pedido.livro_erro && <p className="letra-miuda">O que o sistema anotou: {pedido.livro_erro}</p>}
+        {pedido.livro_avisos.length > 0 && (
+          <div className="cartao" style={{ margin: '16px 0' }}>
+            <strong>Páginas para olhar com atenção</strong>
+            <ul>
+              {pedido.livro_avisos.map((a) => (
+                <li key={a}>{a}</li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {(pedido.livro_status === 'montado' || pedido.livro_status === 'liberado') && pedido.livro_pdf && (
           <p>

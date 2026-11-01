@@ -6,7 +6,6 @@
 //   SITE=http://localhost:3100 FALSO=http://127.0.0.1:4556 npm run conferir:livro-ponta
 // O site precisa subir com N8N_WEBHOOK_LIVRO=$FALSO/n8n-livro (o scripts/navegador.mjs explica o resto).
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 import { PDFDocument } from 'pdf-lib';
 import sharp from 'sharp';
 import { planoDoLivro } from '../lib/geracao.ts';
@@ -50,7 +49,7 @@ async function pedidoPago(nome: string): Promise<{ id: string; plano: ReturnType
     body: JSON.stringify({
       id, tema: 'basquete', produto: 'presente', status: 'pago', nome_crianca: nome, idade: 6, dedicatoria: null, responsavel: 'Carla Teste',
       email: 'carla@teste.com', personagem: PERSONAGEM_INICIAL, plano, link_pdf: null, user_id: crypto.randomUUID(),
-      livro_status: null, livro_token: null, livro_revisao: null, livro_pdf: null, livro_paginas: [], livro_erro: null,
+      livro_status: null, livro_token: null, livro_revisao: null, livro_pdf: null, livro_paginas: [], livro_erro: null, livro_avisos: [],
     }),
   });
   ok(r.ok, 'pedido de teste gravado no falso');
@@ -77,9 +76,11 @@ const pdf = await PDFDocument.load(await arquivo(`livros/${montadoNoBanco.livro_
 ok(pdf.getPageCount() === 20, 'o PDF montado tem 20 páginas');
 ok(!resposta.email.texto.includes('—') && !resposta.email.texto.includes('–'), 'e-mail sem travessão');
 
-// a trava: dentro da área, o "desenho" do n8n (vermelho); fora, a cena original (sem o quadrado preto)
+// a trava (01/11/2026, depois do teste do Tito): a página fica inteira como a OpenAI devolveu,
+// sem colar a área sobre a cena (as emendas cortavam a bola e a perna do esquilo); o que mudou
+// fora do lugar da criança vira aviso para o dono. O n8n falso tinge tudo e põe um quadrado preto
+// fora da área: a página guardada tem que ter os dois, e o aviso tem que existir.
 const p04 = await arquivo(`paginas/${(montadoNoBanco.livro_paginas as string[]).find((c) => c.endsWith('/p04.jpg'))}`);
-const cena = readFileSync(new URL('../assets/temas/basquete/p04.jpg', import.meta.url));
 const pixel = async (img: Buffer, x: number, y: number) => {
   const { data } = await sharp(img).extract({ left: x, top: y, width: 1, height: 1 }).raw().toBuffer({ resolveWithObject: true });
   return [...data];
@@ -87,11 +88,12 @@ const pixel = async (img: Buffer, x: number, y: number) => {
 const [ax, ay, aw, ah] = HISTORIA_BASQUETE.paginas[3].areaPx!;
 const dentro = await pixel(p04, ax + Math.round(aw / 2), ay + Math.round(ah / 2));
 ok(dentro[0] - dentro[1] > 60, `dentro da área fica o que a OpenAI desenhou (${dentro})`);
-const fora = await pixel(p04, 40, 40);
-const original = await pixel(cena, 40, 40);
-ok(Math.abs(fora[0] - original[0]) < 30 && Math.abs(fora[1] - original[1]) < 30, `fora da área volta a cena original (${fora} x ${original})`);
-const longe = await pixel(p04, 100, 1400);
-ok(longe[0] - longe[1] < 30, `longe da área, nada de vermelho (${longe})`);
+const quadrado = await pixel(p04, 40, 40);
+ok(quadrado[0] < 60 && quadrado[1] < 60, `fora da área a página também é a da OpenAI, sem emenda (${quadrado})`);
+const avisos = montadoNoBanco.livro_avisos as string[];
+ok(avisos.some((a) => a.startsWith('p04: a cena mudou')), `a mudança fora da área vira aviso para o dono (${avisos.length} avisos)`);
+const tela0 = await (await fetch(`${SITE}/livro/revisar/${id}?chave=${String(montadoNoBanco.livro_revisao)}`)).text();
+ok(tela0.includes('Páginas para olhar com atenção'), 'a revisão mostra os avisos');
 
 // sem o bilhete certo, nada
 ok((await fetch(`${SITE}/api/livro-auto/trabalho?id=${id}&token=errado`)).status === 404, 'trabalho sem bilhete: 404');

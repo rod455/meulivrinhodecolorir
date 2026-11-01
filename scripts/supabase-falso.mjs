@@ -251,6 +251,13 @@ http
         if (p && !(p.livro_paginas ?? []).includes(caminho)) p.livro_paginas = [...(p.livro_paginas ?? []), caminho];
         return responder(r, 204);
       }
+      if (tabela === 'rpc/anotar_aviso_do_livro') {
+        if (quem !== 'servico') return responder(r, 401, {});
+        const { pid, aviso } = json();
+        const p = pedidos.find((x) => x.id === pid);
+        if (p) p.livro_avisos = [...(p.livro_avisos ?? []), aviso];
+        return responder(r, 204);
+      }
       if (tabela === 'rpc/anonimizar_conta') {
         if (quem !== 'servico') return responder(r, 401, {});
         const { uid } = json();

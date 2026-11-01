@@ -30,11 +30,12 @@ export type PedidoDoLivro = {
   livro_pdf: string | null;
   livro_paginas: string[];
   livro_erro: string | null;
+  livro_avisos: string[];
 };
 
 const json = { 'content-type': 'application/json' };
 const CAMPOS =
-  'id,tema,produto,status,nome_crianca,dedicatoria,responsavel,email,personagem,plano,link_pdf,livro_status,livro_token,livro_revisao,livro_pdf,livro_paginas,livro_erro';
+  'id,tema,produto,status,nome_crianca,dedicatoria,responsavel,email,personagem,plano,link_pdf,livro_status,livro_token,livro_revisao,livro_pdf,livro_paginas,livro_erro,livro_avisos';
 
 export async function pedidoDoLivro(id: string): Promise<PedidoDoLivro | null> {
   const r = await comChaveDeServico(`/rest/v1/pedidos?select=${CAMPOS}&id=eq.${id}`);
@@ -62,14 +63,38 @@ export function lerAsset(caminho: string): Buffer {
 }
 
 /**
- * A trava: da imagem que a OpenAI devolveu, só a área da criança (com folga) entra;
- * o resto é a cena base original. Assim nenhum personagem da turma muda de lugar.
+ * A trava (versão de 01/11/2026, depois do teste do Tito): a página fica inteira como a
+ * OpenAI devolveu, porque colar só a área da criança sobre a cena original deixava emendas
+ * que cortavam personagens. Em vez de colar, mede quanto da cena mudou fora do lugar da
+ * criança (com folga): a porcentagem de pixels que mudaram de verdade, não o serrilhado.
  */
-export async function comCenaOriginal(gerada: Buffer, cena: Buffer, area: [number, number, number, number]): Promise<Buffer> {
+export async function mudancaForaDaArea(gerada: Buffer, cena: Buffer, area: [number, number, number, number]): Promise<number> {
   const { width = 0, height = 0 } = await sharp(cena).metadata();
-  const recorte = areaComFolga(area, undefined, width, height);
-  const ajustada = await sharp(gerada).resize(width, height, { fit: 'fill' }).extract(recorte).toBuffer();
-  return sharp(cena).composite([{ input: ajustada, left: recorte.left, top: recorte.top }]).jpeg({ quality: 92 }).toBuffer();
+  const cinza = async (b: Buffer) => sharp(b).resize(width, height, { fit: 'fill' }).greyscale().blur(1.2).raw().toBuffer();
+  const [g, c] = await Promise.all([cinza(gerada), cinza(cena)]);
+  const r = areaComFolga(area, undefined, width, height);
+  let fora = 0;
+  let mudou = 0;
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      if (x >= r.left && x < r.left + r.width && y >= r.top && y < r.top + r.height) continue;
+      fora++;
+      if (Math.abs(g[y * width + x] - c[y * width + x]) > 80) mudou++;
+    }
+  }
+  return fora ? (100 * mudou) / fora : 0;
+}
+
+/** A página como vai para o livro: a imagem da OpenAI no tamanho da cena, em JPEG. */
+export async function paginaDoLivro(gerada: Buffer, cena: Buffer): Promise<Buffer> {
+  const { width = 0, height = 0 } = await sharp(cena).metadata();
+  return sharp(gerada).resize(width, height, { fit: 'fill' }).jpeg({ quality: 92 }).toBuffer();
+}
+
+/** Um aviso para o dono olhar na revisão (acréscimo atômico: as páginas chegam juntas). */
+export async function anotarAviso(id: string, aviso: string): Promise<void> {
+  const r = await comChaveDeServico('/rest/v1/rpc/anotar_aviso_do_livro', { method: 'POST', headers: json, body: JSON.stringify({ pid: id, aviso }) });
+  if (!r.ok) throw new Error(`aviso ${r.status}: ${await r.text()}`);
 }
 
 export async function guardarPagina(pedido: PedidoDoLivro, chave: string, jpeg: Buffer): Promise<void> {

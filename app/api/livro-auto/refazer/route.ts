@@ -18,7 +18,7 @@ export async function POST(req: Request) {
   const tudo = dados?.get('o_que') === 'tudo';
   const mudou = await mudarPedidoDoLivro(
     pedido.id,
-    { status: 'pago', livro_status: null, livro_token: null, livro_erro: null, ...(tudo ? { livro_paginas: [], livro_pdf: null } : {}) },
+    { status: 'pago', livro_status: null, livro_token: null, livro_erro: null, ...(tudo ? { livro_paginas: [], livro_pdf: null, livro_avisos: [] } : {}) },
     `&livro_status=eq.${pedido.livro_status}`,
   );
   if (mudou) {

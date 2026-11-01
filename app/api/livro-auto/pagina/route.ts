@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import sharp from 'sharp';
-import { itensDoLivro } from '@/lib/livro';
-import { comCenaOriginal, guardarPagina, lerAsset, mudarPedidoDoLivro, pedidoComBilhete } from '@/lib/servidor/livros';
+import { itensDoLivro, LIMITE_DE_MUDANCA } from '@/lib/livro';
+import { anotarAviso, guardarPagina, lerAsset, mudancaForaDaArea, mudarPedidoDoLivro, paginaDoLivro, pedidoComBilhete } from '@/lib/servidor/livros';
 import type { TemaId } from '@/lib/temas';
 
 export const dynamic = 'force-dynamic';
@@ -34,8 +34,12 @@ export async function POST(req: Request) {
     if (!format || !['jpeg', 'png', 'webp'].includes(format) || !width || !height) throw new Error(`formato ${format}`);
     // a proporção tem que ser a da cena (2:3); outra proporção é imagem errada, não página
     if (Math.abs(width / height - 2 / 3) > 0.02) throw new Error(`proporção ${width}x${height}`);
-    const pagina = await comCenaOriginal(imagem, lerAsset(item.cena), item.trava);
-    await guardarPagina(pedido, item.chave, pagina);
+    const cena = lerAsset(item.cena);
+    await guardarPagina(pedido, item.chave, await paginaDoLivro(imagem, cena));
+    // a página fica inteira (colar só a área deixava emendas); a trava agora mede e avisa
+    const mudou = await mudancaForaDaArea(imagem, cena, item.trava);
+    const limite = item.chave === 'capa' ? LIMITE_DE_MUDANCA.capa : LIMITE_DE_MUDANCA.pagina;
+    if (mudou > limite) await anotarAviso(pedido.id, `${item.chave}: a cena mudou ${mudou.toFixed(1)}% fora do lugar da criança (limite ${limite}%), olhe com atenção`);
     return NextResponse.json({ ok: true, guardada: true });
   } catch (e) {
     console.error('[livro] página recusada', pedido.id, item.chave, e);
