@@ -84,6 +84,7 @@ export function EtapaPersonagem({
   onParte,
   idade,
   onIdade,
+  idadeESuperpoderNaHistoria = false,
 }: {
   personagem: Personagem;
   onMudar: (p: Personagem) => void;
@@ -96,6 +97,8 @@ export function EtapaPersonagem({
   /** a idade muda o desenho, então ela é escolhida aqui (dono, 31/10/2026) */
   idade: number;
   onIdade: (n: number) => void;
+  /** na sob medida a história vem antes (dono, 01/11/2026): a idade e o superpoder já foram escolhidos lá */
+  idadeESuperpoderNaHistoria?: boolean;
 }) {
   const [consentiu, setConsentiu] = useState(Boolean(personagem.foto));
   const [enviando, setEnviando] = useState(false);
@@ -141,7 +144,8 @@ export function EtapaPersonagem({
   }
 
   const raspado = personagem.cabeloTipo === 'raspado';
-  const partes = partesDoPersonagem(jeito);
+  // na sob medida o superpoder ficou na história: a telinha é só da roupa
+  const partes = partesDoPersonagem(jeito).map((p) => (idadeESuperpoderNaHistoria && p.id === 'roupa' ? { ...p, titulo: 'Roupa' } : p));
   const atual = partes[Math.min(parte, partes.length - 1)].id;
 
   return (
@@ -194,7 +198,7 @@ export function EtapaPersonagem({
         )}
 
         <Escolha titulo="A criança é" lista={APARENCIAS} valor={personagem.aparencia} onEscolher={(v) => muda('aparencia', v)} />
-        <CampoDaIdade idade={idade} onIdade={onIdade} nome={nome} />
+        {!idadeESuperpoderNaHistoria && <CampoDaIdade idade={idade} onIdade={onIdade} nome={nome} />}
 
         {jeito === 'foto' ? (
           <div className="campo">
@@ -286,8 +290,12 @@ export function EtapaPersonagem({
           <>
             <Escolha titulo="Roupa favorita (nas primeiras páginas)" lista={ROUPAS} valor={personagem.roupa} onEscolher={(v) => muda('roupa', v)} />
             <Escolha titulo="Cor favorita" lista={CORES} valor={personagem.cor} onEscolher={(v) => muda('cor', v)} bolinhas />
-            <p className="letra-miuda">O superpoder muda o que {quem} faz para ajudar o time na hora mais difícil da história, e vai no certificado.</p>
-            <Escolha titulo={`O superpoder de ${quem}`} lista={SUPERPODERES} valor={personagem.superpoder} onEscolher={(v) => muda('superpoder', v as Personagem['superpoder'])} />
+            {!idadeESuperpoderNaHistoria && (
+              <>
+                <p className="letra-miuda">O superpoder muda o que {quem} faz para ajudar o time na hora mais difícil da história, e vai no certificado.</p>
+                <Escolha titulo={`O superpoder de ${quem}`} lista={SUPERPODERES} valor={personagem.superpoder} onEscolher={(v) => muda('superpoder', v as Personagem['superpoder'])} />
+              </>
+            )}
           </>
         )}
       </div>

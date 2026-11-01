@@ -34,6 +34,7 @@ export function EtapaHistoria({
   nome,
   idade,
   superpoder,
+  onSuperpoder,
   briefing,
   onBriefing,
   historiaId,
@@ -47,6 +48,8 @@ export function EtapaHistoria({
   nome: string;
   idade: number;
   superpoder: SuperpoderId;
+  /** a história vem antes do personagem (dono, 01/11/2026): o superpoder, que a história usa, é escolhido aqui */
+  onSuperpoder: (s: SuperpoderId) => void;
   briefing: Briefing;
   onBriefing: (b: Briefing) => void;
   /** a história do rascunho, ou null se ainda não há */
@@ -205,8 +208,16 @@ export function EtapaHistoria({
         <div className="historia-briefing">
           <p className="letra-miuda">
             A gente escreve uma história só de {quem}, no jeito da turma Little Paws: 16 páginas para pintar, amigos bichinhos inventados
-            só para essa história, e o superpoder <strong>{poder}</strong> na hora mais importante. Você lê tudo antes de pagar.
+            só para essa história, e o superpoder de {quem} na hora mais importante. Você lê tudo antes de pagar. Depois, a gente cria o
+            personagem.
           </p>
+          <Grupo id="rotulo-superpoder" rotulo={`O superpoder de ${quem}`}>
+            {SUPERPODERES.map((o) => (
+              <button key={o.id} type="button" className="chip" aria-pressed={superpoder === o.id} onClick={() => onSuperpoder(o.id)}>
+                {o.rotulo}
+              </button>
+            ))}
+          </Grupo>
           <Grupo id="rotulo-lugar" rotulo="Onde a história acontece?">
             {LUGARES.map((o) => (
               <button key={o.id} type="button" className="chip" aria-pressed={briefing.lugar === o.id} onClick={() => muda('lugar', o.id)}>

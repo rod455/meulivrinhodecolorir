@@ -125,7 +125,8 @@ function primeiraEtapaQueFalta(r: Rascunho): Etapa {
 
 /** a ordem dos passos depende do caminho e de o tema ter personagem */
 function ordemDasEtapas(caminho: Caminho | null, temPersonagem: boolean): Etapa[] {
-  if (caminho === 'sob-medida') return [6, 2, 3, 4, 7, 5];
+  // sob medida: a história vem antes do personagem (dono, 01/11/2026)
+  if (caminho === 'sob-medida') return [6, 2, 7, 3, 4, 5];
   if (caminho === 'turma') return temPersonagem ? [6, 1, 2, 3, 4, 5] : [6, 1, 2, 5];
   return temPersonagem ? [6, 0, 1, 2, 3, 4, 5] : [6, 0, 1, 2, 5];
 }
@@ -184,8 +185,8 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
     const pediu = busca.get('etapa');
     const sobMedida = inicial.caminho === 'sob-medida';
     if (completo && pediu === 'ficha' && comPersonagem) setEtapa(4);
-    else if (completo && pediu === 'historia' && sobMedida) setEtapa(fichaEmDia ? 7 : 4);
-    else if (completo && pediu === 'pagar') setEtapa(comPersonagem && !fichaEmDia ? 4 : sobMedida && !historiaEmDiaDe(inicial) ? 7 : 5);
+    else if (completo && pediu === 'historia' && sobMedida) setEtapa(7);
+    else if (completo && pediu === 'pagar') setEtapa(sobMedida && !historiaEmDiaDe(inicial) ? 7 : comPersonagem && !fichaEmDia ? 4 : 5);
     else setEtapa(falta);
     setPronto(true);
     registrar('personalizacao_iniciada');
@@ -235,6 +236,8 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
   const livroComHistoria = r.produto === 'presente' || r.produto === 'sob-medida';
   /** depois da ficha aprovada: a sob medida ainda passa pela história */
   const depoisDaFicha: Etapa = sobMedida && !historiaEmDia ? 7 : 5;
+  /** depois da história aprovada: o personagem, se o desenho ainda não está aprovado */
+  const depoisDaHistoria: Etapa = temPersonagem && !fichaEmDia ? 3 : 5;
 
   function validarPersonalizacao(): boolean {
     const p = problemaDoNome(r.nome);
@@ -276,12 +279,12 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
 
   async function enviar() {
     if (!conta) return;
-    if (temPersonagem && !fichaEmDia) {
-      irPara(4);
-      return;
-    }
     if (sobMedida && !historiaEmDia) {
       irPara(7);
+      return;
+    }
+    if (temPersonagem && !fichaEmDia) {
+      irPara(4);
       return;
     }
     const resultado = lerPedido({ ...r, email: conta.email, personagem: personagemDoPedido });
@@ -341,7 +344,7 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
   // a barra fixa só aparece quando tem botão: sem botão ela só cobria o formulário de conta
   const acaoDaBarra =
     etapa === 2 ? (
-      <button type="button" className="botao" onClick={() => validarPersonalizacao() && irPara(temPersonagem ? 3 : 5)}>
+      <button type="button" className="botao" onClick={() => validarPersonalizacao() && irPara(sobMedida ? 7 : temPersonagem ? 3 : 5)}>
         Continuar
       </button>
     ) : etapa === 3 ? (
@@ -597,7 +600,8 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
               )}
             </div>
             {/* a idade muda o desenho: com personagem ela fica na tela do personagem; sem, fica aqui (vai para a capa) */}
-            {!temPersonagem && <CampoDaIdade idade={r.idade} onIdade={(n) => muda('idade', n)} />}
+            {/* na sob medida a história vem antes do personagem e usa a idade: ela fica aqui (dono, 01/11/2026) */}
+            {(!temPersonagem || sobMedida) && <CampoDaIdade idade={r.idade} onIdade={(n) => muda('idade', n)} />}
             {/* a dedicatória já aberta: a família só escreve (dono, 31/10/2026) */}
             {produto.temDedicatoria && (
               <div className="campo">
@@ -637,6 +641,7 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
           onParte={mudarParte}
           idade={r.idade}
           onIdade={(n) => muda('idade', n)}
+          idadeESuperpoderNaHistoria={sobMedida}
         />
       )}
 
@@ -672,6 +677,7 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
           nome={nomeNaCapa}
           idade={r.idade}
           superpoder={r.personagem.superpoder}
+          onSuperpoder={(s) => setR((atual) => ({ ...atual, personagem: { ...atual.personagem, superpoder: s } }))}
           briefing={r.briefing}
           onBriefing={(b) => setR((atual) => ({ ...atual, briefing: b }))}
           historiaId={r.historiaId && r.historiaSuperpoder === r.personagem.superpoder && r.historiaIdade === r.idade ? r.historiaId : null}
@@ -679,7 +685,7 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
           onNova={(id) => setR((atual) => ({ ...atual, historiaId: id, historiaAprovada: false, historiaSuperpoder: atual.personagem.superpoder, historiaIdade: atual.idade }))}
           onAprovada={(titulo) => {
             setR((atual) => ({ ...atual, historiaAprovada: true, historiaTitulo: titulo }));
-            irPara(5);
+            irPara(depoisDaHistoria);
           }}
           conta={conta}
           carregandoConta={carregandoConta}
@@ -871,7 +877,7 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
               <CapaLivrinho id="painel-capa" tema={r.tema} produto={livroComHistoria ? 'presente' : 'lembrancinha'} nome={nomeNaCapa} idade={r.idade} corte={0.6} />
             );
           })()}
-          {/* na ordem em que a família faz: a aventura, o nome, o personagem e, na sob medida, a história (dono, 31/10/2026) */}
+          {/* na ordem em que a família faz: a aventura, o nome, o personagem; na sob medida, o nome, a história e o personagem (dono, 01/11/2026) */}
           <ol className="painel-lista">
             {!sobMedida && (
               <li className="feito">
@@ -883,6 +889,12 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
               <span>Nome</span>
               <strong>{nomeNaCapa ? `${nomeNaCapa}, ${r.idade} ${r.idade === 1 ? 'ano' : 'anos'}` : 'falta'}</strong>
             </li>
+            {sobMedida && (
+              <li className={historiaEmDia ? 'feito' : ''}>
+                <span>História</span>
+                <strong>{historiaEmDia && r.historiaTitulo ? r.historiaTitulo : 'escrita por nós, aprovada por você'}</strong>
+              </li>
+            )}
             <li className={fichaEmDia ? 'feito' : ''}>
               <span>Personagem</span>
               <strong>{fichaEmDia ? 'desenho aprovado' : r.fichaId ? 'desenho para aprovar' : 'em criação'}</strong>
@@ -891,12 +903,6 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
                 <img src={`/api/ficha/${r.fichaId}/previa`} alt="" className="painel-ficha" />
               )}
             </li>
-            {sobMedida && (
-              <li className={historiaEmDia ? 'feito' : ''}>
-                <span>História</span>
-                <strong>{historiaEmDia && r.historiaTitulo ? r.historiaTitulo : 'escrita por nós, aprovada por você'}</strong>
-              </li>
-            )}
           </ol>
         </aside>
       )}

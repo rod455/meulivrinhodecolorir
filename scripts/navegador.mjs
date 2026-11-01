@@ -483,21 +483,16 @@ await intrusa.goto(`${SITE}/`);
 await intrusa.locator('.topo .porta-propria').click();
 await intrusa.locator('#propria').getByRole('link', { name: 'Escrever a história' }).click();
 await intrusa.getByRole('heading', { name: 'Agora, o nome' }).waitFor();
-assert.equal(await intrusa.locator('.etapas li').count(), 5, 'a sob medida, vinda da página, tem cinco passos (o nome, o personagem, o desenho, a história e pagar)');
+assert.deepEqual(await intrusa.locator('.etapas li').allTextContents(), ['o nome', 'aprovar a história', 'o personagem', 'aprovar o desenho', 'pagar'], 'na sob medida, a história vem antes do personagem (dono, 01/11/2026)');
 await intrusa.fill('#nome', 'theo');
-await intrusa.getByRole('button', { name: 'Continuar' }).click();
-await intrusa.getByRole('heading', { name: 'Crie o personagem' }).waitFor();
+// a idade fica no nome, porque a história, que vem logo depois, usa a idade
 await intrusa.locator('#idade').getByRole('button', { name: '5 anos' }).click();
-assert.deepEqual(await intrusa.locator('ol.painel-lista li > span').allTextContents(), ['Nome', 'Personagem', 'História'], 'na sob medida, o painel termina na história');
-await ateOSuperpoder(intrusa);
-await intrusa.getByRole('button', { name: 'Coragem' }).click();
 await intrusa.getByRole('button', { name: 'Continuar' }).click();
-await intrusa.getByRole('button', { name: 'Desenhar Theo' }).click();
-await intrusa.locator('img.ficha-previa').waitFor({ timeout: 20000 });
-await intrusa.getByRole('button', { name: 'Amei, quero o livrinho' }).click();
-// depois do desenho, a história: sem texto aprovado, nada de pagar
 await intrusa.getByRole('heading', { name: 'A história de Theo' }).waitFor();
+assert.deepEqual(await intrusa.locator('ol.painel-lista li > span').allTextContents(), ['Nome', 'História', 'Personagem'], 'na sob medida, o painel mostra a história antes do personagem');
 assert.equal(await intrusa.getByRole('button', { name: /Pagar com/ }).count(), 0, 'sem história aprovada, sem pagar');
+// o superpoder, que a história usa, é escolhido aqui
+await intrusa.getByRole('group', { name: 'O superpoder de Theo' }).getByRole('button', { name: 'Coragem' }).click();
 await intrusa.getByRole('button', { name: 'Na praia' }).click();
 await intrusa.getByRole('button', { name: 'Enfrentar um medo' }).click();
 await intrusa.fill('#gosta', 'O Theo adora conchas e o mar');
@@ -532,15 +527,33 @@ await intrusa.getByRole('heading', { name: 'Theo e o tesouro da praia' }).waitFo
 await intrusa.getByRole('button', { name: 'Pedir um ajuste (resta 1)' }).waitFor();
 trabalhoDaHistoria = (await estado()).trabalhosDeHistoria.at(-1);
 assert.ok(trabalhoDaHistoria.pedido.includes('{NOME} quer achar um tesouro') && !/theo/i.test(trabalhoDaHistoria.pedido), 'o ajuste vai sem o nome');
+await intrusa.getByRole('button', { name: 'Amei, aprovar a história' }).click();
+// depois da história, o personagem: sem a idade e sem o superpoder, que já foram escolhidos
+await intrusa.getByRole('heading', { name: 'Crie o personagem' }).waitFor();
+assert.equal(await intrusa.locator('#idade').count(), 0, 'na sob medida a idade não se repete no personagem');
+const partesDaSobMedida = (await intrusa.locator('ol.partes li').allTextContents()).map((t) => t.replace(/^\d+/, '').trim());
+assert.deepEqual(partesDaSobMedida, ['Quem é', 'Características', 'Roupa'], 'na sob medida, a última telinha é só a roupa');
+for (let i = 0; i < 2; i++) {
+  const antes = await intrusa.locator('h2.parte-titulo').textContent();
+  await intrusa.getByRole('button', { name: 'Continuar' }).click();
+  await intrusa.waitForFunction((t) => document.querySelector('h2.parte-titulo')?.textContent !== t, antes);
+}
+assert.equal(await intrusa.locator('h2.parte-titulo').textContent(), 'Roupa');
+assert.equal(await intrusa.getByRole('button', { name: 'Coragem' }).count(), 0, 'o superpoder não se repete no personagem');
+await intrusa.getByRole('button', { name: 'Continuar' }).click();
+await intrusa.getByRole('button', { name: 'Desenhar Theo' }).click();
+await intrusa.locator('img.ficha-previa').waitFor({ timeout: 20000 });
+await intrusa.getByRole('button', { name: 'Amei, quero o livrinho' }).click();
+await intrusa.getByText(/Theo e o tesouro da praia”, história aprovada por você/).waitFor();
 // o servidor não aceita pagar história sem aprovação, mesmo que alguém pule a tela
 const fichaDoTheo = (await estado()).fichas.at(-1);
+const outraHistoria = await intrusa.request.post(`${SITE}/api/historia`, { data: { nome: 'Theo', idade: 5, superpoder: 'coragem', briefing: daHistoria.briefing } });
+assert.equal(outraHistoria.status(), 200, 'uma segunda história, ainda sem aprovar');
 const semAprovar = await intrusa.request.post(`${SITE}/api/pedido`, {
-  data: { produto: 'sob-medida', tema: 'sob-medida', nome: 'Theo', idade: 5, responsavel: 'Outra', whatsapp: '21998765432', pagamento: 'pix', personagem: fichaDoTheo.personagem, fichaId: fichaDoTheo.id, historiaId: daHistoria.id },
+  data: { produto: 'sob-medida', tema: 'sob-medida', nome: 'Theo', idade: 5, responsavel: 'Outra', whatsapp: '21998765432', pagamento: 'pix', personagem: fichaDoTheo.personagem, fichaId: fichaDoTheo.id, historiaId: (await outraHistoria.json()).id },
 });
 assert.equal(semAprovar.status(), 422, 'história sem aprovação não vira pedido');
 assert.ok((await semAprovar.json()).erros?.historiaId, 'e o erro aponta a história');
-await intrusa.getByRole('button', { name: 'Amei, aprovar a história' }).click();
-await intrusa.getByText(/Theo e o tesouro da praia”, história aprovada por você/).waitFor();
 await intrusa.getByText('R$ 37,90').first().waitFor();
 await intrusa.fill('#responsavel', 'Outra Pessoa');
 await intrusa.fill('#whatsapp', '(21) 99876-5432');
