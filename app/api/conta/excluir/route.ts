@@ -30,7 +30,7 @@ export async function POST(req: Request) {
     });
     if (!r.ok) throw new Error(`anonimizar ${r.status}: ${await r.text()}`);
     const arquivos = (await r.json()) as { bucket: string; caminho: string }[];
-    for (const bucket of ['fotos-criancas', 'livros', 'fichas']) {
+    for (const bucket of ['fotos-criancas', 'livros', 'fichas', 'paginas']) {
       const caminhos = arquivos.filter((a) => a.bucket === bucket).map((a) => a.caminho);
       await apagarDoBucket([...new Set(bucket === 'fichas' ? [...caminhos, ...fichas] : caminhos)], bucket);
     }

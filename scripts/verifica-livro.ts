@@ -7,7 +7,9 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import fontkit from '@pdf-lib/fontkit';
 import { PDFDocument } from 'pdf-lib';
-import { HISTORIAS_DA_TURMA } from '../lib/geracao.ts';
+import { HISTORIAS_DA_TURMA, planoDoLivro } from '../lib/geracao.ts';
+import { areaComFolga, chavesDoLivro, emailDeFalha, emailDeRevisao, emailParaFamilia, itensDoLivro } from '../lib/livro.ts';
+import { PERSONAGEM_INICIAL } from '../lib/personagem.ts';
 import { LAYOUT_A5, montarLivroA5, PAGINA_A5, quebrarLinhas } from '../lib/livro-pdf.ts';
 
 let casos = 0;
@@ -78,5 +80,30 @@ ok(pdf.getPageCount() === 20, 'o Presente tem 20 páginas');
 ok(pdf.getPages().every((p) => Math.abs(p.getWidth() - PAGINA_A5.largura) < 0.1 && Math.abs(p.getHeight() - PAGINA_A5.altura) < 0.1), 'todas as páginas em A5');
 ok(bytes.length < 15_000_000, `o PDF cabe num e-mail e no bucket (${(bytes.length / 1e6).toFixed(1)} MB)`);
 ok((await PDFDocument.load(await livro('Maria Valentina Eduarda'))).getPageCount() === 20, 'nome comprido também monta');
+
+// 4. O que a OpenAI recebe: capa + 16 páginas, a ordem das imagens dita, a área em %, e nunca o nome.
+const plano = planoDoLivro({ tema: 'basquete', nome: 'Maria Eduarda', idade: 6, produto: 'presente', personagem: PERSONAGEM_INICIAL });
+const itens = itensDoLivro('basquete', plano);
+ok(itens.length === 17 && itens[0].chave === 'capa' && itens.at(-1)!.chave === 'p16', 'capa e as 16 páginas');
+ok(itens.every((i) => /^The FIRST attached image is the base scene/.test(i.prompt) && /SECOND attached image is the approved character sheet/.test(i.prompt)), 'todo prompt diz qual imagem é a cena e qual é a ficha');
+ok(itens.every((i) => /roughly from \d+% to \d+% of the width/.test(i.prompt)), 'todo prompt diz onde fica a área');
+ok(itens.every((i) => !i.prompt.includes('Maria') && !i.prompt.includes('Eduarda') && !/[{}]/.test(i.prompt)), 'o nome nunca vai para o prompt e nada de variável sobrando');
+ok(itens[0].prompt.includes('colored version') && itens.slice(1).every((i) => i.prompt.includes('line-art version')), 'a capa usa a ficha colorida; as páginas, a de contorno');
+ok(JSON.stringify(itensDoLivro('basquete', plano, ['capa', 'p01']).map((i) => i.chave).slice(0, 2)) === '["p02","p03"]', 'refazer pula as que já estão prontas');
+ok(itensDoLivro('futebol', planoDoLivro({ tema: 'futebol', nome: 'Bia', idade: 5, produto: 'presente', personagem: PERSONAGEM_INICIAL })).length === 0, 'o futebol ainda não sai sozinho (falta o modelo A5 dele)');
+ok(chavesDoLivro('basquete', plano).length === 17, 'o livro só monta com as 17 imagens');
+const folga = areaComFolga([10, 20, 100, 200]);
+ok(folga.left === 0 && folga.top === 0 && folga.width === 170 && folga.height === 280, 'a folga não sai da cena');
+const g = areaComFolga([1000, 1500, 24, 36]);
+ok(g.left + g.width <= 1024 && g.top + g.height <= 1536, 'nem do outro lado');
+
+// 5. Os e-mails: sem travessão, o do dono vai para o dono, o da família para a família.
+const emails = [
+  emailDeRevisao({ nome: 'Bia', tituloDoLivro: 'Bia entra na quadra!', pedidoId: 'x', linkDeRevisao: 'https://a' }),
+  emailDeFalha({ nome: 'Bia', pedidoId: 'x', faltando: ['p07'], erro: 'recusou', linkDeRevisao: 'https://a' }),
+  emailParaFamilia({ para: 'f@x.com', responsavel: 'Carla Souza', nome: 'Bia', linkDaConta: 'https://a/conta' }),
+];
+ok(emails.every((e) => !/[\u2013\u2014]/.test(e.assunto + e.texto)), 'e-mails sem travessão');
+ok(emails[0].para === emails[1].para && emails[2].para === 'f@x.com' && emails[2].texto.startsWith('Oi, Carla!'), 'cada e-mail para quem deve');
 
 console.log(`livro: ${casos} casos ok`);

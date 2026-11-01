@@ -28,6 +28,9 @@ const fichas = [];
 const historias = [];
 const trabalhosDeHistoria = [];
 let confirmarEmail = false;
+// o livro automático (01/11/2026): a chave que o n8n falso deixa de desenhar uma vez, e o que ele recebeu
+let livroFalhaNaPagina = null;
+const livrosDoN8n = [];
 let n8nFalha = false;
 const trabalhosRecebidos = [];
 
@@ -50,6 +53,40 @@ async function n8nFicha({ ficha_id, token }) {
   const png = await sharp({ create: { width: 1536, height: 1024, channels: 3, background: '#ffd23f' } }).png().toBuffer();
   dados.append('imagem', new Blob([png], { type: 'image/png' }), 'data.png');
   await fetch(`${site}/api/ficha/pronta`, { method: 'POST', body: dados });
+}
+
+// o fluxo "Meu Livrinho | livro", sem a OpenAI. Gerar: busca o trabalho, baixa cada cena e
+// devolve um "desenho" que é a cena inteira tingida de vermelho, com um quadrado preto no
+// canto de cima (fora de qualquer área): a trava do site tem que guardar só a área da
+// criança. Depois pede a montagem. Avisar: busca o e-mail da família com o bilhete.
+async function n8nLivro({ tipo, pedido_id, token }) {
+  if (tipo === 'avisar') {
+    const a = await fetch(`${site}/api/livro-auto/aviso?id=${pedido_id}&token=${token}`);
+    livrosDoN8n.push({ tipo, pedido_id, status: a.status, ...(await a.json()) });
+    return;
+  }
+  const t = await fetch(`${site}/api/livro-auto/trabalho?id=${pedido_id}&token=${token}`);
+  const trabalho = await t.json();
+  livrosDoN8n.push({ tipo, pedido_id, status: t.status, itens: (trabalho.itens ?? []).map((i) => i.chave), ficha_url: trabalho.ficha_url });
+  if (!t.ok) return;
+  for (const item of trabalho.itens) {
+    if (livroFalhaNaPagina === item.chave) {
+      livroFalhaNaPagina = null;
+      await fetch(`${site}/api/livro-auto/pagina`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ pedido_id, token, chave: item.chave, erro: 'moderação recusou a imagem (teste)' }) });
+      continue;
+    }
+    const cena = Buffer.from(await (await fetch(item.cena_url)).arrayBuffer());
+    const { width, height } = await sharp(cena).metadata();
+    const tinta = await sharp({ create: { width, height, channels: 4, background: { r: 255, g: 0, b: 0, alpha: 0.45 } } }).png().toBuffer();
+    const quadrado = await sharp({ create: { width: 150, height: 150, channels: 3, background: '#000' } }).png().toBuffer();
+    const desenho = await sharp(cena).composite([{ input: tinta }, { input: quadrado, left: 0, top: 0 }]).png().toBuffer();
+    const dados = new FormData();
+    for (const [k, v] of Object.entries({ pedido_id, token, chave: item.chave })) dados.append(k, v);
+    dados.append('imagem', new Blob([desenho], { type: 'image/png' }), 'data.png');
+    await fetch(`${site}/api/livro-auto/pagina`, { method: 'POST', body: dados });
+  }
+  const m = await fetch(`${site}/api/livro-auto/montar`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ pedido_id, token }) });
+  livrosDoN8n.push({ tipo: 'montar', pedido_id, status: m.status, ...(await m.json()) });
 }
 
 // o fluxo "Meu Livrinho | escrever história", sem a OpenAI: busca o trabalho e
@@ -136,6 +173,10 @@ http
       if (u.pathname === '/__estado') return responder(r, 200, { usuarios: [...usuarios.values()].map((x) => x.email), pedidos, pedidosTurma, fotos: [...fotos.values()], consentimentos, fichas, historias, trabalhosRecebidos, trabalhosDeHistoria, arquivos: [...arquivos.keys()] });
       if (u.pathname === '/__n8n-falha') { n8nFalha = u.searchParams.get('ligar') === '1'; return responder(r, 200, { n8nFalha }); }
       if (u.pathname === '/n8n-historia') { n8nHistoria(json()).catch((e) => console.error('n8n falso', e)); return responder(r, 200, { recebido: true }); }
+      if (u.pathname === '/n8n-livro') { n8nLivro(json()).catch((e) => console.error('n8n falso (livro)', e)); return responder(r, 200, { recebido: true }); }
+      if (u.pathname === '/__n8n-livro-falha') { livroFalhaNaPagina = u.searchParams.get('pagina'); return responder(r, 200, { livroFalhaNaPagina }); }
+      if (u.pathname === '/__livro') return responder(r, 200, livrosDoN8n);
+      if (u.pathname.startsWith('/__arquivo/')) { const b = arquivos.get(u.pathname.replace('/__arquivo/', '')); if (!b) return responder(r, 404, {}); r.writeHead(200); return r.end(b); }
       if (u.pathname === '/n8n-ficha') { n8nFicha(json()).catch((e) => console.error('n8n falso', e)); return responder(r, 200, { recebido: true }); }
       if (u.pathname === '/__confirmar-email') { confirmarEmail = u.searchParams.get('ligar') === '1'; return responder(r, 200, { confirmarEmail }); }
       if (u.pathname === '/__pdf') { const p = pedidos.find((x) => x.id === u.searchParams.get('pedido')); if (p) { p.link_pdf = `${p.id}.pdf`; p.status = 'entregue'; arquivos.set(`livros/${p.id}.pdf`, Buffer.from('%PDF')); } return responder(r, 200, { ok: Boolean(p) }); }
@@ -205,13 +246,15 @@ http
         const devolver = [
           ...[...fotos.values()].filter((f) => f.user_id === uid && !f.apagada_em).map((f) => ({ bucket: 'fotos-criancas', caminho: f.caminho })),
           ...pedidos.filter((p) => p.user_id === uid && p.link_pdf).map((p) => ({ bucket: 'livros', caminho: p.link_pdf })),
+          ...pedidos.filter((p) => p.user_id === uid && p.livro_pdf).map((p) => ({ bucket: 'livros', caminho: p.livro_pdf })),
+          ...pedidos.filter((p) => p.user_id === uid).flatMap((p) => (p.livro_paginas ?? []).map((c) => ({ bucket: 'paginas', caminho: c }))),
         ];
         for (const f of fotos.values()) if (f.user_id === uid) Object.assign(f, { apagada_em: f.apagada_em ?? new Date().toISOString(), user_id: null });
         devolver.push(...fichas.filter((f) => f.user_id === uid && f.caminho_imagem).map((f) => ({ bucket: 'fichas', caminho: f.caminho_imagem })));
         for (let i = fichas.length - 1; i >= 0; i--) if (fichas[i].user_id === uid) fichas.splice(i, 1);
         // a conta some no fim da exclusão e leva as histórias junto (on delete cascade)
         for (let i = historias.length - 1; i >= 0; i--) if (historias[i].user_id === uid) historias.splice(i, 1);
-        for (const p of pedidos) if (p.user_id === uid) Object.assign(p, { nome_crianca: '(apagado)', email: '(apagado)', whatsapp: '(apagado)', responsavel: '(apagado)', personagem: null, plano: null, link_pdf: null, dedicatoria: null, user_id: null });
+        for (const p of pedidos) if (p.user_id === uid) Object.assign(p, { nome_crianca: '(apagado)', email: '(apagado)', whatsapp: '(apagado)', responsavel: '(apagado)', personagem: null, plano: null, link_pdf: null, livro_pdf: null, livro_paginas: [], livro_token: null, livro_revisao: null, dedicatoria: null, user_id: null });
         return responder(r, 200, devolver);
       }
       if (!(tabela in fontes)) return responder(r, 404, {});
@@ -234,8 +277,9 @@ http
         return responder(r, 201);
       }
       if (q.method === 'PATCH') {
-        for (const l of filtrar(fontes[tabela], u.searchParams)) Object.assign(l, json());
-        return responder(r, 204);
+        const mudadas = filtrar(fontes[tabela], u.searchParams);
+        for (const l of mudadas) Object.assign(l, json());
+        return (q.headers.prefer ?? '').includes('return=representation') ? responder(r, 200, mudadas) : responder(r, 204);
       }
       if (q.method === 'DELETE') { for (const l of filtrar(fontes[tabela], u.searchParams)) fotos.delete(l.caminho); return responder(r, 204); }
       return responder(r, 405, {});

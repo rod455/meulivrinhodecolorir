@@ -19,7 +19,8 @@
     "conferir:ficha": "node --experimental-strip-types --no-warnings scripts/verifica-ficha.ts",
     "conferir:turma": "node --experimental-strip-types --no-warnings scripts/verifica-turma.ts",
     "conferir:historia": "node --experimental-strip-types --no-warnings scripts/verifica-historia.ts",
-    "conferir:livro": "node --experimental-strip-types --no-warnings scripts/verifica-livro.ts"
+    "conferir:livro": "node --experimental-strip-types --no-warnings scripts/verifica-livro.ts",
+    "conferir:livro-ponta": "node --experimental-strip-types --no-warnings scripts/verifica-livro-ponta.ts"
   },
   "dependencies": {
     "@pdf-lib/fontkit": "^1.1.1",
