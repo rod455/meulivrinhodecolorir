@@ -116,7 +116,7 @@ export const PAGINAS: PaginaDaHistoria[] = [
     pagina: 10,
     cenaBase: base(10),
     areaPx: [379, 553, 256, 430],
-    texto: 'Chegou o dia do torneio! A quadra estava cheia de bandeirinhas e de torcida, e a Vovó Ursa acenava da primeira fila.',
+    texto: 'Chegou o dia do torneio! A quadra estava cheia de bandeirinhas e de torcida, e a Vovó Ursa acenava lá do alto da arquibancada.',
     acao: 'walking proudly with the team, waving to the crowd',
     area: 'the center of the group, between Pip and Luna',
     roupa: 'time',

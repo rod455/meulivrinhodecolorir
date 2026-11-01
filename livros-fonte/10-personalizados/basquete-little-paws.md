@@ -222,7 +222,7 @@ RESERVED AREA: right side, full-body size, close to Bo's hands.
 ---
 
 ### Página 10: Dia do torneio
-**Texto:** Chegou o dia do torneio! A quadra estava cheia de bandeirinhas e de torcida, e a Vovó Ursa acenava da primeira fila.
+**Texto:** Chegou o dia do torneio! A quadra estava cheia de bandeirinhas e de torcida, e a Vovó Ursa acenava lá do alto da arquibancada.
 
 **A. Cena base:**
 ```
