@@ -899,7 +899,7 @@ body:has(.barra-fixa) .ajuda-painel { bottom: calc(172px + env(safe-area-inset-b
 @media (min-width: 960px) {
   .secao-caminho-propria { gap: 40px; }
   .secao-caminho-propria .secao-caminho-texto { gap: 10px; }
-  .secao-caminho-propria h2 { font-size: 2.1rem; margin-bottom: 0; }
+  .secao-caminho-propria h2 { font-size: clamp(1.6rem, 2.3vw, 2.1rem); margin-bottom: 0; white-space: nowrap; }
   .secao-caminho-propria .sub-caminho { font-size: 0.98rem; margin: 0; }
   .secao-caminho-propria .caminho-passos-blocos { gap: 9px; margin: 0; }
   .secao-caminho-propria .caminho-passos-blocos li > strong { font-size: 1.05rem; }

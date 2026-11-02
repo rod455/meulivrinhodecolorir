@@ -48,10 +48,11 @@ export function HistoriaPropria() {
   return (
     <div className="secao-caminho secao-caminho-invertida secao-caminho-propria">
       <div className="secao-caminho-texto">
-        <h2>Crie a sua própria história</h2>
+        {/* título e texto do dono (02/11/2026) */}
+        <h2>Uma aventura feita sob medida</h2>
         <p className="sub-caminho">
-          Um livro escrito do zero, com {quem} no centro de tudo. O lugar, a lição e o que {quem} mais gosta viram uma aventura de 16 páginas, com amigos
-          bichinhos inventados só para ela.
+          Uma história de 16 páginas escrita do zero, com a sua criança no centro de tudo. O lugar favorito, o que ela mais ama e o que você quer que
+          ela aprenda viram uma aventura com novos amigos bichinhos, criados só para essa história.
         </p>
         <ol className="caminho-passos caminho-passos-blocos">
           <li>
