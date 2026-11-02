@@ -639,12 +639,13 @@ p { margin: 0 0 1em; }
   .criar-com-painel .etapas { gap: 5px; }
   .criar-com-painel .etapas li { padding: 6px 2px 5px; font-size: 0.72rem; letter-spacing: -0.01em; }
 }
-/* a capa padrão da sob medida, com cara de livro: lombada, cantos e o nome no topo (dono, 02/11/2026) */
-.capa-sob-medida { position: relative; border: 2px solid var(--grafite); border-radius: 6px 14px 14px 6px; overflow: hidden; background: var(--papel); box-shadow: inset 10px 0 0 rgba(43, 45, 66, 0.07), 0 5px 0 var(--grafite); }
+/* a capa padrão da sob medida, como as capas da série (dono, 02/11/2026): a ilustração ocupa a capa
+   inteira, com o céu em cima, e o título por cima dele, numa etiqueta escura e o nome em branco com contorno */
+.capa-sob-medida { position: relative; border: 2px solid var(--grafite); border-radius: 6px 14px 14px 6px; overflow: hidden; background: #6fb6e8; box-shadow: inset 10px 0 0 rgba(43, 45, 66, 0.12), 0 5px 0 var(--grafite); }
 .capa-sob-medida img { width: 100%; height: auto; display: block; }
-.capa-sob-medida-titulo { position: absolute; top: 7%; left: 8%; right: 6%; text-align: center; display: grid; gap: 0; color: var(--grafite); }
-.capa-sob-medida-titulo span { font: 700 0.9rem var(--fonte-titulo), system-ui, sans-serif; }
-.capa-sob-medida-titulo strong { font: 800 2.1rem/1.05 var(--fonte-titulo), system-ui, sans-serif; overflow-wrap: anywhere; text-decoration: underline 5px var(--laranja); text-underline-offset: 6px; }
+.capa-sob-medida-titulo { position: absolute; top: 5%; left: 6%; right: 6%; text-align: center; display: grid; justify-items: center; gap: 4px; }
+.capa-sob-medida-titulo span { background: var(--grafite); color: var(--branco); border-radius: 999px; padding: 2px 12px; font: 800 0.72rem var(--fonte-titulo), system-ui, sans-serif; letter-spacing: 0.04em; text-transform: uppercase; }
+.capa-sob-medida-titulo strong { font: 800 2.2rem/1 var(--fonte-titulo), system-ui, sans-serif; color: var(--branco); -webkit-text-stroke: 1.5px var(--grafite); paint-order: stroke fill; text-shadow: 0 3px 0 var(--grafite); overflow-wrap: anywhere; }
 .painel-titulo { font: 800 1.25rem var(--fonte-titulo), system-ui, sans-serif; }
 .painel-lista { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
 .painel-lista li { display: grid; gap: 2px; padding: 10px 12px 10px 38px; border-radius: 14px; background: var(--nuvem); position: relative; }

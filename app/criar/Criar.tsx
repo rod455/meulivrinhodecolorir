@@ -916,10 +916,11 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
             if (sobMedida) {
               return (
                 <div className="capa-sob-medida" aria-label={`Capa do livro de ${nomeNaCapa || 'seu filho'}`} role="img">
-                  <Image src="/artes/capa-sob-medida-criancas.webp" alt="" width={768} height={1152} sizes="240px" priority />
+                  <Image src="/artes/capa-sob-medida-ilustrada.webp" alt="" width={768} height={1152} sizes="240px" priority />
                   <div className="capa-sob-medida-titulo">
                     <span>A história de</span>
-                    <strong>{nomeNaCapa || 'seu filho'}</strong>
+                    {/* nome comprido (até 14 letras) encolhe para caber na capa */}
+                    <strong style={{ fontSize: [...(nomeNaCapa || 'seu filho')].length > 9 ? '1.6rem' : undefined }}>{nomeNaCapa || 'seu filho'}</strong>
                   </div>
                 </div>
               );
