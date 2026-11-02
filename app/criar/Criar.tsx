@@ -592,7 +592,8 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
             <PaginaAmostra tema={r.tema} nome={nomeNaCapa} pagina={2} />
           </div>
           )}
-          <div>
+          {/* na sob medida, a coluna do nome fica do tamanho da arte ao lado (dono, 02/11/2026) */}
+          <div className={sobMedida ? 'criar-nome-compacto' : undefined}>
             <h1 style={{ fontSize: 'clamp(1.8rem, 6vw, 2.4rem)' }}>Agora, o nome</h1>
             <p className="letra-miuda">
               {/* na sob medida o produto e o tema têm o mesmo nome: só um (dono, 02/11/2026) */}

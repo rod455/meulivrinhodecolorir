@@ -700,6 +700,20 @@ p { margin: 0 0 1em; }
 .criar-sob-medida-arte { margin: 0; display: grid; gap: 8px; text-align: center; }
 .criar-sob-medida-arte img { width: 100%; height: auto; }
 .criar-sob-medida-arte strong { font: 800 1.5rem var(--fonte-titulo), system-ui, sans-serif; }
+.criar-sob-medida-arte figcaption { display: grid; gap: 2px; }
+/* a coluna do nome na sob medida, do tamanho da arte (dono, 02/11/2026); no celular os toques continuam com 44px */
+@media (min-width: 900px) {
+  .criar-nome-compacto h1 { font-size: 2rem !important; margin-bottom: 4px; }
+  .criar-nome-compacto > .letra-miuda { margin: 0 0 12px; }
+  .criar-nome-compacto .campo { margin-bottom: 10px; gap: 4px; }
+  .criar-nome-compacto .campo label, .criar-nome-compacto .campo .rotulo { font-size: 0.95rem; }
+  .criar-nome-compacto .campo input, .criar-nome-compacto .campo textarea { padding: 8px 14px; min-height: 42px; font-size: 0.95rem; }
+  .criar-nome-compacto .campo-nome input { font-size: 1.2rem; }
+  .criar-nome-compacto .campo textarea { min-height: 64px; }
+  .criar-nome-compacto .campo .ajuda, .criar-nome-compacto .contador { font-size: 0.8rem; }
+  .criar-nome-compacto .chip { min-height: 38px; padding-top: 4px; padding-bottom: 4px; font-size: 0.95rem; }
+  .criar-nome-compacto .campo-outro { margin-top: 6px; gap: 4px; }
+}
 .painel-capa-real { width: 100%; height: auto; border-radius: 4px 8px 8px 4px; box-shadow: 0 6px 14px rgba(43, 45, 66, 0.2); }
 
 /* /criar, o personagem redesenhado (31/10/2026): sem o cartão "Ficha de", tudo mais visual */
