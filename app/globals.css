@@ -894,3 +894,15 @@ body:has(.barra-fixa) .ajuda-painel { bottom: calc(172px + env(safe-area-inset-b
 .versoes-mini { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 2px; }
 .versao-mini { display: inline-grid; gap: 0; padding: 6px 12px; border: 2px solid var(--grafite); border-radius: 12px; background: var(--branco); color: var(--grafite); font-size: 0.85rem; line-height: 1.25; }
 .versao-mini b { font-family: var(--fonte-titulo), system-ui, sans-serif; font-size: 0.98rem; }
+
+/* a coluna do texto da sob medida do tamanho do exemplo ao lado (dono, 02/11/2026: "muito desproporcionais") */
+@media (min-width: 960px) {
+  .secao-caminho-propria { gap: 40px; }
+  .secao-caminho-propria .secao-caminho-texto { gap: 10px; }
+  .secao-caminho-propria h2 { font-size: 2.1rem; margin-bottom: 0; }
+  .secao-caminho-propria .sub-caminho { font-size: 0.98rem; margin: 0; }
+  .secao-caminho-propria .caminho-passos-blocos { gap: 9px; margin: 0; }
+  .secao-caminho-propria .caminho-passos-blocos li > strong { font-size: 1.05rem; }
+  .secao-caminho-propria .caminho-passos-blocos li > span { font-size: 0.88rem; line-height: 1.4; }
+  .secao-caminho-propria .versoes-mini { margin: 2px 0 0; }
+}

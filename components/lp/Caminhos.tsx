@@ -46,7 +46,7 @@ export function HistoriaPropria() {
   // estrutura revista pelo dono (02/11/2026): cada passo com um título curto e a explicação embaixo,
   // o passo 4 mostrando as duas versões do livro, e o botão "Criar história"
   return (
-    <div className="secao-caminho secao-caminho-invertida">
+    <div className="secao-caminho secao-caminho-invertida secao-caminho-propria">
       <div className="secao-caminho-texto">
         <h2>Crie a sua própria história</h2>
         <p className="sub-caminho">
@@ -67,10 +67,11 @@ export function HistoriaPropria() {
             <span>O começo da história e o desenho do personagem. Pode pedir até 2 ajustes.</span>
           </li>
           <li>
-            <strong>Escolha o seu livro</strong>
+            {/* texto do dono (02/11/2026) */}
+            <strong>Escolha o tipo de livro que preferir</strong>
             <span className="versoes-mini">
               <span className="versao-mini">
-                <b>Para ler</b> ilustrado e colorido
+                <b>Ilustrado</b> todo colorido, para ler junto
               </span>
               <span className="versao-mini">
                 <b>Para colorir</b> em traço, para pintar
