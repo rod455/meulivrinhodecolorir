@@ -25,8 +25,8 @@ import { LIVROS_PUBLICADOS } from '@/lib/livros-publicados';
 import { caminhoDoTema, ehCaminho, ehTema, TEMAS, TEMAS_DO_CAMINHO, type Caminho, type TemaId } from '@/lib/temas';
 import { EtapaFicha } from './EtapaFicha';
 import { CampoDaIdade, EstanteDaTurma } from './Pecas';
-import { EtapaHistoria } from './EtapaHistoria';
-import { BRIEFING_INICIAL, type Briefing } from '@/lib/historia';
+import { EtapaBriefing, EtapaHistoria } from './EtapaHistoria';
+import { BRIEFING_INICIAL, lerBriefing, type Briefing } from '@/lib/historia';
 import { EtapaPersonagem, partesDoPersonagem, type ParteDoPersonagem } from './EtapaPersonagem';
 
 /**
@@ -35,10 +35,10 @@ import { EtapaPersonagem, partesDoPersonagem, type ParteDoPersonagem } from './E
  * Na turma o tema (a história) vem antes do produto; do zero, o produto vem antes.
  * 7 é a história sob medida: a IA escreve e a família aprova o texto (31/10/2026).
  */
-type Etapa = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
+type Etapa = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 const GUARDADO = 'livrinho:rascunho';
 /** o nome de cada passo, acima da barra de progresso (revisão de CRO, 25/10/2026) */
-const NOME_DA_ETAPA: Record<Etapa, string> = { 6: 'o começo', 0: 'o livrinho', 1: 'a história', 2: 'o nome', 3: 'o personagem', 4: 'aprovar o desenho', 7: 'aprovar a história', 5: 'pagar' };
+const NOME_DA_ETAPA: Record<Etapa, string> = { 6: 'o começo', 0: 'o livrinho', 1: 'a história', 2: 'o nome', 3: 'o personagem', 4: 'aprovar o desenho', 8: 'contar a história', 7: 'aprovar a história', 5: 'pagar' };
 /** volta do Google e do link por e-mail: cai direto no pagamento, com o rascunho guardado */
 export const DESTINO_DEPOIS_DE_ENTRAR = '/criar?etapa=pagar';
 /** a conta agora costuma nascer antes do desenho do personagem */
@@ -69,9 +69,8 @@ type Rascunho = {
   historiaId: string | null;
   historiaAprovada: boolean;
   historiaTitulo: string;
-  /** a história foi escrita com este superpoder e esta idade: mudou, escreve de novo */
-  historiaSuperpoder: string | null;
-  historiaIdade: number | null;
+  /** a história foi escrita com estas escolhas (idade, superpoder e o que a família contou): mudou, escreve de novo */
+  historiaChave: string | null;
 };
 
 const VAZIO: Rascunho = {
@@ -96,12 +95,14 @@ const VAZIO: Rascunho = {
   historiaId: null,
   historiaAprovada: false,
   historiaTitulo: '',
-  historiaSuperpoder: null,
-  historiaIdade: null,
+  historiaChave: null,
 };
 
-/** a história aprovada só vale para o superpoder e a idade com que foi escrita */
-const historiaEmDiaDe = (r: Rascunho) => r.historiaAprovada && Boolean(r.historiaId) && r.historiaSuperpoder === r.personagem.superpoder && r.historiaIdade === r.idade;
+/** as escolhas com que a história foi escrita: a idade, o superpoder e o que a família contou */
+const chaveDaHistoria = (r: Rascunho) => JSON.stringify({ i: r.idade, s: r.personagem.superpoder, b: r.briefing });
+/** a história escrita só vale para as escolhas de agora */
+const historiaDasEscolhas = (r: Rascunho) => (r.historiaId && r.historiaChave === chaveDaHistoria(r) ? r.historiaId : null);
+const historiaEmDiaDe = (r: Rascunho) => r.historiaAprovada && Boolean(historiaDasEscolhas(r));
 
 /** trocar de caminho: a sob medida tem produto e tema próprios, que não servem aos outros */
 function noCaminho(atual: Rascunho, caminho: Caminho): Rascunho {
@@ -125,8 +126,9 @@ function primeiraEtapaQueFalta(r: Rascunho): Etapa {
 
 /** a ordem dos passos depende do caminho e de o tema ter personagem */
 function ordemDasEtapas(caminho: Caminho | null, temPersonagem: boolean): Etapa[] {
-  // sob medida: a história vem antes do personagem (dono, 01/11/2026)
-  if (caminho === 'sob-medida') return [6, 2, 7, 3, 4, 5];
+  // sob medida: a família conta a história antes do personagem (01/11/2026); a IA escreve depois do desenho,
+  // porque o login fica para antes do desenho (dono, 02/11/2026)
+  if (caminho === 'sob-medida') return [6, 2, 8, 3, 4, 7, 5];
   if (caminho === 'turma') return temPersonagem ? [6, 1, 2, 3, 4, 5] : [6, 1, 2, 5];
   return temPersonagem ? [6, 0, 1, 2, 3, 4, 5] : [6, 0, 1, 2, 5];
 }
@@ -144,6 +146,8 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
   const [enviando, setEnviando] = useState(false);
   const [falha, setFalha] = useState<string | null>(null);
   const [parte, setParte] = useState<ParteDoPersonagem>(0);
+  /** o que falta em "contar a história" */
+  const [avisoDoBriefing, setAvisoDoBriefing] = useState<string | null>(null);
   const topo = useRef<HTMLDivElement>(null);
   const viuPrevia = useRef(false);
 
@@ -153,7 +157,11 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
     try {
       // localStorage, não sessionStorage: o link de entrada por e-mail abre em outra aba
       const salvo = localStorage.getItem(GUARDADO);
-      if (salvo) base = { ...VAZIO, ...JSON.parse(salvo) };
+      if (salvo) {
+        base = { ...VAZIO, ...JSON.parse(salvo) };
+        // rascunhos de antes do "Outro" não têm os campos novos do briefing
+        base.briefing = { ...BRIEFING_INICIAL, ...base.briefing };
+      }
     } catch {
       // sem armazenamento, começa do zero
     }
@@ -185,8 +193,8 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
     const pediu = busca.get('etapa');
     const sobMedida = inicial.caminho === 'sob-medida';
     if (completo && pediu === 'ficha' && comPersonagem) setEtapa(4);
-    else if (completo && pediu === 'historia' && sobMedida) setEtapa(7);
-    else if (completo && pediu === 'pagar') setEtapa(sobMedida && !historiaEmDiaDe(inicial) ? 7 : comPersonagem && !fichaEmDia ? 4 : 5);
+    else if (completo && pediu === 'historia' && sobMedida) setEtapa(fichaEmDia ? 7 : 4);
+    else if (completo && pediu === 'pagar') setEtapa(comPersonagem && !fichaEmDia ? 4 : sobMedida && !historiaEmDiaDe(inicial) ? 7 : 5);
     else setEtapa(falta);
     setPronto(true);
     registrar('personalizacao_iniciada');
@@ -236,8 +244,19 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
   const livroComHistoria = r.produto === 'presente' || r.produto === 'sob-medida';
   /** depois da ficha aprovada: a sob medida ainda passa pela história */
   const depoisDaFicha: Etapa = sobMedida && !historiaEmDia ? 7 : 5;
-  /** depois da história aprovada: o personagem, se o desenho ainda não está aprovado */
-  const depoisDaHistoria: Etapa = temPersonagem && !fichaEmDia ? 3 : 5;
+  /** depois da história aprovada: pagar (o desenho já foi aprovado antes) */
+  const depoisDaHistoria: Etapa = temPersonagem && !fichaEmDia ? 4 : 5;
+
+  function validarBriefing() {
+    const lido = lerBriefing(r.briefing, r.nome);
+    if (!lido.ok) {
+      setAvisoDoBriefing(lido.erro);
+      topo.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+    setAvisoDoBriefing(null);
+    irPara(3);
+  }
 
   function validarPersonalizacao(): boolean {
     const p = problemaDoNome(r.nome);
@@ -279,12 +298,12 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
 
   async function enviar() {
     if (!conta) return;
-    if (sobMedida && !historiaEmDia) {
-      irPara(7);
-      return;
-    }
     if (temPersonagem && !fichaEmDia) {
       irPara(4);
+      return;
+    }
+    if (sobMedida && !historiaEmDia) {
+      irPara(7);
       return;
     }
     const resultado = lerPedido({ ...r, email: conta.email, personagem: personagemDoPedido });
@@ -344,8 +363,12 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
   // a barra fixa só aparece quando tem botão: sem botão ela só cobria o formulário de conta
   const acaoDaBarra =
     etapa === 2 ? (
-      <button type="button" className="botao" onClick={() => validarPersonalizacao() && irPara(sobMedida ? 7 : temPersonagem ? 3 : 5)}>
+      <button type="button" className="botao" onClick={() => validarPersonalizacao() && irPara(sobMedida ? 8 : temPersonagem ? 3 : 5)}>
         Continuar
+      </button>
+    ) : etapa === 8 ? (
+      <button type="button" className="botao" onClick={validarBriefing}>
+        Continuar: criar o personagem
       </button>
     ) : etapa === 3 ? (
       <button type="button" className="botao" onClick={validarPersonagem}>
@@ -359,7 +382,7 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
   const whatsappAjuda = linkDoWhatsapp('Oi! Estou tentando fazer o pedido do livrinho e não consegui.');
 
   // o livro em construção, ao lado, nos passos em que a família monta o personagem e a história (telas largas)
-  const comPainel = etapa === 3 || etapa === 4 || etapa === 7;
+  const comPainel = etapa === 3 || etapa === 4 || etapa === 7 || etapa === 8;
 
   return (
     <div ref={topo} style={{ scrollMarginTop: 90 }} className={comPainel ? 'criar-com-painel' : undefined}>
@@ -672,21 +695,34 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
         />
       )}
 
+      {etapa === 8 && sobMedida && (
+        <EtapaBriefing
+          nome={nomeNaCapa}
+          superpoder={r.personagem.superpoder}
+          onSuperpoder={(sp) => setR((atual) => ({ ...atual, personagem: { ...atual.personagem, superpoder: sp } }))}
+          briefing={r.briefing}
+          onBriefing={(b) => {
+            setR((atual) => ({ ...atual, briefing: b }));
+            setAvisoDoBriefing(null);
+          }}
+          aviso={avisoDoBriefing}
+        />
+      )}
+
       {etapa === 7 && sobMedida && (
         <EtapaHistoria
           nome={nomeNaCapa}
           idade={r.idade}
           superpoder={r.personagem.superpoder}
-          onSuperpoder={(s) => setR((atual) => ({ ...atual, personagem: { ...atual.personagem, superpoder: s } }))}
           briefing={r.briefing}
-          onBriefing={(b) => setR((atual) => ({ ...atual, briefing: b }))}
-          historiaId={r.historiaId && r.historiaSuperpoder === r.personagem.superpoder && r.historiaIdade === r.idade ? r.historiaId : null}
+          historiaId={historiaDasEscolhas(r)}
           aprovada={historiaEmDia}
-          onNova={(id) => setR((atual) => ({ ...atual, historiaId: id, historiaAprovada: false, historiaSuperpoder: atual.personagem.superpoder, historiaIdade: atual.idade }))}
+          onNova={(id) => setR((atual) => ({ ...atual, historiaId: id, historiaAprovada: false, historiaChave: chaveDaHistoria(atual) }))}
           onAprovada={(titulo) => {
             setR((atual) => ({ ...atual, historiaAprovada: true, historiaTitulo: titulo }));
             irPara(depoisDaHistoria);
           }}
+          onMudarEscolhas={() => irPara(8)}
           conta={conta}
           carregandoConta={carregandoConta}
           google={google}

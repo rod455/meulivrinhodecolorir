@@ -66,12 +66,20 @@ export type LugarId = (typeof LUGARES)[number]['id'];
 export type LicaoId = (typeof LICOES)[number]['id'];
 export type MomentoId = (typeof MOMENTOS)[number]['id'];
 
-export const LIMITES = { gosta: 80, especie: 30, nomeDoBicho: 20, detalhe: 160, ajuste: 200 } as const;
+export const LIMITES = { gosta: 80, especie: 30, nomeDoBicho: 20, detalhe: 160, ajuste: 200, outro: 60 } as const;
+
+/** "Outro" em cada escolha (dono, 02/11/2026): a família escreve o que não está na lista */
+export const OUTRO = 'outro';
+export type Outro = typeof OUTRO;
 
 export type Briefing = {
-  lugar: LugarId;
-  licao: LicaoId;
-  momento: MomentoId;
+  lugar: LugarId | Outro;
+  licao: LicaoId | Outro;
+  momento: MomentoId | Outro;
+  /** o texto de cada "Outro" escolhido */
+  outros: { lugar: string; licao: string; momento: string };
+  /** o superpoder escrito pela família; null quando ela escolheu um da lista */
+  superpoderProprio: string | null;
   /** o que a criança adora; vai para a história */
   gosta: string;
   /** um bichinho de verdade da família, que entra como personagem */
@@ -80,7 +88,16 @@ export type Briefing = {
   detalhe: string;
 };
 
-export const BRIEFING_INICIAL: Briefing = { lugar: 'praca', licao: 'equipe', momento: 'nenhum', gosta: '', bichinho: null, detalhe: '' };
+export const BRIEFING_INICIAL: Briefing = {
+  lugar: 'praca',
+  licao: 'equipe',
+  momento: 'nenhum',
+  outros: { lugar: '', licao: '', momento: '' },
+  superpoderProprio: null,
+  gosta: '',
+  bichinho: null,
+  detalhe: '',
+};
 
 const ACENTOS: Record<string, string> = { a: 'aáàâãä', e: 'eéèêë', i: 'iíìîï', o: 'oóòôõö', u: 'uúùûü', c: 'cç', n: 'nñ', y: 'yý' };
 const tirarAcento = (t: string) => t.normalize('NFD').replace(/[̀-ͯ]/g, '');
@@ -122,9 +139,32 @@ const ehDe = <T extends string>(lista: readonly { id: T }[], v: unknown): v is T
 /** Lê o briefing que veio do navegador; o nome serve só para sair do texto. */
 export function lerBriefing(entrada: unknown, nome: string): { ok: true; briefing: Briefing } | { ok: false; erro: string } {
   const e = (entrada && typeof entrada === 'object' ? entrada : {}) as Record<string, unknown>;
-  if (!ehDe(LUGARES, e.lugar)) return { ok: false, erro: 'Escolha onde a história acontece.' };
-  if (!ehDe(LICOES, e.licao)) return { ok: false, erro: 'Escolha o que a história ensina.' };
-  const momento = ehDe(MOMENTOS, e.momento) ? e.momento : 'nenhum';
+  const outrosBrutos = (e.outros && typeof e.outros === 'object' ? e.outros : {}) as Record<string, unknown>;
+  const outros = { lugar: '', licao: '', momento: '' };
+  /** o texto de um "Outro": limpo como todo texto livre, e com pelo menos 3 letras além do nome */
+  const doOutro = (bruto: unknown) => {
+    const t = limparTextoLivre(bruto, nome, LIMITES.outro);
+    return [...t.replaceAll('{NOME}', '').trim()].length >= 3 ? t : '';
+  };
+  if (e.lugar === OUTRO) {
+    outros.lugar = doOutro(outrosBrutos.lugar);
+    if (!outros.lugar) return { ok: false, erro: 'Conte onde a história acontece.' };
+  } else if (!ehDe(LUGARES, e.lugar)) return { ok: false, erro: 'Escolha onde a história acontece.' };
+  if (e.licao === OUTRO) {
+    outros.licao = doOutro(outrosBrutos.licao);
+    if (!outros.licao) return { ok: false, erro: 'Conte o que a história ensina.' };
+  } else if (!ehDe(LICOES, e.licao)) return { ok: false, erro: 'Escolha o que a história ensina.' };
+  let momento: Briefing['momento'] = ehDe(MOMENTOS, e.momento) ? e.momento : 'nenhum';
+  if (e.momento === OUTRO) {
+    outros.momento = doOutro(outrosBrutos.momento);
+    if (!outros.momento) return { ok: false, erro: 'Conte qual é o momento especial.' };
+    momento = OUTRO;
+  }
+  let superpoderProprio: string | null = null;
+  if (typeof e.superpoderProprio === 'string') {
+    superpoderProprio = doOutro(e.superpoderProprio);
+    if (!superpoderProprio) return { ok: false, erro: 'Conte qual é o superpoder.' };
+  }
   const gosta = limparTextoLivre(e.gosta, nome, LIMITES.gosta);
   if ([...gosta.replace('{NOME}', '')].length < 3) return { ok: false, erro: 'Conte do que a criança mais gosta.' };
   let bichinho: Briefing['bichinho'] = null;
@@ -134,7 +174,19 @@ export function lerBriefing(entrada: unknown, nome: string): { ok: true; briefin
     const nomeDoBicho = limparTextoLivre(b.nome, nome, LIMITES.nomeDoBicho).replace('{NOME}', '').trim();
     if (especie) bichinho = { especie, nome: nomeDoBicho };
   }
-  return { ok: true, briefing: { lugar: e.lugar, licao: e.licao, momento, gosta, bichinho, detalhe: limparTextoLivre(e.detalhe, nome, LIMITES.detalhe) } };
+  return {
+    ok: true,
+    briefing: {
+      lugar: e.lugar as Briefing['lugar'],
+      licao: e.licao as Briefing['licao'],
+      momento,
+      outros,
+      superpoderProprio,
+      gosta,
+      bichinho,
+      detalhe: limparTextoLivre(e.detalhe, nome, LIMITES.detalhe),
+    },
+  };
 }
 
 const achar = <T extends { id: string }>(lista: readonly T[], id: string): T => lista.find((x) => x.id === id) ?? lista[0];
@@ -174,12 +226,17 @@ with exactly ${PAGINAS_DA_HISTORIA} items in "paginas".`;
 
 /** O pedido para a IA, só com o que a família escolheu; o nome já virou {NOME}. */
 export function pedidoDaHistoria(briefing: Briefing, idade: number, superpoder: SuperpoderId): string {
-  const momento = achar(MOMENTOS, briefing.momento).en;
-  const poder = SUPERPODERES.find((s) => s.id === superpoder)?.rotulo ?? 'Coragem';
+  // briefings guardados antes do "Outro" não têm estes campos
+  const outros = briefing.outros ?? { lugar: '', licao: '', momento: '' };
+  const daFamilia = (t: string) => `"${t}" (written by the family, in Portuguese)`;
+  const momento = briefing.momento === OUTRO ? daFamilia(outros.momento) : achar(MOMENTOS, briefing.momento).en;
+  const poder = briefing.superpoderProprio
+    ? `${daFamilia(briefing.superpoderProprio)}; keep it gentle, kind and possible for a small child`
+    : (SUPERPODERES.find((s) => s.id === superpoder)?.rotulo ?? 'Coragem');
   const linhas = [
     `The child: {NOME}, ${idade} years old.`,
-    `Where the story happens: ${achar(LUGARES, briefing.lugar).en}.`,
-    `The lesson: ${achar(LICOES, briefing.licao).en}.`,
+    `Where the story happens: ${briefing.lugar === OUTRO ? `${daFamilia(outros.lugar)}, drawn simple, friendly and safe for a small child` : achar(LUGARES, briefing.lugar).en}.`,
+    `The lesson: ${briefing.licao === OUTRO ? daFamilia(outros.licao) : achar(LICOES, briefing.licao).en}.`,
     momento ? `Special moment in the family: ${momento}.` : '',
     `{NOME} loves (written by the family, in Portuguese): "${briefing.gosta}". Bring it into the story in a natural way.`,
     briefing.bichinho
@@ -327,11 +384,21 @@ export type PlanoSobMedida = {
   certificado: { texto: string };
 };
 
-export function planoDaHistoria(entrada: { historiaId: string; nome: string; idade: number; personagem: Personagem; texto: TextoDaHistoria }): PlanoSobMedida {
+export function planoDaHistoria(entrada: {
+  historiaId: string;
+  nome: string;
+  idade: number;
+  personagem: Personagem;
+  texto: TextoDaHistoria;
+  /** o superpoder escrito pela família, quando ela escolheu "Outro" */
+  superpoderProprio?: string | null;
+}): PlanoSobMedida {
   const { historiaId, nome, idade, personagem, texto: t } = entrada;
   const crianca = descreverCrianca(personagem, idade);
   const elenco = t.personagens.map((p) => `- ${p.visual_en}`).join('\n');
-  const superpoder = SUPERPODERES.find((s) => s.id === personagem.superpoder)?.rotulo ?? '';
+  const superpoder = entrada.superpoderProprio
+    ? comNomeNaHistoria(entrada.superpoderProprio, nome)
+    : (SUPERPODERES.find((s) => s.id === personagem.superpoder)?.rotulo ?? '');
   return {
     modelo: ID_DO_MODELO_SOB_MEDIDA,
     titulo: comNomeNaHistoria(t.titulo, nome),

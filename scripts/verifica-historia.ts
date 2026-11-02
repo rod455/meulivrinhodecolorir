@@ -61,6 +61,24 @@ ok(!lerBriefing({ ...briefingBom, licao: undefined }, 'Bia').ok, 'sem lição re
 ok(!lerBriefing({ ...briefingBom, gosta: 'Bia' }, 'Bia').ok, 'gosta só com o nome recusa');
 const semBicho = lerBriefing({ ...briefingBom, bichinho: { especie: '', nome: 'Rex' } }, 'Bia');
 ok(semBicho.ok && semBicho.briefing.bichinho === null, 'bichinho sem espécie fica de fora');
+// "Outro" em todas as escolhas (dono, 02/11/2026): o texto da família vai para a IA, limpo, sem o nome
+const comOutros = lerBriefing(
+  { ...briefingBom, lugar: 'outro', licao: 'outro', momento: 'outro', outros: { lugar: 'no sítio da vó da Bia', licao: 'cuidar das plantas', momento: 'primeira viagem de avião' }, superpoderProprio: 'falar com os passarinhos' },
+  'Bia',
+);
+ok(comOutros.ok, 'briefing com "Outro" em tudo passa');
+if (comOutros.ok) {
+  ok(!JSON.stringify(comOutros.briefing).includes('Bia'), 'o "Outro" guardado não tem o nome');
+  const pedido = pedidoDaHistoria(comOutros.briefing, 5, 'coragem');
+  ok(pedido.includes('sítio da vó') && pedido.includes('cuidar das plantas') && pedido.includes('viagem de avião'), 'lugar, lição e momento escritos vão para a IA');
+  ok(pedido.includes('falar com os passarinhos') && !pedido.includes('Coragem'), 'o superpoder escrito vai no lugar do da lista');
+  ok(!pedido.includes('Bia'), 'o pedido com "Outro" não tem o nome');
+}
+ok(!lerBriefing({ ...briefingBom, lugar: 'outro', outros: { lugar: '', licao: '', momento: '' } }, 'Bia').ok, '"Outro" sem texto recusa (lugar)');
+ok(!lerBriefing({ ...briefingBom, licao: 'outro', outros: { lugar: '', licao: 'Bia', momento: '' } }, 'Bia').ok, '"Outro" só com o nome recusa (lição)');
+ok(!lerBriefing({ ...briefingBom, momento: 'outro' }, 'Bia').ok, '"Outro" sem texto recusa (momento)');
+ok(!lerBriefing({ ...briefingBom, superpoderProprio: ' ' }, 'Bia').ok, 'superpoder escrito vazio recusa');
+ok(lerBriefing({ ...briefingBom, outros: undefined, superpoderProprio: undefined }, 'Bia').ok, 'briefing guardado antes do "Outro" ainda passa');
 ok(INSTRUCOES_DA_HISTORIA.includes(String(PAGINAS_DA_HISTORIA)) && INSTRUCOES_DA_HISTORIA.includes('{NOME}'), 'as instruções falam das 16 páginas e de {NOME}');
 
 // 3. o texto que a IA devolve
@@ -121,6 +139,8 @@ if (r1.ok) {
   ok(prompts.every((p) => !/\bBia\b/.test(p) && !p.includes('{NOME}')), 'o nome nunca vai para o prompt de imagem');
   ok(plano.paginas.every((p) => p.prompt.includes('STYLE REFERENCE') && p.prompt.includes('coloring')), 'toda página no estilo da turma, para colorir');
   ok(plano.certificado.texto.includes('Coragem'), 'o certificado leva o superpoder');
+  const comPoderProprio = planoDaHistoria({ historiaId: crypto.randomUUID(), nome: 'Bia', idade: 5, personagem: { ...PERSONAGEM_INICIAL, superpoder: 'coragem' }, texto, superpoderProprio: 'falar com os passarinhos' });
+  ok(comPoderProprio.certificado.texto.includes('falar com os passarinhos') && !comPoderProprio.certificado.texto.includes('Coragem'), 'o certificado leva o superpoder escrito pela família');
 }
 
 // 6. o limite: 3 histórias novas por dia; falha e pedido não contam

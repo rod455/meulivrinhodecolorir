@@ -15,7 +15,7 @@ export const dynamic = 'force-dynamic';
 export async function POST(req: Request) {
   const conta = await contaDaSessao();
   if (!conta) return NextResponse.json({ conta: false, mensagem: 'Entre na sua conta para escrever a história.' }, { status: 401 });
-  if (!fotoLigada() || !process.env.N8N_WEBHOOK_HISTORIA) {
+  if (!fotoLigada()) {
     return NextResponse.json({ mensagem: 'A história sob medida abre em breve.' }, { status: 503 });
   }
   const entrada = (await req.json().catch(() => ({}))) as Record<string, unknown>;

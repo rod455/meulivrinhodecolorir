@@ -56,10 +56,12 @@ export async function mudarHistoria(id: string, campos: Partial<Historia>, condi
   if (!r.ok) throw new Error(`historias ${r.status}`);
 }
 
+export const ENDERECO_DO_FLUXO_DA_HISTORIA = 'https://n8n.vocaboost.com.br/webhook/meu-livrinho-historia';
+
 /** Avisa o fluxo "Meu Livrinho | escrever história": só o id e o bilhete. */
 export async function avisarN8nDaHistoria(id: string, token: string): Promise<boolean> {
-  const url = process.env.N8N_WEBHOOK_HISTORIA;
-  if (!url) return false;
+  // o endereço não é segredo (o fluxo só aceita id e bilhete): fica no código, como o do livro (a Vercel recusa criar a variável por aqui)
+  const url = process.env.N8N_WEBHOOK_HISTORIA || ENDERECO_DO_FLUXO_DA_HISTORIA;
   const r = await fetch(url, { method: 'POST', headers: json, body: JSON.stringify({ historia_id: id, token }), cache: 'no-store' }).catch(() => null);
   return Boolean(r?.ok);
 }

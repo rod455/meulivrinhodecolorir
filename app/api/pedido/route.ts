@@ -85,6 +85,7 @@ export async function POST(req: Request) {
 
   // a sob medida: o texto é o da história aprovada, e o superpoder é o dela (a página 13 foi escrita com ele)
   let texto: TextoDaHistoria | null = null;
+  let superpoderProprio: string | null = null;
   if (pedido.historiaId) {
     const h = await historiaPorId(pedido.historiaId).catch(() => null);
     const valida = h && h.user_id === conta.id && h.status === 'pronta' && h.aprovada_em && h.texto && !h.pedido_id && h.idade === pedido.idade;
@@ -96,12 +97,13 @@ export async function POST(req: Request) {
     }
     texto = h.texto;
     personagem = { ...personagem, superpoder: h.superpoder };
+    superpoderProprio = h.briefing.superpoderProprio ?? null;
   }
 
   const id = crypto.randomUUID();
   const plano =
     texto && personagem && pedido.historiaId
-      ? planoDaHistoria({ historiaId: pedido.historiaId, nome: pedido.nome, idade: pedido.idade, personagem, texto })
+      ? planoDaHistoria({ historiaId: pedido.historiaId, nome: pedido.nome, idade: pedido.idade, personagem, texto, superpoderProprio })
       : personagem
         ? planoDoLivro({ tema: pedido.tema, nome: pedido.nome, idade: pedido.idade, produto: pedido.produto, personagem })
         : null;
