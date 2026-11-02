@@ -572,7 +572,36 @@ p { margin: 0 0 1em; }
 .folhear .botao { min-width: 52px; font-size: 1.3rem; }
 .folhear-onde { min-width: 120px; text-align: center; font-weight: 800; }
 .exemplo-nota { max-width: 46ch; text-align: center; margin: 0; }
-.exemplo-escolhas { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; }
+/* as escolhas do exemplo numa linha só (dono, 02/11/2026) */
+.exemplo-escolhas { display: flex; flex-wrap: nowrap; justify-content: center; align-items: center; gap: 6px; max-width: 100%; }
+.exemplo-escolhas .chip-mostra { min-height: 30px; padding: 2px 10px; font-size: 0.82rem; white-space: nowrap; }
+.exemplo-escolhas .letra-miuda { white-space: nowrap; }
+@media (max-width: 559px) {
+  /* no celular, o rótulo em cima e as quatro escolhas numa linha só */
+  .exemplo-escolhas { flex-wrap: wrap; gap: 4px; }
+  .exemplo-escolhas .letra-miuda { flex-basis: 100%; text-align: center; }
+  .exemplo-escolhas { gap: 3px; }
+  .exemplo-escolhas .chip-mostra { font-size: 0.64rem; padding: 2px 6px; min-height: 24px; border-width: 1.5px; }
+  .exemplo-escolhas .letra-miuda ~ .chip-mostra { flex: 0 1 auto; }
+  .exemplo-escolhas { flex-wrap: wrap; row-gap: 4px; }
+  .exemplo-escolhas .chip-mostra:nth-of-type(n) { white-space: nowrap; }
+  .exemplo-escolhas .chip-mostra::before { content: none; }
+}
+/* o exemplo com a capa ao lado das duas primeiras páginas */
+.exemplo-com-capa { display: grid; gap: 18px; align-items: start; }
+@media (min-width: 560px) { .exemplo-com-capa { grid-template-columns: 240px 1fr; } }
+/* a capa do exemplo no formato da série Little Paws (dono, 02/11/2026) */
+.capa-da-serie { position: relative; width: min(240px, 72%); justify-self: center; border: 2px solid var(--grafite); border-radius: 6px 14px 14px 6px; overflow: hidden; box-shadow: inset 10px 0 0 rgba(43, 45, 66, 0.12), 0 5px 0 var(--grafite); }
+@media (min-width: 560px) { .capa-da-serie { width: 100%; } }
+.capa-da-serie img { width: 100%; height: auto; display: block; }
+.capa-da-serie-topo { position: absolute; top: 5%; left: 5%; right: 5%; display: grid; justify-items: center; gap: 4px; text-align: center; }
+.capa-da-serie-selo { background: #1f2a44; color: var(--branco); border-radius: 999px; padding: 2px 10px; font: 800 0.58rem var(--fonte-titulo), system-ui, sans-serif; letter-spacing: 0.06em; text-transform: uppercase; }
+.capa-da-serie-titulo { display: grid; line-height: 0.95; font: 800 1.3rem/0.95 var(--fonte-titulo), system-ui, sans-serif; text-transform: uppercase; color: var(--branco); -webkit-text-stroke: 1.5px #1f2a44; paint-order: stroke fill; text-shadow: 0 3px 0 #1f2a44; }
+.capa-da-serie-titulo-cor { color: var(--amarelo); }
+.capa-da-serie-sub { font: 700 0.72rem var(--fonte-titulo), system-ui, sans-serif; color: var(--branco); -webkit-text-stroke: 0.5px #1f2a44; paint-order: stroke fill; text-shadow: 0 1px 2px rgba(31, 42, 68, 0.6); }
+.exemplo-paginas .historia-paginas { margin: 10px 0; }
+.exemplo-continua { margin: 0; font-weight: 700; color: var(--grafite-suave); font-size: 0.95rem; }
+.exemplo-nota { text-align: center; margin: 0; }
 .chip-mostra { cursor: default; background: #fff3c9; border-color: var(--grafite); }
 .exemplo-texto { width: min(640px, 100%); background: var(--branco); border: 2px solid var(--grafite); border-radius: 24px; padding: 20px; }
 .exemplo-titulo { display: block; font: 800 1.5rem var(--fonte-titulo), system-ui, sans-serif; margin-bottom: 4px; }

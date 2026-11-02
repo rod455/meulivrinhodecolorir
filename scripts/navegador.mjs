@@ -147,7 +147,10 @@ await p.locator('.folha-continua').waitFor();
 assert.equal(await p.locator('.folhear-onde').textContent(), 'Continua no livro', 'a última folha do exemplo é a de continua');
 assert.ok(await p.getByRole('button', { name: 'Próxima página' }).isDisabled(), 'e não há página depois dela');
 assert.equal(await p.locator('.exemplo-turma').getByText(/GOOOL|terminou empatado/).count(), 0, 'o final do jogo não aparece no exemplo');
-await p.locator('#propria').getByText('João Pedro e o mar de conchas').waitFor();
+// o exemplo da sob medida é o livro pronto da Laura, com capa e título, e só as duas primeiras páginas (dono, 02/11/2026)
+await p.locator('#propria').getByText('Laura e o mar de conchas', { exact: true }).waitFor();
+assert.deepEqual(await p.locator('#propria .historia-numero').allTextContents(), ['1', '2'], 'o exemplo mostra só o começo da história, sem o final');
+assert.ok(await p.locator('#propria .capa-da-serie').isVisible(), 'o exemplo tem a capa do livro');
 // o caminho do zero continua de pé para os links antigos (anúncios), só saiu da página
 await p.goto(`${SITE}/criar?caminho=zero&tema=natal&nome=jo%C3%A3o%20pedro`);
 

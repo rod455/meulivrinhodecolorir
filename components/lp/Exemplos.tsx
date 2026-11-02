@@ -22,15 +22,17 @@ const PAGINAS_DA_TURMA = [
   { pagina: 9, arte: '/artes/exemplo-pagina-9.webp' },
 ];
 
-/** um exemplo de história sob medida: praia, enfrentar um medo, o cachorro Pipoca e o superpoder coragem */
+/**
+ * um exemplo de história sob medida: praia, enfrentar medos, o cachorro Pipoca e o superpoder coragem.
+ * Com a capa do livro e só as duas primeiras páginas: o meio e o final ficam para o livro (dono, 02/11/2026).
+ */
 const EXEMPLO_SOB_MEDIDA = {
-  escolhas: ['Na praia', 'Enfrentar um medo', 'Cachorro Pipoca', 'Superpoder: coragem'],
+  escolhas: ['Praia', 'Enfrentar medos', 'Pet: Pipoca', 'Superpoder: coragem'],
   titulo: '{NOME} e o mar de conchas',
+  capa: '/artes/capa-mar-de-conchas.webp',
   paginas: [
     { n: 1, texto: '{NOME} adorava conchas, mas tinha medo das ondas grandes. Do alto da duna, olhava o mar de longe.' },
     { n: 2, texto: 'Um dia, a coelha Lili e o cachorro Pipoca chegaram correndo: "Vamos achar a concha mais brilhante da praia?"' },
-    { n: 13, texto: 'As ondas estavam altas e todo mundo parou. {NOME} respirou fundo: "Eu também estou com medo. Mas vamos juntos?"' },
-    { n: 16, texto: 'No fim da tarde, {NOME} guardou a concha mais brilhante no bolso. E o mar virou o melhor amigo da turma.' },
   ],
 };
 
@@ -92,31 +94,48 @@ export function ExemploTurma() {
 }
 
 export function ExemploSobMedida() {
-  const { quem } = useQuem();
+  // o exemplo é o livro pronto da Laura, com a capa no formato da série (dono, 02/11/2026): o nome não muda
+  const quem = 'Laura';
+  const titulo = comNome(EXEMPLO_SOB_MEDIDA.titulo, quem);
   return (
     <div className="exemplo-sob-medida">
       <div className="exemplo-escolhas">
-        <span className="letra-miuda">Você escolheu:</span>
+        <span className="letra-miuda">A família da {quem} escolheu:</span>
         {EXEMPLO_SOB_MEDIDA.escolhas.map((e) => (
           <span key={e} className="chip chip-mostra">
             {e}
           </span>
         ))}
       </div>
-      <div className="exemplo-texto">
-        <strong className="exemplo-titulo">{comNome(EXEMPLO_SOB_MEDIDA.titulo, quem)}</strong>
-        <ol className="historia-paginas">
-          {EXEMPLO_SOB_MEDIDA.paginas.map((p) => (
-            <li key={p.n} className={p.n === 13 ? 'pagina-superpoder' : ''}>
-              <span className="historia-numero" aria-hidden="true">
-                {p.n}
-              </span>
-              <span>{comNome(p.texto, quem)}</span>
-            </li>
-          ))}
-        </ol>
-        <p className="letra-miuda">Exemplo de 4 das 16 páginas. Você lê a história inteira, pede até 2 ajustes e só depois aprova.</p>
+      <div className="exemplo-texto exemplo-com-capa">
+        {/* a capa como as da série Little Paws: etiqueta em cima, título em duas cores e o subtítulo */}
+        <div className="capa-da-serie" role="img" aria-label={`Capa do livro "${titulo}"`}>
+          <Image src={EXEMPLO_SOB_MEDIDA.capa} alt="" width={768} height={1152} sizes="(min-width: 960px) 220px, 60vw" />
+          <div className="capa-da-serie-topo">
+            <span className="capa-da-serie-selo">Meu Livrinho de Colorir</span>
+            <strong className="capa-da-serie-titulo">
+              <span>{quem} e o</span>
+              <span className="capa-da-serie-titulo-cor">mar de conchas</span>
+            </strong>
+            <span className="capa-da-serie-sub">Uma história sobre coragem</span>
+          </div>
+        </div>
+        <div className="exemplo-paginas">
+          <strong className="exemplo-titulo">{titulo}</strong>
+          <ol className="historia-paginas">
+            {EXEMPLO_SOB_MEDIDA.paginas.map((p) => (
+              <li key={p.n}>
+                <span className="historia-numero" aria-hidden="true">
+                  {p.n}
+                </span>
+                <span>{comNome(p.texto, quem)}</span>
+              </li>
+            ))}
+          </ol>
+          <p className="exemplo-continua">Continua no livro: 16 páginas, com o superpoder da {quem} na hora mais importante.</p>
+        </div>
       </div>
+      <p className="letra-miuda exemplo-nota">Você lê a história inteira, pede até 2 ajustes e só depois aprova.</p>
     </div>
   );
 }

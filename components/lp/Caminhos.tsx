@@ -47,16 +47,20 @@ export function HistoriaPropria() {
     <div className="secao-caminho secao-caminho-invertida">
       <div className="secao-caminho-texto">
         <h2>Crie a sua própria história</h2>
-        <p className="sub-caminho">Uma história inteira escrita para {quem}, com o desenho e o jeito de livro da turma Little Paws, e amigos bichinhos novos.</p>
+        <p className="sub-caminho">Uma história inteira escrita para {quem}, com amigos bichinhos novos, para ler junto ou para pintar.</p>
         <ol className="caminho-passos">
           <li>
             <strong>Conte sobre {quem}:</strong> onde a história acontece, o que ela ensina, do que gosta. Até o bichinho de estimação entra.
           </li>
           <li>
-            <strong>A gente escreve</strong> 16 páginas para pintar, com o superpoder na hora mais importante.
+            <strong>A gente escreve</strong> 16 páginas, com o superpoder na hora mais importante.
           </li>
           <li>
             <strong>Você lê, ajusta e aprova</strong> o texto e o desenho do personagem.
+          </li>
+          <li>
+            {/* as duas versões, e o combo (dono, 02/11/2026) */}
+            <strong>Escolha o livro:</strong> de leitura, todo ilustrado e colorido, de colorir, ou os dois com desconto.
           </li>
         </ol>
         <Link href={linkDoCaminho('sob-medida', nome)} className="botao" onClick={() => registrar('caminho_escolhido', { caminho: 'sob-medida' })}>
