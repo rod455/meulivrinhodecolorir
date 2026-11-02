@@ -97,13 +97,21 @@ ok(lerTextoDaHistoria('```json\n' + JSON.stringify(bom()) + '\n```').ok, 'aceita
 ok(!lerTextoDaHistoria('não sei').ok, 'texto que não é JSON recusa');
 ok(!lerTextoDaHistoria({ ...bom(), paginas: bom().paginas.slice(0, 15) }).ok, '15 páginas recusa');
 ok(!lerTextoDaHistoria({ ...bom(), titulo: 'O mar de conchas' }).ok, 'título sem {NOME} recusa');
+// cena sem a criança: desde 02/11/2026 o site põe a criança na cena em vez de recusar a história (ver abaixo)
 const semCrianca = bom();
 semCrianca.paginas[4].cena_en = 'Lili the bunny alone on the beach.';
-ok(!lerTextoDaHistoria(semCrianca).ok, 'cena sem a criança recusa');
+const rSemCrianca = lerTextoDaHistoria(semCrianca);
+ok(rSemCrianca.ok && rSemCrianca.texto.paginas[4].cena_en.startsWith('Lili the bunny alone on the beach. The child is there too'), 'cena sem a criança ganha a criança');
 const nomeNaCena = bom();
 nomeNaCena.paginas[2].cena_en = '{NOME} runs on the sand with Lili.';
 const r2 = lerTextoDaHistoria(nomeNaCena);
 ok(r2.ok && !r2.texto.paginas[2].cena_en.includes('{NOME}') && r2.texto.paginas[2].cena_en.includes('the child'), '{NOME} na cena vira "the child"');
+// a primeira história de verdade (execução 9452, 02/11/2026) veio com a página 6 só com os amigos: a criança entra na cena
+const soAmigos = bom();
+soAmigos.paginas[5] = { ...soAmigos.paginas[5], cena_en: 'The friends stack leaves and branches, but the little fort keeps falling down.' };
+const rSoAmigos = lerTextoDaHistoria(soAmigos);
+ok(rSoAmigos.ok && /\bthe child\b/i.test(rSoAmigos.texto.paginas[5].cena_en), 'cena sem a criança é consertada, não recusada');
+ok(!lerTextoDaHistoria({ ...bom(), paginas: bom().paginas.map((p, i) => (i === 3 ? { ...p, cena_en: '' } : p)) }).ok, 'página sem cena recusa');
 const comTravessao = bom();
 comTravessao.paginas[0].texto = '{NOME} correu — e riu muito.';
 const r3 = lerTextoDaHistoria(comTravessao);

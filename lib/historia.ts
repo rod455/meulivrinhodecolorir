@@ -313,10 +313,13 @@ export function lerTextoDaHistoria(bruto: unknown): { ok: true; texto: TextoDaHi
     const x = (p && typeof p === 'object' ? p : {}) as Record<string, unknown>;
     const t = semTravessao(texto(x.texto, 600));
     // a cena vai para a imagem: o nome nunca, nem como variável
-    const cena = texto(x.cena_en, 700).replaceAll('{NOME}', 'the child');
+    let cena = texto(x.cena_en, 700).replaceAll('{NOME}', 'the child');
+    // a IA às vezes descreve só os amigos numa página (história real, 02/11/2026, execução 9452 do n8n):
+    // a criança é a heroína e aparece em toda página, então ela entra na cena em vez de a história cair
+    if (cena && !/\bthe child\b/i.test(cena)) cena = `${cena.replace(/[.\s]+$/, '')}. The child is there too, with the friends.`;
     if (!t) return { ok: false, erro: `página ${i + 1} sem texto` };
     if ([...t].length > LIMITE_DO_TEXTO_DA_PAGINA) return { ok: false, erro: `página ${i + 1} com texto comprido demais` };
-    if (!cena || !/\bthe child\b/i.test(cena)) return { ok: false, erro: `página ${i + 1} sem a criança na cena` };
+    if (!cena) return { ok: false, erro: `página ${i + 1} sem cena` };
     if (outraVariavel(t) || outraVariavel(cena)) return { ok: false, erro: `página ${i + 1} com variável estranha` };
     paginas.push({ texto: t, cena_en: cena });
   }
