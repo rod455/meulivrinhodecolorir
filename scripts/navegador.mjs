@@ -496,7 +496,7 @@ await intrusa.waitForURL(/\/conta/);
 // a história 100% personalizada (31/10/2026): a IA escreve, a família aprova o texto e o desenho, e o nome nunca vai para a IA
 await intrusa.goto(`${SITE}/`);
 await intrusa.locator('.topo .porta-propria').click();
-await intrusa.locator('#propria').getByRole('link', { name: 'Escrever a história' }).click();
+await intrusa.locator('#propria').getByRole('link', { name: 'Criar história' }).click();
 await intrusa.getByRole('heading', { name: 'Agora, o nome' }).waitFor();
 assert.deepEqual(
   await intrusa.locator('.etapas li').allTextContents(),

@@ -43,28 +43,44 @@ export function FacaParte() {
 export function HistoriaPropria() {
   const { nome } = useNomeNaLp();
   const quem = nome || 'seu filho';
+  // estrutura revista pelo dono (02/11/2026): cada passo com um título curto e a explicação embaixo,
+  // o passo 4 mostrando as duas versões do livro, e o botão "Criar história"
   return (
     <div className="secao-caminho secao-caminho-invertida">
       <div className="secao-caminho-texto">
         <h2>Crie a sua própria história</h2>
-        <p className="sub-caminho">Uma história inteira escrita para {quem}, com amigos bichinhos novos, para ler junto ou para pintar.</p>
-        <ol className="caminho-passos">
+        <p className="sub-caminho">
+          Um livro escrito do zero, com {quem} no centro de tudo. O lugar, a lição e o que {quem} mais gosta viram uma aventura de 16 páginas, com amigos
+          bichinhos inventados só para ela.
+        </p>
+        <ol className="caminho-passos caminho-passos-blocos">
           <li>
-            <strong>Conte sobre {quem}:</strong> onde a história acontece, o que ela ensina, do que gosta. Até o bichinho de estimação entra.
+            <strong>Conte como é {quem}</strong>
+            <span>Onde a história acontece, o que ela ensina e o superpoder. Se tiver um pet, ele entra também.</span>
           </li>
           <li>
-            <strong>A gente escreve</strong> 16 páginas, com o superpoder na hora mais importante.
+            <strong>A gente escreve e desenha</strong>
+            <span>16 páginas de aventura, com o superpoder na hora mais importante.</span>
           </li>
           <li>
-            <strong>Você vê o começo e aprova</strong> a história e o desenho do personagem, com até 2 ajustes.
+            <strong>Você vê antes de pagar</strong>
+            <span>O começo da história e o desenho do personagem. Pode pedir até 2 ajustes.</span>
           </li>
           <li>
-            {/* as duas versões, e o combo (dono, 02/11/2026) */}
-            <strong>Escolha o livro:</strong> de leitura, todo ilustrado e colorido, de colorir, ou os dois com desconto.
+            <strong>Escolha o seu livro</strong>
+            <span className="versoes-mini">
+              <span className="versao-mini">
+                <b>Para ler</b> ilustrado e colorido
+              </span>
+              <span className="versao-mini">
+                <b>Para colorir</b> em traço, para pintar
+              </span>
+            </span>
+            <span className="letra-miuda">Ou os dois juntos, com desconto.</span>
           </li>
         </ol>
         <Link href={linkDoCaminho('sob-medida', nome)} className="botao" onClick={() => registrar('caminho_escolhido', { caminho: 'sob-medida' })}>
-          Escrever a história
+          Criar história
         </Link>
       </div>
       <ExemploSobMedida />

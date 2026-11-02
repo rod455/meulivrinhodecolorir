@@ -885,3 +885,12 @@ body:has(.barra-fixa) .ajuda-painel { bottom: calc(172px + env(safe-area-inset-b
 }
 .marca-dagua li { user-select: none; -webkit-user-select: none; }
 .historia-resto { display: grid; gap: 4px; padding: 14px 16px; margin: 4px 0 14px; border: 2px dashed var(--contorno-suave); border-radius: 14px; background: var(--nuvem); }
+
+/* os passos da sob medida na página inicial: título curto e a explicação embaixo (dono, 02/11/2026) */
+.caminho-passos-blocos { gap: 14px; }
+.caminho-passos-blocos li { display: grid; gap: 2px; }
+.caminho-passos-blocos li > strong { font-family: var(--fonte-titulo), system-ui, sans-serif; font-size: 1.2rem; line-height: 1.2; }
+.caminho-passos-blocos li > span { color: var(--grafite-suave); font-size: 0.95rem; line-height: 1.45; }
+.versoes-mini { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 2px; }
+.versao-mini { display: inline-grid; gap: 0; padding: 6px 12px; border: 2px solid var(--grafite); border-radius: 12px; background: var(--branco); color: var(--grafite); font-size: 0.85rem; line-height: 1.25; }
+.versao-mini b { font-family: var(--fonte-titulo), system-ui, sans-serif; font-size: 0.98rem; }

@@ -15,7 +15,7 @@ export function ChamadaFinal() {
           Colocar {nome || 'seu filho'} no time
         </Link>
         <Link href={linkDoCaminho('sob-medida', nome)} className="botao botao-secundario">
-          Escrever a história
+          Criar história
         </Link>
       </div>
     </div>
