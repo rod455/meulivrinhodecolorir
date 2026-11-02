@@ -17,6 +17,7 @@ import {
   pedidoDoAjuste,
   PAGINAS_DA_HISTORIA,
   planoDaHistoria,
+  previaDaHistoria,
   type HistoriaNoBanco,
   type TextoDaHistoria,
 } from '../lib/historia.ts';
@@ -93,6 +94,13 @@ const bom = (): Bruto => ({
 });
 const r1 = lerTextoDaHistoria(JSON.stringify(bom()));
 ok(r1.ok, `o texto certo passa (${!r1.ok ? r1.erro : ''})`);
+// antes de pagar, a prévia: só as 2 primeiras páginas, sem cenas nem o visual dos amigos (dono, 02/11/2026)
+if (r1.ok) {
+  const previa = previaDaHistoria(r1.texto);
+  ok(previa.paginas.length === 2 && previa.totalDePaginas === 16, 'a prévia tem 2 das 16 páginas');
+  ok(!JSON.stringify(previa).includes('cena_en') && !JSON.stringify(previa).includes('visual_en'), 'a prévia não leva as cenas nem o visual');
+  ok(!JSON.stringify(previa).includes(r1.texto.paginas[2].texto), 'a página 3 não vai na prévia');
+}
 ok(lerTextoDaHistoria('```json\n' + JSON.stringify(bom()) + '\n```').ok, 'aceita embrulhado em ```json');
 ok(!lerTextoDaHistoria('não sei').ok, 'texto que não é JSON recusa');
 ok(!lerTextoDaHistoria({ ...bom(), paginas: bom().paginas.slice(0, 15) }).ok, '15 páginas recusa');

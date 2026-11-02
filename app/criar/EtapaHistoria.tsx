@@ -3,7 +3,7 @@
 // A história sob medida (pedido do dono, 31/10/2026): a família conta o lugar,
 // a lição e do que a criança gosta; a IA escreve a história no jeito da turma
 // Little Paws (16 páginas, o superpoder na 13) e cria os amigos dela. A família
-// lê o texto inteiro e aprova antes de pagar, com até 2 ajustes.
+// vê o começo (as 2 primeiras páginas, com marca d'água) e aprova antes de pagar, com até 2 ajustes.
 // O nome nunca vai para a IA: o servidor troca por {NOME}, e quem põe o nome
 // de volta é esta tela.
 
@@ -23,12 +23,12 @@ import {
   OUTRO,
   PAGINA_DO_SUPERPODER,
   type Briefing,
-  type TextoDaHistoria,
+  type PreviaDaHistoria,
 } from '@/lib/historia';
 import { SUPERPODERES, type SuperpoderId } from '@/lib/personagem';
 
 type Situacao = 'pedindo' | 'escrevendo' | 'pronta' | 'falhou' | 'parada';
-type Estado = { status: 'escrevendo' | 'pronta' | 'falhou'; texto: TextoDaHistoria | null; ajustesRestantes: number; aprovada: boolean; usada: boolean; falhouOAjuste: boolean };
+type Estado = { status: 'escrevendo' | 'pronta' | 'falhou'; texto: PreviaDaHistoria | null; ajustesRestantes: number; aprovada: boolean; usada: boolean; falhouOAjuste: boolean };
 
 export const DESTINO_DEPOIS_DE_ENTRAR_NA_HISTORIA = '/criar?etapa=historia';
 
@@ -69,7 +69,7 @@ export function EtapaBriefing({
       <div className="historia-briefing">
         <p className="letra-miuda">
           Conte como você imagina. A gente escreve 16 páginas para pintar só de {quem}, com amigos inventados para essa história e o superpoder
-          na hora mais importante. Você lê tudo antes de pagar.
+          na hora mais importante. Você vê o começo antes de pagar.
         </p>
         <Grupo id="rotulo-superpoder" rotulo={`O superpoder de ${quem}`}>
           {SUPERPODERES.map((o) => (
@@ -363,7 +363,7 @@ export function EtapaHistoria({
     return (
       <section className="ficha-etapa">
         {titulo}
-        <p className="letra-miuda">Entre ou crie sua conta: é nela que a história fica guardada enquanto você lê e aprova.</p>
+        <p className="letra-miuda">Entre ou crie sua conta: é nela que a história fica guardada enquanto você vê o começo e aprova.</p>
         <FormularioDeConta destino={DESTINO_DEPOIS_DE_ENTRAR_NA_HISTORIA} google={google} />
       </section>
     );
@@ -408,11 +408,12 @@ export function EtapaHistoria({
                 </li>
               ))}
             </ul>
-            <span className="letra-miuda">Todos desenhados no traço da turma Little Paws, prontos para pintar.</span>
+            <span className="letra-miuda">Todos desenhados no mesmo traço do livro.</span>
           </div>
-          <ol className="historia-paginas">
+          {/* antes de pagar, só o começo, com marca d'água; o resto nem chega do servidor (dono, 02/11/2026) */}
+          <ol className="historia-paginas marca-dagua" aria-label="Prévia: as primeiras páginas">
             {estado.texto.paginas.map((p, i) => (
-              <li key={i} className={i + 1 === PAGINA_DO_SUPERPODER ? 'pagina-superpoder' : ''}>
+              <li key={i}>
                 <span className="historia-numero" aria-hidden="true">
                   {i + 1}
                 </span>
@@ -420,6 +421,14 @@ export function EtapaHistoria({
               </li>
             ))}
           </ol>
+          <div className="historia-resto" role="note">
+            <strong>
+              Páginas {estado.texto.paginas.length + 1} a {estado.texto.totalDePaginas}: no livro
+            </strong>
+            <span className="letra-miuda">
+              Inclusive a página {PAGINA_DO_SUPERPODER}, em que {quem} usa o superpoder {poder}. A história inteira chega depois do pagamento.
+            </span>
+          </div>
           {ajustando ? (
             <div className="campo">
               <label htmlFor="ajuste">O que você quer mudar?</label>

@@ -56,7 +56,7 @@ export function HistoriaPropria() {
             <strong>A gente escreve</strong> 16 páginas, com o superpoder na hora mais importante.
           </li>
           <li>
-            <strong>Você lê, ajusta e aprova</strong> o texto e o desenho do personagem.
+            <strong>Você vê o começo e aprova</strong> a história e o desenho do personagem, com até 2 ajustes.
           </li>
           <li>
             {/* as duas versões, e o combo (dono, 02/11/2026) */}

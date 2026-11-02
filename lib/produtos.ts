@@ -55,7 +55,7 @@ export const PRODUTOS: Record<ProdutoId, Produto> = {
     id: 'sob-medida',
     emoji: '✍️',
     nome: 'História sob medida',
-    resumo: 'Uma história escrita do zero para a criança, no estilo da turma Little Paws. Você lê e aprova o texto antes de pagar.',
+    resumo: 'Uma história escrita do zero para a criança. Você vê o começo e aprova antes de pagar.',
     paginas: '20 páginas',
     idealPara: 'Ideal para um momento especial',
     preco: 3990,

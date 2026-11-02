@@ -15,7 +15,7 @@ export const PERGUNTAS: { pergunta: string; resposta: string }[] = [
   {
     pergunta: 'Como funciona a história 100% personalizada?',
     resposta:
-      'Você conta onde a história acontece, o que ela ensina e do que seu filho gosta, e pode incluir o bichinho de estimação. A gente escreve 16 páginas no jeito da turma Little Paws, com amigos novos. Você lê a história inteira, pede até 2 ajustes e aprova antes de pagar.',
+      'Você conta onde a história acontece, o que ela ensina e do que seu filho gosta, e pode incluir o bichinho de estimação. A gente escreve 16 páginas, com amigos novos. Antes de pagar, você vê o começo da história e o desenho do personagem, pode pedir até 2 ajustes e aprova.',
   },
   {
     pergunta: 'Como imprimo? Que papel uso?',

@@ -22,7 +22,7 @@ export function GET() {
     '## Os dois jeitos de colocar a criança na história',
     '',
     `- [Faça parte da história](${u('/#fazer-parte')}): a criança entra no time da turma Little Paws e vive a aventura com eles. A família escolhe cabelo, tom de pele, roupa e superpoder, ou envia uma foto, e aprova o desenho do personagem. Aventura disponível hoje: a grande final de futebol; basquete, flag football e Natal em breve.`,
-    `- [Crie a sua própria história](${u('/#propria')}): uma história de 16 páginas para colorir escrita do zero para a criança, a partir do lugar onde acontece, da lição que ensina, do que a criança gosta e até do bichinho de estimação. A família lê a história inteira, pede até 2 ajustes e aprova.`,
+    `- [Crie a sua própria história](${u('/#propria')}): uma história de 16 páginas para colorir escrita do zero para a criança, a partir do lugar onde acontece, da lição que ensina, do que a criança gosta e até do bichinho de estimação. Antes de pagar, a família vê o começo da história, pode pedir até 2 ajustes e aprova.`,
     `- [Começar a criar](${u('/criar')}): o passo a passo no site.`,
     '',
     '## Como funciona',

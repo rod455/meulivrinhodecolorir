@@ -462,8 +462,8 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
               <Image src="/artes/turma-comemorando.webp" alt="" width={600} height={600} className="caminho-arte" />
               <strong style={{ fontSize: '1.3rem', fontFamily: 'var(--fonte-titulo)' }}>História 100% personalizada</strong>
               <span>
-                Você conta o lugar, a lição e do que {nomeNaCapa || 'seu filho'} gosta, e a gente escreve uma história inteira no jeito da turma Little
-                Paws. Você lê, ajusta e aprova.
+                Você conta o lugar, a lição e do que {nomeNaCapa || 'seu filho'} gosta, e a gente escreve uma história inteira. Você vê o começo, ajusta e
+                aprova.
               </span>
             </button>
           </div>

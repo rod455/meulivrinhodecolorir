@@ -337,6 +337,30 @@ export function lerTextoDaHistoria(bruto: unknown): { ok: true; texto: TextoDaHi
 
 export const comNomeNaHistoria = (t: string, nome: string) => t.replaceAll('{NOME}', nome);
 
+/**
+ * Antes de pagar, a família vê só o começo (dono, 02/11/2026: "a pessoa vê o livro inteiro
+ * antes? não pode"): o título, os amigos e as 2 primeiras páginas, com marca d'água na tela.
+ * O corte é aqui, no servidor: o resto do texto nem chega ao navegador. As cenas em inglês e
+ * o visual dos amigos (receita do desenho) também ficam de fora.
+ */
+export const PAGINAS_DA_PREVIA = 2;
+export type PreviaDaHistoria = {
+  titulo: string;
+  subtitulo: string;
+  personagens: { nome: string; especie: string; jeito: string }[];
+  paginas: { texto: string }[];
+  totalDePaginas: number;
+};
+export function previaDaHistoria(t: TextoDaHistoria): PreviaDaHistoria {
+  return {
+    titulo: t.titulo,
+    subtitulo: t.subtitulo,
+    personagens: t.personagens.map(({ nome, especie, jeito }) => ({ nome, especie, jeito })),
+    paginas: t.paginas.slice(0, PAGINAS_DA_PREVIA).map(({ texto }) => ({ texto })),
+    totalDePaginas: t.paginas.length,
+  };
+}
+
 // -- a história no banco ------------------------------------------------------
 
 export type HistoriaNoBanco = {

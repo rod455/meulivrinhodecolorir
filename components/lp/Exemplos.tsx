@@ -3,7 +3,7 @@
 // Os exemplos da LP, com o nome que a família digitou: na turma, um livro de
 // verdade para folhear, com páginas da história de futebol em traço para
 // colorir (o texto é o mesmo de lib/historias/futebol.ts); na sob medida, um
-// exemplo do texto que a família lê e aprova antes de pagar.
+// exemplo do começo da história, com marca d'água, como a família vê antes de pagar.
 
 import Image from 'next/image';
 import { useState } from 'react';
@@ -122,7 +122,7 @@ export function ExemploSobMedida() {
         </div>
         <div className="exemplo-paginas">
           <strong className="exemplo-titulo">{titulo}</strong>
-          <ol className="historia-paginas">
+          <ol className="historia-paginas marca-dagua">
             {EXEMPLO_SOB_MEDIDA.paginas.map((p) => (
               <li key={p.n}>
                 <span className="historia-numero" aria-hidden="true">
@@ -135,7 +135,7 @@ export function ExemploSobMedida() {
           <p className="exemplo-continua">Continua no livro: 16 páginas, com o superpoder da {quem} na hora mais importante.</p>
         </div>
       </div>
-      <p className="letra-miuda exemplo-nota">Você lê a história inteira, pede até 2 ajustes e só depois aprova.</p>
+      <p className="letra-miuda exemplo-nota">Antes de pagar, você vê o começo da história e o desenho, e pode pedir até 2 ajustes.</p>
     </div>
   );
 }

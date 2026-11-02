@@ -875,3 +875,13 @@ body:has(.barra-fixa) .ajuda-painel { bottom: calc(172px + env(safe-area-inset-b
 .capa-sob-medida-mini { border-radius: 4px 8px 8px 4px; box-shadow: inset 5px 0 0 rgba(43, 45, 66, 0.12), 0 3px 0 var(--grafite); }
 .capa-sob-medida-mini .capa-sob-medida-titulo strong { font-size: 1.05rem; -webkit-text-stroke: 1px var(--grafite); text-shadow: 0 2px 0 var(--grafite); }
 .versao-texto { min-width: 0; }
+
+/* marca d'água na prévia da história (dono, 02/11/2026): o texto em cima, a marca por cima de tudo, sem atrapalhar a leitura */
+.marca-dagua { position: relative; }
+.marca-dagua::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: 14px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='120'><text x='0' y='70' transform='rotate(-16 130 60)' font-family='Arial, sans-serif' font-size='15' font-weight='700' fill='rgba(43,45,66,0.13)'>PRÉVIA · MEU LIVRINHO DE COLORIR</text></svg>");
+  background-repeat: repeat;
+}
+.marca-dagua li { user-select: none; -webkit-user-select: none; }
+.historia-resto { display: grid; gap: 4px; padding: 14px 16px; margin: 4px 0 14px; border: 2px dashed var(--contorno-suave); border-radius: 14px; background: var(--nuvem); }

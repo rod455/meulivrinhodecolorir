@@ -566,7 +566,17 @@ await intrusa.getByRole('button', { name: 'Amei, quero o livrinho' }).click();
 assert.equal(await intrusa.getByRole('button', { name: /Pagar com/ }).count(), 0, 'sem história aprovada, sem pagar');
 await intrusa.getByRole('heading', { name: 'Theo e o mar de conchas' }).waitFor({ timeout: 20000 });
 const paginasDaHistoria = intrusa.locator('.historia-paginas li');
-assert.equal(await paginasDaHistoria.count(), 16, 'a família lê as dezesseis páginas');
+// antes de pagar, só o começo, com marca d'água; o resto nem sai do servidor (dono, 02/11/2026)
+assert.equal(await paginasDaHistoria.count(), 2, 'a família vê só as 2 primeiras páginas');
+assert.ok(await intrusa.locator('.historia-paginas.marca-dagua').isVisible(), "com marca d'água");
+await intrusa.getByText('Páginas 3 a 16: no livro').waitFor();
+{
+  const daRota = await (await intrusa.request.get(`${SITE}/api/historia/${(await estado()).historias.at(-1).id}`)).json();
+  assert.equal(daRota.texto.paginas.length, 2, 'a rota devolve só 2 páginas');
+  assert.equal(daRota.texto.totalDePaginas, 16, 'e diz quantas são');
+  const bruto = JSON.stringify(daRota);
+  assert.ok(!bruto.includes('cena_en') && !bruto.includes('visual_en') && !bruto.includes('briefing'), 'nem as cenas, nem o visual dos amigos, nem o briefing');
+}
 const textoNaTela = (await paginasDaHistoria.allTextContents()).join('\n');
 assert.ok(textoNaTela.includes('Theo e a Lili') && !textoNaTela.includes('{NOME}'), 'o nome volta na tela');
 assert.ok(!/[\u2013\u2014]/.test(textoNaTela), 'o travessão que a IA escreveu não chega na tela');
