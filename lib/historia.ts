@@ -31,15 +31,16 @@ export const MODELO_DE_TEXTO = 'gpt-4.1';
 
 type Escolha<T extends string> = { id: T; rotulo: string; en: string };
 
+// os rótulos sem "Na/No": a pergunta já diz "Onde a história acontece?", e assim cabem numa linha (dono, 02/11/2026)
 export const LUGARES = [
-  { id: 'praca', rotulo: 'Na praça do bairro', en: 'a sunny neighborhood park and square with a big round tree, a wooden bench and small houses behind' },
-  { id: 'praia', rotulo: 'Na praia', en: 'a calm sunny beach with soft sand, gentle waves, shells and a little lifeguard hut' },
-  { id: 'floresta', rotulo: 'Na floresta', en: 'a friendly green forest with round trees, mushrooms, a little stream and a wooden bridge' },
-  { id: 'fazenda', rotulo: 'Na fazendinha', en: 'a cozy little farm with a red barn, a vegetable garden, a fence and friendly farm animals' },
-  { id: 'escola', rotulo: 'Na escolinha', en: 'a bright cozy preschool classroom and its playground with a slide and a sandbox' },
-  { id: 'espaco', rotulo: 'No espaço', en: 'a gentle outer-space adventure with a round little rocket, a smiling moon and soft stars' },
-  { id: 'mar', rotulo: 'No fundo do mar', en: 'a bright underwater world with coral, seaweed, bubbles and a small friendly submarine' },
-  { id: 'casa', rotulo: 'Em casa', en: 'a cozy family house with a living room, a bedroom with toys and a small backyard' },
+  { id: 'praca', rotulo: 'Praça do bairro', en: 'a sunny neighborhood park and square with a big round tree, a wooden bench and small houses behind' },
+  { id: 'praia', rotulo: 'Praia', en: 'a calm sunny beach with soft sand, gentle waves, shells and a little lifeguard hut' },
+  { id: 'floresta', rotulo: 'Floresta', en: 'a friendly green forest with round trees, mushrooms, a little stream and a wooden bridge' },
+  { id: 'fazenda', rotulo: 'Fazendinha', en: 'a cozy little farm with a red barn, a vegetable garden, a fence and friendly farm animals' },
+  { id: 'escola', rotulo: 'Escolinha', en: 'a bright cozy preschool classroom and its playground with a slide and a sandbox' },
+  { id: 'espaco', rotulo: 'Espaço', en: 'a gentle outer-space adventure with a round little rocket, a smiling moon and soft stars' },
+  { id: 'mar', rotulo: 'Fundo do mar', en: 'a bright underwater world with coral, seaweed, bubbles and a small friendly submarine' },
+  { id: 'casa', rotulo: 'Casa', en: 'a cozy family house with a living room, a bedroom with toys and a small backyard' },
 ] as const satisfies readonly Escolha<string>[];
 
 export const LICOES = [

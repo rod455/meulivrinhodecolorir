@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { AjudaNoTopo } from './AjudaNoTopo';
 import { LinkDaConta } from './LinkDaConta';
 import { Logo } from './Logo';
 
@@ -10,7 +11,10 @@ export function Cabecalho({ semMenu = false }: { semMenu?: boolean }) {
           <Logo />
         </Link>
         {semMenu ? (
-          <LinkDaConta />
+          <div className="cabecalho-acoes cabecalho-acoes-simples">
+            <AjudaNoTopo />
+            <LinkDaConta />
+          </div>
         ) : (
           <>
             <nav aria-label="Seções">

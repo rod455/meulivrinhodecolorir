@@ -68,9 +68,8 @@ export function EtapaBriefing({
       )}
       <div className="historia-briefing">
         <p className="letra-miuda">
-          Conte como você imagina a história. A gente escreve uma história só de {quem}, no jeito da turma Little Paws: 16 páginas para pintar,
-          amigos bichinhos inventados só para essa história, e o superpoder de {quem} na hora mais importante. Depois você cria o personagem e lê a
-          história inteira antes de pagar.
+          Conte como você imagina. A gente escreve 16 páginas para pintar só de {quem}, com amigos inventados para essa história e o superpoder
+          na hora mais importante. Você lê tudo antes de pagar.
         </p>
         <Grupo id="rotulo-superpoder" rotulo={`O superpoder de ${quem}`}>
           {SUPERPODERES.map((o) => (

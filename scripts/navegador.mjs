@@ -219,6 +219,18 @@ await vitrine.getByRole('button', { name: /Voltar/ }).click();
 await vitrine.getByRole('button', { name: /História 100% personalizada/ }).click();
 await vitrine.getByRole('heading', { name: 'Agora, o nome' }).waitFor();
 await vitrine.getByText('Passo 2 de 7').waitFor();
+// no celular, o "?" sai do pé (cobria o campo do nome) e vai para o cabeçalho; a arte encolhe e o nome aparece na primeira tela (dono, 02/11/2026)
+assert.ok(!(await vitrine.locator('.botao-ajuda').isVisible()), 'nas telas do pedido no celular, o "?" flutuante some');
+const ajudaNoTopo = vitrine.locator('.cabecalho .ajuda-no-topo');
+assert.ok(await ajudaNoTopo.isVisible(), 'e o "?" aparece no cabeçalho');
+const campoDoNome = await vitrine.locator('#nome').boundingBox();
+assert.ok(campoDoNome.y + campoDoNome.height <= 844 - 80, `o campo do nome na primeira tela, acima da barra fixa (termina em ${Math.round(campoDoNome.y + campoDoNome.height)} px)`);
+assert.equal(await vitrine.locator('.criar-nome-compacto > .letra-miuda').count(), 0, 'sem a linha que repetia "escrita do zero"');
+await ajudaNoTopo.click();
+await vitrine.getByRole('dialog', { name: 'Fale direto com a gente' }).waitFor();
+const painel = await vitrine.locator('.ajuda-painel').boundingBox();
+assert.ok(painel.y < 120, 'o painel abre embaixo do cabeçalho');
+await vitrine.keyboard.press('Escape');
 assert.equal(await vitrine.locator('.barra-fixa').getByText(/R\$/).count(), 0, 'antes de pagar, a barra fala do livro e não do preço');
 
 // a tela do nome na turma: à esquerda, as quatro capas, com a escolhida em destaque; a idade foi para o personagem
@@ -497,9 +509,13 @@ const chipsDaIdade = intrusa.locator('#idade button');
 assert.deepEqual(await chipsDaIdade.allTextContents(), ['3', '4', '5', '6', '7', '8', '9', '10', 'Outra'], 'de 3 a 10 e "Outra"');
 const alturas = await chipsDaIdade.evaluateAll((bs) => bs.map((b) => Math.round(b.getBoundingClientRect().top)));
 assert.equal(new Set(alturas).size, 1, 'as idades numa linha só');
+const alturaAntes = await intrusa.evaluate(() => document.documentElement.scrollHeight);
 await intrusa.locator('#idade').getByRole('button', { name: 'Outra' }).click();
 await intrusa.fill('#idade-outra', '12');
 assert.ok(await intrusa.locator('#idade-outra').isVisible(), '"Outra" abre a caixa');
+const linhaComCaixa = await intrusa.locator('#idade > *').evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().top)));
+assert.equal(new Set(linhaComCaixa).size, 1, 'a caixa do "Outra" fica na mesma linha das idades');
+assert.equal(await intrusa.evaluate(() => document.documentElement.scrollHeight), alturaAntes, 'abrir o "Outra" não aumenta a página (dono, 02/11/2026)');
 await intrusa.locator('#idade').getByRole('button', { name: '5 anos' }).click();
 assert.equal(await intrusa.locator('#idade-outra').count(), 0, 'escolher da lista fecha a caixa');
 await intrusa.getByRole('button', { name: 'Continuar' }).click();
@@ -515,7 +531,7 @@ assert.equal(await intrusa.locator('#outro-superpoder').count(), 0, 'escolher da
 for (const grupo of ['Onde a história acontece?', 'O que a história ensina?', 'É para um momento especial?']) {
   assert.equal(await intrusa.getByRole('group', { name: grupo }).getByRole('button', { name: 'Outro' }).count(), 1, `"Outro" em: ${grupo}`);
 }
-await intrusa.getByRole('button', { name: 'Na praia' }).click();
+await intrusa.getByRole('button', { name: 'Praia', exact: true }).click();
 await intrusa.getByRole('button', { name: 'Enfrentar um medo' }).click();
 await intrusa.getByRole('group', { name: 'É para um momento especial?' }).getByRole('button', { name: 'Outro' }).click();
 await intrusa.fill('#gosta', 'O Theo adora conchas e o mar');

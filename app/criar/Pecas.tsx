@@ -39,33 +39,36 @@ export function CampoDaIdade({ idade, onIdade, nome }: { idade: number; onIdade:
             {n}
           </button>
         ))}
-        <button type="button" className="chip chip-idade chip-idade-outra" aria-pressed={outra} onClick={() => setOutra(true)}>
-          Outra
-        </button>
-      </div>
-      {outra && (
-        <div className="campo-outro">
-          <label htmlFor="idade-outra">Quantos anos?</label>
+        {/* "Outra" vira a caixa ali mesmo, na mesma linha: a tela não cresce nem rola (dono, 02/11/2026) */}
+        {outra ? (
           <input
             id="idade-outra"
+            className="chip chip-idade chip-idade-outra idade-outra-campo"
             type="number"
             inputMode="numeric"
             min={IDADE_MINIMA}
             max={IDADE_MAXIMA}
             autoFocus
             value={texto}
-            placeholder={`De ${IDADE_MINIMA} a ${IDADE_MAXIMA}`}
+            placeholder={`${IDADE_MINIMA} a ${IDADE_MAXIMA}`}
+            aria-label={`Quantos anos? De ${IDADE_MINIMA} a ${IDADE_MAXIMA}`}
+            aria-invalid={Boolean(texto) && !idadeValida(Number(texto))}
             onChange={(e) => {
               setTexto(e.target.value);
               const n = Number(e.target.value);
               if (idadeValida(n)) onIdade(n);
             }}
-            aria-describedby="idade-outra-ajuda"
           />
-          <span className="ajuda" id="idade-outra-ajuda">
-            {texto && !idadeValida(Number(texto)) ? `A idade vai de ${IDADE_MINIMA} a ${IDADE_MAXIMA} anos.` : `De ${IDADE_MINIMA} a ${IDADE_MAXIMA} anos.`}
-          </span>
-        </div>
+        ) : (
+          <button type="button" className="chip chip-idade chip-idade-outra" aria-pressed={false} onClick={() => setOutra(true)}>
+            Outra
+          </button>
+        )}
+      </div>
+      {outra && texto && !idadeValida(Number(texto)) && (
+        <span className="erro" role="status">
+          A idade vai de {IDADE_MINIMA} a {IDADE_MAXIMA} anos.
+        </span>
       )}
     </div>
   );

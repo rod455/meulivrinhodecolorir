@@ -8,9 +8,14 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { LIMITE_DA_MENSAGEM, TIPOS_DE_CONTATO, type ErrosDoContato, type TipoDeContato } from '@/lib/contato';
 
+/** o "?" do topo (AjudaNoTopo) abre este mesmo painel, já embaixo do cabeçalho */
+export const ABRIR_AJUDA_DO_TOPO = 'livrinho:ajuda-do-topo';
+
 export function BotaoAjuda() {
   const pagina = usePathname() ?? '/';
   const [aberto, setAberto] = useState(false);
+  /** aberto pelo "?" do topo: o painel aparece embaixo do cabeçalho */
+  const [doTopo, setDoTopo] = useState(false);
   const [tipo, setTipo] = useState<TipoDeContato>('duvida');
   const [mensagem, setMensagem] = useState('');
   const [email, setEmail] = useState('');
@@ -18,6 +23,15 @@ export function BotaoAjuda() {
   const [erros, setErros] = useState<ErrosDoContato>({});
   const [situacao, setSituacao] = useState<'livre' | 'enviando' | 'enviado' | 'falhou'>('livre');
   const campo = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    const doCabecalho = () => {
+      setDoTopo(true);
+      setAberto((a) => !a);
+    };
+    window.addEventListener(ABRIR_AJUDA_DO_TOPO, doCabecalho);
+    return () => window.removeEventListener(ABRIR_AJUDA_DO_TOPO, doCabecalho);
+  }, []);
 
   useEffect(() => {
     if (!aberto) return;
@@ -48,11 +62,14 @@ export function BotaoAjuda() {
 
   return (
     <>
-      <button type="button" className="botao-ajuda" aria-label="Fale com a gente" aria-expanded={aberto} onClick={() => setAberto((a) => !a)}>
+      <button type="button" className="botao-ajuda" aria-label="Fale com a gente" aria-expanded={aberto} onClick={() => {
+          setDoTopo(false);
+          setAberto((a) => !a);
+        }}>
         ?
       </button>
       {aberto && (
-        <div className="ajuda-painel" role="dialog" aria-modal="false" aria-labelledby="ajuda-titulo">
+        <div className={doTopo ? 'ajuda-painel ajuda-do-topo' : 'ajuda-painel'} role="dialog" aria-modal="false" aria-labelledby="ajuda-titulo">
           <div className="ajuda-topo">
             <strong id="ajuda-titulo">Fale direto com a gente</strong>
             <button type="button" className="ajuda-fechar" aria-label="Fechar" onClick={() => setAberto(false)}>

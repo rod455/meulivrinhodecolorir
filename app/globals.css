@@ -452,6 +452,19 @@ p { margin: 0 0 1em; }
 .sob-medida-acao { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
 .sob-medida-acao .preco { font-family: var(--fonte-titulo), system-ui, sans-serif; font-weight: 800; font-size: 1.6rem; }
 .historia-briefing { display: grid; gap: 4px; }
+/* "Contar a história" mais enxuta no computador (dono, 02/11/2026): letra menor e cada pergunta numa linha só, quando cabe */
+@media (min-width: 900px) {
+  .historia-etapa { max-width: 860px; }
+  .historia-etapa h1 { font-size: 2rem !important; }
+  .historia-briefing > .letra-miuda { font-size: 0.92rem; margin: 0 0 6px; }
+  .historia-briefing .campo { margin-bottom: 10px; gap: 4px; }
+  .historia-briefing .campo label, .historia-briefing .campo .rotulo { font-size: 0.95rem; }
+  .historia-briefing .opcoes { gap: 5px; }
+  .historia-briefing .chip { min-height: 34px; padding: 3px 10px; font-size: 0.82rem; }
+  .historia-briefing .chip[aria-pressed='true']::before { margin-right: 1px; }
+  .historia-briefing .campo input, .historia-briefing .campo textarea { padding: 8px 14px; min-height: 42px; font-size: 0.95rem; }
+  .historia-briefing .campo textarea { min-height: 64px; }
+}
 .campo-duplo { display: grid; gap: 0 12px; }
 @media (min-width: 560px) { .campo-duplo { grid-template-columns: 1fr 1fr; } .campo-duplo .link-botao { grid-column: 1 / -1; justify-self: start; } }
 .historia-amigos { background: #fff3c9; border: 2px solid var(--grafite); border-radius: 16px; padding: 14px 16px; margin: 12px 0; display: grid; gap: 6px; }
@@ -606,8 +619,9 @@ p { margin: 0 0 1em; }
 @media (min-width: 760px) {
   .etapa-nome { display: none; }
   .etapas { gap: 8px; margin-bottom: 26px; }
-  .etapas li { height: auto; padding: 8px 6px 7px; border-radius: 999px; text-align: center; font-weight: 800; font-size: 0.85rem; line-height: 1.15; color: var(--grafite-suave); background: var(--branco); }
-  .etapas li span { position: static; display: block; width: auto; height: auto; overflow: visible; clip: auto; white-space: normal; }
+  .etapas li { min-width: 0; height: auto; padding: 7px 6px 6px; border-radius: 999px; text-align: center; font-weight: 800; font-size: clamp(0.72rem, 0.9vw, 0.85rem); line-height: 1.15; color: var(--grafite-suave); background: var(--branco); }
+  /* cada passo numa linha só, mesmo com o painel do livro ao lado (dono, 02/11/2026) */
+  .etapas li span { position: static; display: block; width: auto; height: auto; overflow: visible; clip: auto; white-space: nowrap; }
   .etapas li span::first-letter { text-transform: uppercase; }
   .etapas li.feita { color: var(--grafite); }
   .etapas li.atual { color: var(--grafite); box-shadow: 0 3px 0 var(--grafite); }
@@ -619,6 +633,17 @@ p { margin: 0 0 1em; }
   .criar-com-painel { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 36px; align-items: start; }
   .livro-em-construcao { display: grid; gap: 14px; position: sticky; top: 96px; padding: 18px; background: var(--branco); border: 2px solid var(--grafite); border-radius: 24px; box-shadow: 0 6px 0 var(--grafite); }
 }
+/* com o painel do livro ao lado, os passos ficam mais estreitos: letra menor para cada um caber numa linha */
+@media (min-width: 1040px) {
+  .criar-com-painel .etapas { gap: 5px; }
+  .criar-com-painel .etapas li { padding: 6px 2px 5px; font-size: 0.72rem; letter-spacing: -0.01em; }
+}
+/* a capa padrão da sob medida, com cara de livro: lombada, cantos e o nome no topo (dono, 02/11/2026) */
+.capa-sob-medida { position: relative; border: 2px solid var(--grafite); border-radius: 6px 14px 14px 6px; overflow: hidden; background: var(--papel); box-shadow: inset 10px 0 0 rgba(43, 45, 66, 0.07), 0 5px 0 var(--grafite); }
+.capa-sob-medida img { width: 100%; height: auto; display: block; }
+.capa-sob-medida-titulo { position: absolute; top: 7%; left: 8%; right: 6%; text-align: center; display: grid; gap: 0; color: var(--grafite); }
+.capa-sob-medida-titulo span { font: 700 0.9rem var(--fonte-titulo), system-ui, sans-serif; }
+.capa-sob-medida-titulo strong { font: 800 2.1rem/1.05 var(--fonte-titulo), system-ui, sans-serif; overflow-wrap: anywhere; text-decoration: underline 5px var(--laranja); text-underline-offset: 6px; }
 .painel-titulo { font: 800 1.25rem var(--fonte-titulo), system-ui, sans-serif; }
 .painel-lista { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
 .painel-lista li { display: grid; gap: 2px; padding: 10px 12px 10px 38px; border-radius: 14px; background: var(--nuvem); position: relative; }
@@ -701,6 +726,12 @@ p { margin: 0 0 1em; }
 .criar-sob-medida-arte img { width: 100%; height: auto; }
 .criar-sob-medida-arte strong { font: 800 1.5rem var(--fonte-titulo), system-ui, sans-serif; }
 .criar-sob-medida-arte figcaption { display: grid; gap: 2px; }
+/* no celular, a arte menor e sem legenda, para o campo do nome aparecer na primeira tela (dono, 02/11/2026) */
+@media (max-width: 899px) {
+  .criar-sob-medida-arte img { max-width: 300px; margin: 0 auto; }
+  .criar-sob-medida-arte figcaption { display: none; }
+  .criar-grade:has(.criar-sob-medida-arte) { gap: 4px; }
+}
 /* a coluna do nome na sob medida, do tamanho da arte (dono, 02/11/2026); no celular os toques continuam com 44px */
 @media (min-width: 900px) {
   .criar-nome-compacto h1 { font-size: 2rem !important; margin-bottom: 4px; }
@@ -709,7 +740,11 @@ p { margin: 0 0 1em; }
   .criar-nome-compacto .campo label, .criar-nome-compacto .campo .rotulo { font-size: 0.95rem; }
   .criar-nome-compacto .campo input, .criar-nome-compacto .campo textarea { padding: 8px 14px; min-height: 42px; font-size: 0.95rem; }
   .criar-nome-compacto .campo-nome input { font-size: 1.2rem; }
-  .criar-nome-compacto .campo textarea { min-height: 64px; }
+  .criar-nome-compacto .campo textarea { min-height: 56px; }
+  .criar-nome-compacto .campo .idades .idade-outra-campo { min-height: 38px; }
+  /* o contador do nome sobe para a linha do rótulo: uma linha a menos */
+  .criar-nome-compacto .campo-nome { position: relative; }
+  .criar-nome-compacto .campo-nome .contador { position: absolute; top: 0; right: 0; }
   .criar-nome-compacto .campo .ajuda, .criar-nome-compacto .contador { font-size: 0.8rem; }
   .criar-nome-compacto .chip { min-height: 38px; padding-top: 4px; padding-bottom: 4px; font-size: 0.95rem; }
   .criar-nome-compacto .campo-outro { margin-top: 6px; gap: 4px; }
@@ -740,6 +775,10 @@ p { margin: 0 0 1em; }
 .chip-idade-outra { flex-grow: 2; }
 .campo-outro { display: grid; gap: 6px; margin-top: 10px; }
 .campo-outro input[type='number'] { max-width: 160px; }
+/* a caixa do "Outra" ocupa o lugar do botão, na mesma linha das idades */
+.campo .idades .idade-outra-campo { min-height: 44px; padding: 0 6px; text-align: center; border: 2px solid var(--grafite); background: #fff3c9; font-weight: 800; width: auto; -moz-appearance: textfield; }
+.idade-outra-campo::-webkit-outer-spin-button, .idade-outra-campo::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.idade-outra-campo::placeholder { font-weight: 600; font-size: 0.85em; }
 .chip-idade[aria-pressed='true']::before { content: none; }
 ol.painel-lista { list-style: none; }
 /* o nome da telinha já está destacado na barrinha: o título fica só para leitor de tela */
@@ -766,6 +805,20 @@ body:has(.barra-fixa) .botao-ajuda { bottom: calc(104px + env(safe-area-inset-bo
   padding: 16px;
 }
 body:has(.barra-fixa) .ajuda-painel { bottom: calc(172px + env(safe-area-inset-bottom)); }
+/* no celular, nas telas do pedido (com a barra fixa), o "?" flutuante cobria o campo em que a
+   família digita: ele vai para o cabeçalho, ao lado do "Entrar" (dono, 02/11/2026) */
+.cabecalho-acoes-simples { margin-left: auto; }
+.ajuda-no-topo { display: none; }
+@media (max-width: 899px) {
+  body:has(.barra-fixa):has(.ajuda-no-topo) .botao-ajuda { display: none; }
+  body:has(.barra-fixa) .ajuda-no-topo {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 40px; height: 40px; border-radius: 50%; padding: 0;
+    background: var(--laranja); color: var(--grafite); border: 2px solid var(--grafite); box-shadow: 0 3px 0 var(--grafite);
+    font: 800 1.2rem/1 var(--fonte-titulo), system-ui, sans-serif; cursor: pointer;
+  }
+  .ajuda-painel.ajuda-do-topo { top: 76px; bottom: auto; max-height: calc(100vh - 200px); }
+}
 .ajuda-topo { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .ajuda-fechar { background: none; border: 0; font-size: 1.6rem; line-height: 1; cursor: pointer; color: var(--grafite); }
 .ajuda-painel form { display: grid; gap: 10px; }

@@ -595,10 +595,12 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
           {/* na sob medida, a coluna do nome fica do tamanho da arte ao lado (dono, 02/11/2026) */}
           <div className={sobMedida ? 'criar-nome-compacto' : undefined}>
             <h1 style={{ fontSize: 'clamp(1.8rem, 6vw, 2.4rem)' }}>Agora, o nome</h1>
-            <p className="letra-miuda">
-              {/* na sob medida o produto e o tema têm o mesmo nome: só um (dono, 02/11/2026) */}
-              {sobMedida ? `${produto.emoji} ${produto.nome}, escrita do zero` : `${produto.emoji} ${produto.nome} · ${TEMAS[r.tema].emoji} ${TEMAS[r.tema].nome}`}
-            </p>
+            {/* na sob medida a legenda da arte já diz o que é: a linha repetia "escrita do zero" (dono, 02/11/2026) */}
+            {!sobMedida && (
+              <p className="letra-miuda">
+                {produto.emoji} {produto.nome} · {TEMAS[r.tema].emoji} {TEMAS[r.tema].nome}
+              </p>
+            )}
             <div className="campo campo-nome">
               <label htmlFor="nome">Nome da criança</label>
               <input
@@ -910,6 +912,18 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
           {(() => {
             // na turma, a capa de verdade da aventura escolhida; nos outros caminhos, a capa montada
             const capa = r.caminho === 'turma' ? LIVROS_PUBLICADOS.find((l) => l.temaPersonalizado === r.tema)?.edicoes.find((e) => e.capa)?.capa : null;
+            // na sob medida, a capa padrão (dono, 02/11/2026): várias crianças vivendo aventuras, com o nome no topo
+            if (sobMedida) {
+              return (
+                <div className="capa-sob-medida" aria-label={`Capa do livro de ${nomeNaCapa || 'seu filho'}`} role="img">
+                  <Image src="/artes/capa-sob-medida.webp" alt="" width={768} height={1152} sizes="240px" priority />
+                  <div className="capa-sob-medida-titulo">
+                    <span>A história de</span>
+                    <strong>{nomeNaCapa || 'seu filho'}</strong>
+                  </div>
+                </div>
+              );
+            }
             return capa ? (
               <Image src={capa.src} alt="" width={capa.largura} height={capa.altura} className="painel-capa-real" sizes="240px" />
             ) : (
