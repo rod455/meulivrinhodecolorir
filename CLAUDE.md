@@ -21,6 +21,11 @@ e, para qualquer decisão de produto, texto ou visual, `docs/produto-e-marca.md`
 - **Personagens próprios**: nada parecido com personagem licenciado.
 - **Marca**: `docs/identidade-visual.md` (Ateliê de Rabiscos), que atualiza a seção 6 de `docs/produto-e-marca.md`; botão
   Laranja Giz com texto Grafite (nunca texto branco sobre laranja ou amarelo).
+- **Antes de propor uma tela** (regra do dono, 02/11/2026: "use sempre skills de CRO e
+  Design antes de propor uma tela"): tire a foto da tela (computador e celular), passe pela
+  skill de design (`design:design-critique`) com o foco em conversão, e leve ao dono o que
+  ela achou junto com a proposta. Arte nova fica com o fundo exatamente do papel da página
+  (`--papel`, #fff8ee), nunca com um retângulo de outra cor.
 - Commits em português: título curto com o porquê, corpo explicando a decisão.
 
 ## Conferência

@@ -568,7 +568,7 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
           ) : sobMedida ? (
             <figure className="criar-sob-medida-arte">
               {/* sem a turma: a sob medida é uma história só da criança, e o livro pode virar qualquer mundo (dono, 02/11/2026) */}
-              <Image src="/artes/historia-sob-medida.webp" alt="" width={1536} height={1024} sizes="(min-width: 860px) 460px, 100vw" />
+              <Image src="/artes/historia-sob-medida-papel.webp" alt="" width={1536} height={1024} sizes="(min-width: 860px) 460px, 100vw" />
               <figcaption>
                 <strong>{nomeNaCapa ? `A história de ${nomeNaCapa}` : 'A história do seu filho'}</strong>
                 <span className="letra-miuda">Escrita do zero, com o que você contar.</span>
