@@ -452,6 +452,7 @@ p { margin: 0 0 1em; }
 .sob-medida-acao { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
 .sob-medida-acao .preco { font-family: var(--fonte-titulo), system-ui, sans-serif; font-weight: 800; font-size: 1.6rem; }
 .historia-briefing { display: grid; gap: 4px; }
+.adicionar-pequeno { justify-self: start; background: none; border: 0; padding: 2px 0; margin: 0 0 8px; font: inherit; font-weight: 800; font-size: 0.92rem; color: var(--grafite); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 /* "Contar a história" mais enxuta no computador (dono, 02/11/2026): letra menor e cada pergunta numa linha só, quando cabe */
 @media (min-width: 900px) {
   .historia-etapa { max-width: 860px; }
@@ -460,7 +461,7 @@ p { margin: 0 0 1em; }
   .historia-briefing .campo { margin-bottom: 10px; gap: 4px; }
   .historia-briefing .campo label, .historia-briefing .campo .rotulo { font-size: 0.95rem; }
   .historia-briefing .opcoes { gap: 5px; }
-  .historia-briefing .chip { min-height: 34px; padding: 3px 10px; font-size: 0.82rem; }
+  .historia-briefing .chip { min-height: 34px; padding: 3px 9px; font-size: 0.82rem; }
   .historia-briefing .chip[aria-pressed='true']::before { margin-right: 1px; }
   .historia-briefing .campo input, .historia-briefing .campo textarea { padding: 8px 14px; min-height: 42px; font-size: 0.95rem; }
   .historia-briefing .campo textarea { min-height: 64px; }

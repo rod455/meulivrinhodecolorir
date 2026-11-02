@@ -124,16 +124,6 @@ export function EtapaBriefing({
         {briefing.momento === OUTRO && (
           <CampoOutro id="outro-momento" rotulo="Qual momento?" exemplo="Ex.: primeira viagem de avião" valor={outros.momento} onMudar={(t) => mudaOutro('momento', t)} />
         )}
-        <div className="campo">
-          <label htmlFor="gosta">Do que {quem} mais gosta?</label>
-          <input
-            id="gosta"
-            value={briefing.gosta}
-            maxLength={LIMITES.gosta}
-            placeholder="Ex.: dinossauros, bolo de chocolate e pular na cama"
-            onChange={(e) => muda('gosta', e.target.value)}
-          />
-        </div>
         {briefing.bichinho ? (
           <div className="campo-duplo">
             <div className="campo">
@@ -161,10 +151,21 @@ export function EtapaBriefing({
             </button>
           </div>
         ) : (
-          <button type="button" className="adicionar" onClick={() => muda('bichinho', { especie: '', nome: '' })}>
-            + Tem bichinho de estimação? Ele entra na história <span className="letra-miuda">(opcional)</span>
+          // pequeno e antes do "do que mais gosta" (dono, 02/11/2026)
+          <button type="button" className="adicionar-pequeno" onClick={() => muda('bichinho', { especie: '', nome: '' })}>
+            + Tem pet? Ele entra na história <span className="letra-miuda">(opcional)</span>
           </button>
         )}
+        <div className="campo">
+          <label htmlFor="gosta">Do que {quem} mais gosta?</label>
+          <input
+            id="gosta"
+            value={briefing.gosta}
+            maxLength={LIMITES.gosta}
+            placeholder="Ex.: dinossauros, bolo de chocolate e pular na cama"
+            onChange={(e) => muda('gosta', e.target.value)}
+          />
+        </div>
         <div className="campo">
           <label htmlFor="detalhe">
             Mais algum detalhe? <span className="letra-miuda">(opcional)</span>

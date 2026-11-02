@@ -520,7 +520,7 @@ await intrusa.locator('#idade').getByRole('button', { name: '5 anos' }).click();
 assert.equal(await intrusa.locator('#idade-outra').count(), 0, 'escolher da lista fecha a caixa');
 await intrusa.getByRole('button', { name: 'Continuar' }).click();
 await intrusa.getByRole('heading', { name: 'A história de Theo' }).waitFor();
-assert.deepEqual(await intrusa.locator('ol.painel-lista li > span').allTextContents(), ['Nome', 'História', 'Personagem'], 'na sob medida, o painel mostra a história antes do personagem');
+assert.deepEqual(await intrusa.locator('ol.painel-lista li > span').allTextContents(), ['Nome', 'Personagem', 'História'], 'na sob medida, o painel na ordem dos passos: o desenho é aprovado antes da história (dono, 02/11/2026)');
 assert.equal(await intrusa.locator('#conta-email').count(), 0, 'contar a história não pede conta');
 // o superpoder, que a história usa, é escolhido aqui; "Outro" em todas as escolhas abre um campo
 const superpoderes = intrusa.getByRole('group', { name: 'O superpoder de Theo' });
@@ -532,13 +532,13 @@ for (const grupo of ['Onde a história acontece?', 'O que a história ensina?', 
   assert.equal(await intrusa.getByRole('group', { name: grupo }).getByRole('button', { name: 'Outro' }).count(), 1, `"Outro" em: ${grupo}`);
 }
 await intrusa.getByRole('button', { name: 'Praia', exact: true }).click();
-await intrusa.getByRole('button', { name: 'Enfrentar um medo' }).click();
+await intrusa.getByRole('button', { name: 'Enfrentar medos' }).click();
 await intrusa.getByRole('group', { name: 'É para um momento especial?' }).getByRole('button', { name: 'Outro' }).click();
 await intrusa.fill('#gosta', 'O Theo adora conchas e o mar');
 await intrusa.getByRole('button', { name: 'Continuar: criar o personagem' }).click();
 await intrusa.getByText('Conte qual é o momento especial.').waitFor();
 await intrusa.fill('#outro-momento', 'primeira viagem de avião do Theo');
-await intrusa.getByRole('button', { name: /Tem bichinho de estimação/ }).click();
+await intrusa.getByRole('button', { name: /Tem pet/ }).click();
 await intrusa.fill('#bicho-especie', 'cachorro');
 await intrusa.fill('#bicho-nome', 'Pipoca');
 await intrusa.fill('#detalhe', 'THEO mora na rua 1234, tel (11) 91234-5678');

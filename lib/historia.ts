@@ -43,21 +43,22 @@ export const LUGARES = [
   { id: 'casa', rotulo: 'Casa', en: 'a cozy family house with a living room, a bedroom with toys and a small backyard' },
 ] as const satisfies readonly Escolha<string>[];
 
+// rótulos curtos para caber numa linha (dono, 02/11/2026); o que vai para a IA é o "en"
 export const LICOES = [
-  { id: 'equipe', rotulo: 'Trabalhar em equipe', en: 'teamwork: everyone is better together' },
-  { id: 'paciencia', rotulo: 'Ter paciência', en: 'patience: slowing down and waiting is a strength' },
-  { id: 'coragem', rotulo: 'Enfrentar um medo', en: 'courage: being scared and trying anyway' },
+  { id: 'equipe', rotulo: 'Equipe', en: 'teamwork: everyone is better together' },
+  { id: 'paciencia', rotulo: 'Paciência', en: 'patience: slowing down and waiting is a strength' },
+  { id: 'coragem', rotulo: 'Enfrentar medos', en: 'courage: being scared and trying anyway' },
   { id: 'gentileza', rotulo: 'Ser gentil', en: 'kindness: small kind acts change a whole day' },
   { id: 'dividir', rotulo: 'Dividir', en: 'sharing: things are more fun when shared' },
-  { id: 'atencao', rotulo: 'Prestar atenção', en: 'paying attention: noticing the right thing at the right time' },
+  { id: 'atencao', rotulo: 'Atenção', en: 'paying attention: noticing the right thing at the right time' },
   { id: 'persistencia', rotulo: 'Não desistir', en: 'perseverance: trying again after a mistake' },
-  { id: 'amizade', rotulo: 'Fazer amigos novos', en: 'friendship: welcoming someone new' },
+  { id: 'amizade', rotulo: 'Amizade', en: 'friendship: welcoming someone new' },
 ] as const satisfies readonly Escolha<string>[];
 
+// sem "Chegada de irmãozinho" (dono, 02/11/2026); quem precisar escreve no "Outro"
 export const MOMENTOS = [
   { id: 'nenhum', rotulo: 'Só uma aventura', en: '' },
   { id: 'aniversario', rotulo: 'Aniversário', en: "the story happens around the child's birthday party" },
-  { id: 'irmao', rotulo: 'Chegada de irmãozinho', en: 'a baby sibling is arriving in the family' },
   { id: 'escola', rotulo: 'Escola nova', en: 'the first days at a new school' },
   { id: 'mudanca', rotulo: 'Casa nova', en: 'the family is moving to a new house' },
   { id: 'dentinho', rotulo: 'Dentinho caindo', en: 'the first baby tooth is wiggly and about to fall out' },

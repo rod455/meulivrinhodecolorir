@@ -908,15 +908,15 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
       </div>
       {comPainel && r.tema && r.produto && (
         <aside className="livro-em-construcao" aria-label="O livro em construção">
-          <strong className="painel-titulo">{nomeNaCapa ? `O livro de ${nomeNaCapa}` : 'O seu livro'}</strong>
+          {/* sem o título "O livro de...": a capa já diz (dono, 02/11/2026) */}
           {(() => {
             // na turma, a capa de verdade da aventura escolhida; nos outros caminhos, a capa montada
             const capa = r.caminho === 'turma' ? LIVROS_PUBLICADOS.find((l) => l.temaPersonalizado === r.tema)?.edicoes.find((e) => e.capa)?.capa : null;
-            // na sob medida, a capa padrão (dono, 02/11/2026): várias crianças vivendo aventuras, com o nome no topo
+            // na sob medida, a capa padrão (dono, 02/11/2026): seis crianças diferentes (três meninas, três meninos, tons de pele e cabelos diferentes) vivendo aventuras, com o nome no topo
             if (sobMedida) {
               return (
                 <div className="capa-sob-medida" aria-label={`Capa do livro de ${nomeNaCapa || 'seu filho'}`} role="img">
-                  <Image src="/artes/capa-sob-medida.webp" alt="" width={768} height={1152} sizes="240px" priority />
+                  <Image src="/artes/capa-sob-medida-criancas.webp" alt="" width={768} height={1152} sizes="240px" priority />
                   <div className="capa-sob-medida-titulo">
                     <span>A história de</span>
                     <strong>{nomeNaCapa || 'seu filho'}</strong>
@@ -930,7 +930,7 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
               <CapaLivrinho id="painel-capa" tema={r.tema} produto={livroComHistoria ? 'presente' : 'lembrancinha'} nome={nomeNaCapa} idade={r.idade} corte={0.6} />
             );
           })()}
-          {/* na ordem em que a família faz: a aventura, o nome, o personagem; na sob medida, o nome, a história e o personagem (dono, 01/11/2026) */}
+          {/* na ordem em que a família faz: a aventura, o nome, o personagem; na sob medida, o nome, o personagem e a história, que é aprovada depois do desenho (dono, 02/11/2026) */}
           <ol className="painel-lista">
             {!sobMedida && (
               <li className="feito">
@@ -942,12 +942,6 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
               <span>Nome</span>
               <strong>{nomeNaCapa ? `${nomeNaCapa}, ${r.idade} ${r.idade === 1 ? 'ano' : 'anos'}` : 'falta'}</strong>
             </li>
-            {sobMedida && (
-              <li className={historiaEmDia ? 'feito' : ''}>
-                <span>História</span>
-                <strong>{historiaEmDia && r.historiaTitulo ? r.historiaTitulo : 'escrita por nós, aprovada por você'}</strong>
-              </li>
-            )}
             <li className={fichaEmDia ? 'feito' : ''}>
               <span>Personagem</span>
               <strong>{fichaEmDia ? 'desenho aprovado' : r.fichaId ? 'desenho para aprovar' : 'em criação'}</strong>
@@ -956,6 +950,12 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
                 <img src={`/api/ficha/${r.fichaId}/previa`} alt="" className="painel-ficha" />
               )}
             </li>
+            {sobMedida && (
+              <li className={historiaEmDia ? 'feito' : ''}>
+                <span>História</span>
+                <strong>{historiaEmDia && r.historiaTitulo ? r.historiaTitulo : 'escrita por nós, aprovada por você'}</strong>
+              </li>
+            )}
           </ol>
         </aside>
       )}
