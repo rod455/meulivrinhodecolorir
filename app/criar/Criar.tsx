@@ -17,7 +17,7 @@ import { registrar } from '@/lib/analytics';
 import { supabaseNoNavegador } from '@/lib/supabase/navegador';
 import { linkDoWhatsapp } from '@/lib/config';
 import { arrumarNome, LIMITE_DO_NOME, MENSAGEM_DO_PROBLEMA, problemaDoNome } from '@/lib/nome';
-import { DEDICATORIAS_PRONTAS, LIMITE_DA_DEDICATORIA, lerPedido, type ErrosDoPedido } from '@/lib/pedido';
+import { DEDICATORIAS_PRONTAS, idadeValida, LIMITE_DA_DEDICATORIA, lerPedido, type ErrosDoPedido } from '@/lib/pedido';
 import { chaveDoDesenho } from '@/lib/ficha';
 import { lerPersonagem, PERSONAGEM_INICIAL, SUPERPODERES, type Personagem } from '@/lib/personagem';
 import { DESCONTO_PIX, ehProduto, emReais, LISTA_DE_PRODUTOS, PRODUTOS, totalDoPedido, type FormaDePagamento, type ProdutoId } from '@/lib/produtos';
@@ -181,7 +181,7 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
       produto: ehProduto(produto) ? produto : base.produto,
       tema: ehTema(tema) ? tema : temaGuardado,
       nome: nome ? arrumarNome(nome).slice(0, LIMITE_DO_NOME + 6) : base.nome,
-      idade: Number.isInteger(idade) && idade >= 1 && idade <= 10 ? idade : base.idade,
+      idade: idadeValida(idade) ? idade : base.idade,
     };
     const inicial = caminho ? noCaminho(comLink, caminho) : comLink;
     setR(inicial);
@@ -567,10 +567,11 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
             <EstanteDaTurma tema={r.tema} nome={nomeNaCapa} />
           ) : sobMedida ? (
             <figure className="criar-sob-medida-arte">
-              <Image src="/artes/turma-saindo-do-livro.webp" alt="" width={1536} height={1024} sizes="(min-width: 860px) 460px, 100vw" />
+              {/* sem a turma: a sob medida é uma história só da criança, e o livro pode virar qualquer mundo (dono, 02/11/2026) */}
+              <Image src="/artes/historia-sob-medida.webp" alt="" width={1536} height={1024} sizes="(min-width: 860px) 460px, 100vw" />
               <figcaption>
                 <strong>{nomeNaCapa ? `A história de ${nomeNaCapa}` : 'A história do seu filho'}</strong>
-                <span className="letra-miuda">Escrita do zero, no jeito da turma Little Paws.</span>
+                <span className="letra-miuda">Escrita do zero, com o que você contar.</span>
               </figcaption>
             </figure>
           ) : (
@@ -594,7 +595,8 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
           <div>
             <h1 style={{ fontSize: 'clamp(1.8rem, 6vw, 2.4rem)' }}>Agora, o nome</h1>
             <p className="letra-miuda">
-              {produto.emoji} {produto.nome} · {TEMAS[r.tema].emoji} {TEMAS[r.tema].nome}
+              {/* na sob medida o produto e o tema têm o mesmo nome: só um (dono, 02/11/2026) */}
+              {sobMedida ? `${produto.emoji} ${produto.nome}, escrita do zero` : `${produto.emoji} ${produto.nome} · ${TEMAS[r.tema].emoji} ${TEMAS[r.tema].nome}`}
             </p>
             <div className="campo campo-nome">
               <label htmlFor="nome">Nome da criança</label>
@@ -624,7 +626,7 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
             </div>
             {/* a idade muda o desenho: com personagem ela fica na tela do personagem; sem, fica aqui (vai para a capa) */}
             {/* na sob medida a história vem antes do personagem e usa a idade: ela fica aqui (dono, 01/11/2026) */}
-            {(!temPersonagem || sobMedida) && <CampoDaIdade idade={r.idade} onIdade={(n) => muda('idade', n)} />}
+            {(!temPersonagem || sobMedida) && <CampoDaIdade idade={r.idade} onIdade={(n) => muda('idade', n)} nome={nomeNaCapa} />}
             {/* a dedicatória já aberta: a família só escreve (dono, 31/10/2026) */}
             {produto.temDedicatoria && (
               <div className="campo">

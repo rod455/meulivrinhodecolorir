@@ -37,6 +37,16 @@ export type Pedido = {
   total: number;
 };
 
+/**
+ * A idade da criança (não a que vai fazer: o livro não é de aniversário, dono, 02/11/2026).
+ * A tela mostra de 3 a 10 e "Outra" abre a caixa, que aceita de 1 a 12.
+ */
+export const IDADE_MINIMA = 1;
+export const IDADE_MAXIMA = 12;
+export const IDADES_NA_TELA = [3, 4, 5, 6, 7, 8, 9, 10] as const;
+export const idadeValida = (n: unknown): n is number => Number.isInteger(n) && (n as number) >= IDADE_MINIMA && (n as number) <= IDADE_MAXIMA;
+export const MENSAGEM_DA_IDADE = `Escolha a idade de ${IDADE_MINIMA} a ${IDADE_MAXIMA}.`;
+
 export type ErrosDoPedido = Partial<Record<keyof Pedido, string>>;
 
 export function soDigitos(texto: string): string {
@@ -84,7 +94,7 @@ export function lerPedido(entrada: Record<string, unknown>):
   if (problema) erros.nome = MENSAGEM_DO_PROBLEMA[problema];
 
   const idade = Number(entrada.idade);
-  if (!Number.isInteger(idade) || idade < 1 || idade > 10) erros.idade = 'Escolha a idade de 1 a 10.';
+  if (!idadeValida(idade)) erros.idade = MENSAGEM_DA_IDADE;
 
   const dataBruta = texto('dataDaFesta');
   if (dataBruta && !ehData(dataBruta)) erros.dataDaFesta = 'Data inválida.';

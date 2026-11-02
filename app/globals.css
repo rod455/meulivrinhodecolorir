@@ -720,8 +720,12 @@ p { margin: 0 0 1em; }
 .bolinha { width: 44px; height: 44px; padding: 3px; border-radius: 50%; border: 2px solid transparent; background: transparent; cursor: pointer; }
 .bolinha span { display: block; width: 100%; height: 100%; border-radius: 50%; border: 1.5px solid var(--contorno-suave); }
 .bolinha[aria-pressed='true'] { border-color: var(--grafite); box-shadow: 0 2px 0 var(--grafite); }
-.idades { gap: 8px; }
-.chip-idade { min-width: 46px; justify-content: center; font-weight: 800; }
+/* a idade numa linha só, de 3 a 10 e "Outra" (dono, 02/11/2026): os chips encolhem no celular */
+.idades { gap: 6px; flex-wrap: nowrap; }
+.chip-idade { flex: 1 1 0; min-width: 0; padding-left: 0; padding-right: 0; justify-content: center; font-weight: 800; }
+.chip-idade-outra { flex-grow: 2; }
+.campo-outro { display: grid; gap: 6px; margin-top: 10px; }
+.campo-outro input[type='number'] { max-width: 160px; }
 .chip-idade[aria-pressed='true']::before { content: none; }
 ol.painel-lista { list-style: none; }
 /* o nome da telinha já está destacado na barrinha: o título fica só para leitor de tela */

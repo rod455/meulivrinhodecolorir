@@ -76,7 +76,7 @@ export function PreviaNaLp() {
           </div>
         </div>
         <div className="campo">
-          <label htmlFor="idade-lp">Idade que vai fazer</label>
+          <label htmlFor="idade-lp">Idade da criança</label>
           <select id="idade-lp" value={idade} onChange={(e) => setIdade(Number(e.target.value))}>
             {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
               <option key={n} value={n}>

@@ -67,7 +67,12 @@ ok(lido.ok && lido.pedido.personagem?.superpoder === 'coragem', 'futebol leva o 
 ok(!lerPedido({ ...base, produto: 'kit' }).ok, 'produto desconhecido');
 ok(!lerPedido({ ...base, tema: 'princesa-famosa' }).ok, 'tema desconhecido');
 ok(!lerPedido({ ...base, nome: 'merda' }).ok, 'palavrão');
-ok(!lerPedido({ ...base, idade: 11 }).ok, 'idade fora de 1 a 10');
+// "Outra" idade abre a caixa, de 1 a 12 (dono, 02/11/2026)
+ok(lerPedido({ ...base, idade: 12 }).ok, 'idade 12, pela caixa do "Outra", passa');
+ok(lerPedido({ ...base, idade: 2 }).ok, 'idade 2, pela caixa do "Outra", passa');
+ok(!lerPedido({ ...base, idade: 13 }).ok, 'idade acima de 12 recusa');
+ok(!lerPedido({ ...base, idade: 0 }).ok, 'idade 0 recusa');
+ok(!lerPedido({ ...base, idade: 4.5 }).ok, 'idade quebrada recusa');
 ok(!lerPedido({ ...base, idade: 2.5 }).ok, 'idade quebrada');
 ok(!lerPedido({ ...base, email: 'carla@' }).ok, 'e-mail ruim');
 ok(!lerPedido({ ...base, responsavel: '' }).ok, 'sem responsável');

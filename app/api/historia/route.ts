@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { idadeValida, MENSAGEM_DA_IDADE } from '@/lib/pedido';
 import { novoBilhete } from '@/lib/ficha';
 import { desistiuDaHistoria, historiasRestantes, LIMITE_DE_HISTORIAS, lerBriefing } from '@/lib/historia';
 import { SUPERPODERES, type SuperpoderId } from '@/lib/personagem';
@@ -22,7 +23,7 @@ export async function POST(req: Request) {
   const nome = typeof entrada.nome === 'string' ? entrada.nome.trim() : '';
   if (problemaDoNome(nome)) return NextResponse.json({ mensagem: 'Confira o nome da criança.' }, { status: 422 });
   const idade = Number(entrada.idade);
-  if (!Number.isInteger(idade) || idade < 1 || idade > 10) return NextResponse.json({ mensagem: 'Escolha a idade de 1 a 10.' }, { status: 422 });
+  if (!idadeValida(idade)) return NextResponse.json({ mensagem: MENSAGEM_DA_IDADE }, { status: 422 });
   const superpoder = SUPERPODERES.find((s) => s.id === entrada.superpoder)?.id as SuperpoderId | undefined;
   if (!superpoder) return NextResponse.json({ mensagem: 'Escolha o superpoder.' }, { status: 422 });
   const lido = lerBriefing(entrada.briefing, nome);

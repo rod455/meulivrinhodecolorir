@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { idadeValida, MENSAGEM_DA_IDADE } from '@/lib/pedido';
 import { desistiu, fichasRestantes, novoBilhete, type DesenhoFeito } from '@/lib/ficha';
 import { lerPersonagem, promptDaFicha } from '@/lib/personagem';
 import { criarFicha, fichasRecentes, mudarFicha, tomarFoto } from '@/lib/servidor/fichas';
@@ -21,7 +22,7 @@ export async function POST(req: Request) {
   const lido = lerPersonagem(entrada.personagem);
   if (!lido.ok) return NextResponse.json({ mensagem: lido.erro }, { status: 422 });
   const idade = Number(entrada.idade);
-  if (!Number.isInteger(idade) || idade < 1 || idade > 10) return NextResponse.json({ mensagem: 'Escolha a idade de 1 a 10.' }, { status: 422 });
+  if (!idadeValida(idade)) return NextResponse.json({ mensagem: MENSAGEM_DA_IDADE }, { status: 422 });
   const { personagem } = lido;
 
   try {

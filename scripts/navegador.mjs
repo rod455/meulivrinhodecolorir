@@ -491,6 +491,17 @@ assert.deepEqual(
 await intrusa.fill('#nome', 'theo');
 // a idade fica no nome, porque a história, contada logo depois, usa a idade
 await intrusa.locator('#idade').getByRole('button', { name: '5 anos' }).click();
+// a idade da criança, não "a que vai fazer"; de 3 a 10 numa linha só, e "Outra" abre a caixa (dono, 02/11/2026)
+assert.equal(await intrusa.locator('#rotulo-idade').textContent(), 'Idade de Theo');
+const chipsDaIdade = intrusa.locator('#idade button');
+assert.deepEqual(await chipsDaIdade.allTextContents(), ['3', '4', '5', '6', '7', '8', '9', '10', 'Outra'], 'de 3 a 10 e "Outra"');
+const alturas = await chipsDaIdade.evaluateAll((bs) => bs.map((b) => Math.round(b.getBoundingClientRect().top)));
+assert.equal(new Set(alturas).size, 1, 'as idades numa linha só');
+await intrusa.locator('#idade').getByRole('button', { name: 'Outra' }).click();
+await intrusa.fill('#idade-outra', '12');
+assert.ok(await intrusa.locator('#idade-outra').isVisible(), '"Outra" abre a caixa');
+await intrusa.locator('#idade').getByRole('button', { name: '5 anos' }).click();
+assert.equal(await intrusa.locator('#idade-outra').count(), 0, 'escolher da lista fecha a caixa');
 await intrusa.getByRole('button', { name: 'Continuar' }).click();
 await intrusa.getByRole('heading', { name: 'A história de Theo' }).waitFor();
 assert.deepEqual(await intrusa.locator('ol.painel-lista li > span').allTextContents(), ['Nome', 'História', 'Personagem'], 'na sob medida, o painel mostra a história antes do personagem');
