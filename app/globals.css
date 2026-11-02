@@ -891,7 +891,8 @@ body:has(.barra-fixa) .ajuda-painel { bottom: calc(172px + env(safe-area-inset-b
 .caminho-passos-blocos li { display: grid; gap: 2px; }
 .caminho-passos-blocos li > strong { font-family: var(--fonte-titulo), system-ui, sans-serif; font-size: 1.2rem; line-height: 1.2; }
 .caminho-passos-blocos li > span { color: var(--grafite-suave); font-size: 0.95rem; line-height: 1.45; }
-.versoes-mini { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 2px; }
+.versoes-mini { display: flex; flex-wrap: nowrap; gap: 8px; margin: 4px 0 2px; }
+.versao-mini { white-space: nowrap; }
 .versao-mini { display: inline-grid; gap: 0; padding: 6px 12px; border: 2px solid var(--grafite); border-radius: 12px; background: var(--branco); color: var(--grafite); font-size: 0.85rem; line-height: 1.25; }
 .versao-mini b { font-family: var(--fonte-titulo), system-ui, sans-serif; font-size: 0.98rem; }
 
@@ -906,3 +907,8 @@ body:has(.barra-fixa) .ajuda-painel { bottom: calc(172px + env(safe-area-inset-b
   .secao-caminho-propria .caminho-passos-blocos li > span { font-size: 0.88rem; line-height: 1.4; }
   .secao-caminho-propria .versoes-mini { margin: 2px 0 0; }
 }
+
+/* a capa publicada no exemplo da turma: a arte já tem o título da série */
+.capa-publicada-exemplo { background: #fff; }
+.secao-caminho-propria .campo-do-nome input { min-height: 44px; font-size: 1rem; }
+@media (min-width: 960px) { .secao-caminho-propria .campo-do-nome { gap: 4px; } .secao-caminho-propria .campo-do-nome label { font-size: 0.95rem; } }

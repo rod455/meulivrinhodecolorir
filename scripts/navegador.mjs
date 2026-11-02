@@ -123,9 +123,9 @@ assert.ok(await entrarNoTopo.isVisible(), 'Entrar à vista no cabeçalho do celu
 assert.equal(await entrarNoTopo.getAttribute('href'), '/entrar?next=/conta', 'Entrar leva ao login e volta para os livrinhos');
 await p.fill('#nome-lp', 'joão pedro');
 assert.equal(await p.locator('#fazer-parte a.botao[href*="nome=Jo%C3%A3o+Pedro"], #propria a.botao[href*="nome=Jo%C3%A3o+Pedro"]').count(), 2, 'o nome arrumado vai nos dois caminhos');
-assert.equal(await p.locator('.folha-capa-titulo').textContent(), 'João Pedro entra em campo!', 'o livro de exemplo leva o nome');
-await p.getByRole('button', { name: 'Próxima página' }).click();
-await p.locator('.folha-texto', { hasText: 'Logo atrás dela vinha João Pedro!' }).waitFor();
+// o exemplo da turma é o livro pronto do Miguel, no formato do da sob medida (dono, 02/11/2026): o nome não muda
+await p.locator('#fazer-parte').getByText('Miguel entra em campo!', { exact: true }).waitFor();
+assert.ok(await p.locator('#fazer-parte .capa-publicada-exemplo').isVisible(), 'com a capa do livro');
 // o "?" flutuante (dono, 01/11/2026): o e-mail é obrigatório e a mensagem chega com o responder certo
 await p.getByRole('button', { name: 'Fale com a gente' }).click();
 await p.fill('#ajuda-mensagem', 'Vocês fazem livro de dinossauro?');
@@ -140,12 +140,10 @@ assert.equal(contato.responderPara, 'carla@teste.com', 'o responder vai para que
 assert.ok(contato.html.includes('dinossauro'), 'a mensagem vai no e-mail');
 await p.getByRole('button', { name: 'Fechar' }).click();
 assert.equal(await p.locator('footer').getByText('contato@meulivrinhodecolorir.com.br').count(), 1, 'o rodapé mostra o e-mail de contato');
-// sem spoiler (dono, 01/11/2026): o exemplo para no começo da história e termina numa folha de "continua"
-await p.getByRole('button', { name: 'Próxima página' }).click();
-await p.getByRole('button', { name: 'Próxima página' }).click();
-await p.locator('.folha-continua').waitFor();
-assert.equal(await p.locator('.folhear-onde').textContent(), 'Continua no livro', 'a última folha do exemplo é a de continua');
-assert.ok(await p.getByRole('button', { name: 'Próxima página' }).isDisabled(), 'e não há página depois dela');
+// sem spoiler (dono, 01/11/2026): o exemplo mostra só o começo, com marca d'água
+assert.deepEqual(await p.locator('#fazer-parte .historia-numero').allTextContents(), ['3', '4'], 'o exemplo da turma mostra só o encontro com o time');
+assert.ok(await p.locator('#fazer-parte .historia-paginas.marca-dagua').isVisible(), "com marca d'água");
+await p.locator('#fazer-parte').getByText('Logo atrás dela vinha Miguel!').waitFor();
 assert.equal(await p.locator('.exemplo-turma').getByText(/GOOOL|terminou empatado/).count(), 0, 'o final do jogo não aparece no exemplo');
 // o exemplo da sob medida é o livro pronto da Laura, com capa e título, e só as duas primeiras páginas (dono, 02/11/2026)
 await p.locator('#propria').getByText('Laura e o mar de conchas', { exact: true }).waitFor();

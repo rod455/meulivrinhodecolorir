@@ -15,20 +15,36 @@ export function FacaParte() {
   const { nome } = useNomeNaLp();
   const quem = nome || 'seu filho';
   return (
-    <div className="secao-caminho">
+    <div className="secao-caminho secao-caminho-propria">
       <div className="secao-caminho-texto">
         <h2>Faça parte da história</h2>
         <p className="sub-caminho">{nome || 'Seu filho'} entra no time do Pip, do Bo, da Luna, da Dot e do Milo e vive a aventura com eles, desenhado do jeitinho que você escolher.</p>
         <CampoDoNome />
-        <ol className="caminho-passos">
+        {/* no mesmo formato da dobra da sob medida (dono, 02/11/2026) */}
+        <ol className="caminho-passos caminho-passos-blocos">
           <li>
-            <strong>Escolha a aventura.</strong> Hoje: a grande final de futebol ou o torneio de basquete. Em breve: flag football e Natal.
+            <strong>Escolha a aventura</strong>
+            <span>Hoje: a grande final de futebol ou o torneio de basquete. Em breve: flag football e Natal.</span>
           </li>
           <li>
-            <strong>Monte o personagem</strong> pelo cabelo, pele e roupa, ou a partir de uma foto.
+            <strong>Monte o personagem</strong>
+            <span>Pelo cabelo, pele e roupa, ou a partir de uma foto.</span>
           </li>
           <li>
-            <strong>Aprove o desenho</strong> antes de qualquer coisa.
+            <strong>Você vê antes de pagar</strong>
+            <span>O desenho da sua criança no time, para aprovar ou ajustar.</span>
+          </li>
+          <li>
+            <strong>Escolha o tipo de livro que preferir</strong>
+            <span className="versoes-mini">
+              <span className="versao-mini">
+                <b>Ilustrado</b> colorido, para ler
+              </span>
+              <span className="versao-mini">
+                <b>Para colorir</b> em traço, para pintar
+              </span>
+            </span>
+            <span className="letra-miuda">Ou os dois juntos, com desconto.</span>
           </li>
         </ol>
         <Link href={linkDoCaminho('turma', nome)} className="botao" onClick={() => registrar('caminho_escolhido', { caminho: 'turma' })}>
@@ -72,7 +88,7 @@ export function HistoriaPropria() {
             <strong>Escolha o tipo de livro que preferir</strong>
             <span className="versoes-mini">
               <span className="versao-mini">
-                <b>Ilustrado</b> todo colorido, para ler junto
+                <b>Ilustrado</b> colorido, para ler
               </span>
               <span className="versao-mini">
                 <b>Para colorir</b> em traço, para pintar

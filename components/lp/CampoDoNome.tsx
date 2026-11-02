@@ -23,7 +23,7 @@ export function CampoDoNome() {
           aria-describedby="nome-lp-ajuda"
         />
       <span id="nome-lp-ajuda" className={problema && problema !== 'vazio' ? 'erro' : 'ajuda'} role="status">
-        {problema && problema !== 'vazio' ? MENSAGEM_DO_PROBLEMA[problema] : 'Só o primeiro nome ou apelido. Ele entra no livro de exemplo.'}
+        {problema && problema !== 'vazio' ? MENSAGEM_DO_PROBLEMA[problema] : 'Só o primeiro nome ou apelido.'}
       </span>
     </form>
   );
