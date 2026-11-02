@@ -833,3 +833,16 @@ body:has(.barra-fixa) .ajuda-painel { bottom: calc(172px + env(safe-area-inset-b
 .ajuda-isca { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
 .ajuda-enviado { display: grid; gap: 12px; }
 .visualmente-escondido { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* a versão do livro, na tela de pagar (dono, 02/11/2026) */
+.versoes { display: grid; gap: 8px; margin: 12px 0 4px; }
+.versoes .rotulo { font-weight: 800; }
+.versao { display: flex; justify-content: space-between; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 10px 14px; min-height: 44px; border: 2px solid var(--contorno-suave); border-radius: 14px; background: var(--branco); font: inherit; color: var(--grafite); cursor: pointer; }
+.versao:hover { border-color: var(--grafite); }
+.versao[aria-checked='true'] { background: #fff3c9; border-color: var(--grafite); box-shadow: 0 3px 0 var(--grafite); }
+.versao-texto { display: grid; gap: 0; }
+.versao-preco { display: grid; justify-items: end; font-weight: 800; white-space: nowrap; }
+.versao-selo { font-size: 0.72rem; font-weight: 800; background: var(--verde); color: var(--grafite); border-radius: 999px; padding: 1px 8px; }
+.capa-sob-medida-mini { border-radius: 4px 8px 8px 4px; box-shadow: inset 5px 0 0 rgba(43, 45, 66, 0.12), 0 3px 0 var(--grafite); }
+.capa-sob-medida-mini .capa-sob-medida-titulo strong { font-size: 1.05rem; -webkit-text-stroke: 1px var(--grafite); text-shadow: 0 2px 0 var(--grafite); }
+.versao-texto { min-width: 0; }

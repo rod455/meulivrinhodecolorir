@@ -22,8 +22,15 @@ export function destinosLigados() {
   };
 }
 
+/**
+ * O link de cobrança do valor exato do pedido. A versão de colorir usa os links de sempre
+ * (PAGAMENTO_LINK_PRESENTE_PIX...); a ilustrada e o combo têm links próprios, com a versão no
+ * meio (PAGAMENTO_LINK_SOB_MEDIDA_COMBO_PIX), que o dono cria no meio de pagamento. Sem o link,
+ * o pedido segue sem cobrança automática, como hoje quando falta um link.
+ */
 export function linkDePagamento(pedido: Pedido): string | null {
-  const chave = `PAGAMENTO_LINK_${pedido.produto.toUpperCase().replace(/-/g, '_')}_${pedido.pagamento === 'pix' ? 'PIX' : 'CARTAO'}`;
+  const versao = pedido.versao && pedido.versao !== 'colorir' ? `_${pedido.versao.toUpperCase()}` : '';
+  const chave = `PAGAMENTO_LINK_${pedido.produto.toUpperCase().replace(/-/g, '_')}${versao}_${pedido.pagamento === 'pix' ? 'PIX' : 'CARTAO'}`;
   const link = process.env[chave];
   return link && /^https:\/\//.test(link) ? link : null;
 }
@@ -33,6 +40,7 @@ function emLinhaDoBanco(r: Registro) {
     id: r.id,
     criado_em: r.criadoEm,
     produto: r.produto,
+    versao: r.versao,
     tema: r.tema,
     nome_crianca: r.nome,
     idade: r.idade,

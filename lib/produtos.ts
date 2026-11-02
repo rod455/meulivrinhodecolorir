@@ -63,6 +63,34 @@ export const PRODUTOS: Record<ProdutoId, Produto> = {
   },
 };
 
+/**
+ * A versão do livro (dono, 02/11/2026): o livro de colorir, a história ilustrada (colorida) ou
+ * as duas, com o combo mais barato. Vale para o Livrinho presente (a turma) e para a sob medida.
+ * Preços decididos pelo dono em 02/11/2026; mudar só com ele.
+ */
+export type VersaoId = 'colorir' | 'ilustrada' | 'combo';
+export const VERSOES: { id: VersaoId; nome: string; resumo: string }[] = [
+  { id: 'colorir', nome: 'Livro de colorir', resumo: 'Os desenhos em contorno, para pintar' },
+  { id: 'ilustrada', nome: 'História ilustrada', resumo: 'A mesma história, toda colorida, para ler junto' },
+  { id: 'combo', nome: 'Os dois', resumo: 'O de colorir e o ilustrado' },
+];
+export const PRECOS_POR_VERSAO: Partial<Record<ProdutoId, Record<VersaoId, number>>> = {
+  presente: { colorir: 2490, ilustrada: 3490, combo: 4990 },
+  'sob-medida': { colorir: 3990, ilustrada: 4990, combo: 6990 },
+};
+export const ehVersao = (v: unknown): v is VersaoId => v === 'colorir' || v === 'ilustrada' || v === 'combo';
+/** as versões que o produto tem; os outros produtos só têm a de colorir */
+export const temVersoes = (produto: ProdutoId) => Boolean(PRECOS_POR_VERSAO[produto]);
+/** o preço da versão, em centavos; a de colorir é o preço de sempre do produto */
+export function precoDaVersao(produto: ProdutoId, versao: VersaoId): number {
+  return PRECOS_POR_VERSAO[produto]?.[versao] ?? PRODUTOS[produto].preco;
+}
+/** quanto o combo economiza contra comprar as duas versões separadas */
+export function economiaDoCombo(produto: ProdutoId): number {
+  const p = PRECOS_POR_VERSAO[produto];
+  return p ? p.colorir + p.ilustrada - p.combo : 0;
+}
+
 export const LISTA_DE_PRODUTOS: Produto[] = [PRODUTOS.lembrancinha, PRODUTOS.presente, PRODUTOS.combo];
 
 /** Desconto do Pix, em fração (passo 7: Pix com 5% de desconto). */
@@ -75,8 +103,8 @@ export function ehProduto(valor: unknown): valor is ProdutoId {
 }
 
 /** Total em centavos. O Pix arredonda para o centavo de baixo, a favor de quem compra. */
-export function totalDoPedido(produto: ProdutoId, pagamento: FormaDePagamento): number {
-  const base = PRODUTOS[produto].preco;
+export function totalDoPedido(produto: ProdutoId, pagamento: FormaDePagamento, versao: VersaoId = 'colorir'): number {
+  const base = precoDaVersao(produto, versao);
   if (pagamento === 'pix') return Math.floor(base * (1 - DESCONTO_PIX));
   return base;
 }

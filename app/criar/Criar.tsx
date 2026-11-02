@@ -20,7 +20,21 @@ import { arrumarNome, LIMITE_DO_NOME, MENSAGEM_DO_PROBLEMA, problemaDoNome } fro
 import { DEDICATORIAS_PRONTAS, idadeValida, LIMITE_DA_DEDICATORIA, lerPedido, type ErrosDoPedido } from '@/lib/pedido';
 import { chaveDoDesenho } from '@/lib/ficha';
 import { lerPersonagem, PERSONAGEM_INICIAL, SUPERPODERES, type Personagem } from '@/lib/personagem';
-import { DESCONTO_PIX, ehProduto, emReais, LISTA_DE_PRODUTOS, PRODUTOS, totalDoPedido, type FormaDePagamento, type ProdutoId } from '@/lib/produtos';
+import {
+  DESCONTO_PIX,
+  economiaDoCombo,
+  ehProduto,
+  ehVersao,
+  emReais,
+  LISTA_DE_PRODUTOS,
+  PRODUTOS,
+  temVersoes,
+  totalDoPedido,
+  VERSOES,
+  type FormaDePagamento,
+  type ProdutoId,
+  type VersaoId,
+} from '@/lib/produtos';
 import { LIVROS_PUBLICADOS } from '@/lib/livros-publicados';
 import { caminhoDoTema, ehCaminho, ehTema, TEMAS, TEMAS_DO_CAMINHO, type Caminho, type TemaId } from '@/lib/temas';
 import { EtapaFicha } from './EtapaFicha';
@@ -57,6 +71,8 @@ type Rascunho = {
   email: string;
   whatsapp: string;
   pagamento: FormaDePagamento;
+  /** o de colorir, a história ilustrada ou as duas (dono, 02/11/2026) */
+  versao: VersaoId;
   aceitaNovidades: boolean;
   aceitaLembrete: boolean;
   personagem: Personagem;
@@ -85,6 +101,7 @@ const VAZIO: Rascunho = {
   email: '',
   whatsapp: '',
   pagamento: 'pix',
+  versao: 'colorir',
   aceitaNovidades: false,
   aceitaLembrete: true,
   personagem: PERSONAGEM_INICIAL,
@@ -306,7 +323,7 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
       irPara(7);
       return;
     }
-    const resultado = lerPedido({ ...r, email: conta.email, personagem: personagemDoPedido });
+    const resultado = lerPedido({ ...r, versao, email: conta.email, personagem: personagemDoPedido });
     if (!resultado.ok) {
       setErros(resultado.erros);
       if (resultado.erros.nome || resultado.erros.dedicatoria) irPara(2);
@@ -320,7 +337,7 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
       const resposta = await fetch('/api/pedido', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ ...r, email: conta.email, personagem: personagemDoPedido, fichaId: temPersonagem ? r.fichaId : null, historiaId: sobMedida ? r.historiaId : null, origem: lerOrigem(), site: (document.getElementById('site') as HTMLInputElement | null)?.value ?? '' }),
+        body: JSON.stringify({ ...r, versao, email: conta.email, personagem: personagemDoPedido, fichaId: temPersonagem ? r.fichaId : null, historiaId: sobMedida ? r.historiaId : null, origem: lerOrigem(), site: (document.getElementById('site') as HTMLInputElement | null)?.value ?? '' }),
       });
       const dados = (await resposta.json().catch(() => ({}))) as { id?: string; pagar?: string | null; erros?: ErrosDoPedido; mensagem?: string };
       if (!resposta.ok || !dados.id) {
@@ -359,7 +376,9 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
     }
   }
 
-  const total = r.produto ? totalDoPedido(r.produto, r.pagamento) : 0;
+  const comVersoes = Boolean(r.produto && temVersoes(r.produto));
+  const versao: VersaoId = comVersoes && ehVersao(r.versao) ? r.versao : 'colorir';
+  const total = r.produto ? totalDoPedido(r.produto, r.pagamento, versao) : 0;
   // a barra fixa só aparece quando tem botão: sem botão ela só cobria o formulário de conta
   const acaoDaBarra =
     etapa === 2 ? (
@@ -751,7 +770,17 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
               </figure>
             )}
             <div style={{ display: 'grid', gridTemplateColumns: '110px 1fr', gap: 16, alignItems: 'center' }}>
-              <CapaLivrinho id="resumo-capa" tema={r.tema} produto={livroComHistoria ? 'presente' : 'lembrancinha'} nome={nome} idade={r.idade} corte={0.7} />
+              {sobMedida ? (
+                // a mesma capa do painel (dono, 02/11/2026), em miniatura
+                <div className="capa-sob-medida capa-sob-medida-mini" role="img" aria-label={`Capa do livro de ${nome}`}>
+                  <Image src="/artes/capa-sob-medida-ilustrada.webp" alt="" width={768} height={1152} sizes="110px" />
+                  <div className="capa-sob-medida-titulo">
+                    <strong>{nome}</strong>
+                  </div>
+                </div>
+              ) : (
+                <CapaLivrinho id="resumo-capa" tema={r.tema} produto={livroComHistoria ? 'presente' : 'lembrancinha'} nome={nome} idade={r.idade} corte={0.7} />
+              )}
               <div>
                 <strong>
                   {produto.emoji} {produto.nome}
@@ -765,6 +794,28 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
                 </div>
               </div>
             </div>
+            {/* a escolha ocupa a largura toda do cartão: na coluna do texto ela ficava espremida no celular */}
+            {comVersoes && r.produto && (
+              // a versão do livro, ao final (dono, 02/11/2026): colorir, ilustrada ou as duas, com o combo mais barato
+              <div className="versoes" role="radiogroup" aria-label="Qual versão do livro?">
+                <span className="rotulo">Qual versão do livro?</span>
+                {VERSOES.map((v) => {
+                  const preco = totalDoPedido(r.produto as ProdutoId, r.pagamento, v.id);
+                  return (
+                    <button key={v.id} type="button" role="radio" aria-checked={versao === v.id} className="versao" onClick={() => muda('versao', v.id)}>
+                      <span className="versao-texto">
+                        <strong>{v.nome}</strong>
+                        <span className="letra-miuda">{v.resumo}</span>
+                      </span>
+                      <span className="versao-preco">
+                        {emReais(preco)}
+                        {v.id === 'combo' && <span className="versao-selo">economize {emReais(economiaDoCombo(r.produto as ProdutoId))}</span>}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
           <div>
             {carregandoConta ? (

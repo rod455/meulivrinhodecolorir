@@ -16,6 +16,8 @@ export type PedidoDoLivro = {
   id: string;
   tema: string;
   produto: string;
+  /** colorir, ilustrada ou combo (0011); pedidos antigos chegam sem, e são de colorir */
+  versao?: string;
   status: string;
   nome_crianca: string;
   dedicatoria: string | null;
@@ -35,7 +37,7 @@ export type PedidoDoLivro = {
 
 const json = { 'content-type': 'application/json' };
 const CAMPOS =
-  'id,tema,produto,status,nome_crianca,dedicatoria,responsavel,email,personagem,plano,link_pdf,livro_status,livro_token,livro_revisao,livro_pdf,livro_paginas,livro_erro,livro_avisos';
+  'id,tema,produto,versao,status,nome_crianca,dedicatoria,responsavel,email,personagem,plano,link_pdf,livro_status,livro_token,livro_revisao,livro_pdf,livro_paginas,livro_erro,livro_avisos';
 
 export async function pedidoDoLivro(id: string): Promise<PedidoDoLivro | null> {
   const r = await comChaveDeServico(`/rest/v1/pedidos?select=${CAMPOS}&id=eq.${id}`);

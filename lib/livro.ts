@@ -161,11 +161,20 @@ export type Email = { para: string; assunto: string; texto: string };
 
 const primeiroNome = (nome: string) => nome.trim().split(/\s+/)[0] ?? '';
 
-export function emailDeRevisao(d: { nome: string; tituloDoLivro: string; pedidoId: string; linkDeRevisao: string }): Email {
+/** o que o dono ainda faz à mão quando a família pediu a versão ilustrada (ela ainda não sai sozinha) */
+export function avisoDaVersao(versao: string | undefined): string {
+  if (versao === 'ilustrada') return 'ATENÇÃO: esta família pediu a HISTÓRIA ILUSTRADA (colorida), não o livro de colorir. A versão ilustrada ainda não sai sozinha: não libere este PDF; faça a ilustrada à mão e mande para a família.';
+  if (versao === 'combo') return 'ATENÇÃO: esta família pediu OS DOIS (combo). Este PDF é o livro de colorir; a história ilustrada (colorida) ainda não sai sozinha: faça à mão e mande junto.';
+  return '';
+}
+
+export function emailDeRevisao(d: { nome: string; tituloDoLivro: string; pedidoId: string; linkDeRevisao: string; versao?: string }): Email {
+  const aviso = avisoDaVersao(d.versao);
   return {
     para: EMAIL_DO_DONO,
-    assunto: `Livro pronto para revisar: ${d.tituloDoLivro}`,
+    assunto: `${aviso ? '[falta a ilustrada] ' : ''}Livro pronto para revisar: ${d.tituloDoLivro}`,
     texto: [
+      ...(aviso ? [aviso, ''] : []),
       `O livro "${d.tituloDoLivro}" ficou pronto e está esperando a sua revisão.`,
       '',
       `Abra o PDF e, se estiver tudo certo, libere para a família por aqui:`,

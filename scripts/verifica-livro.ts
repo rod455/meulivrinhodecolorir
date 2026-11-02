@@ -134,5 +134,11 @@ const emails = [
 ];
 ok(emails.every((e) => !/[\u2013\u2014]/.test(e.assunto + e.texto)), 'e-mails sem travessão');
 ok(emails[0].para === emails[1].para && emails[2].para === 'f@x.com' && emails[2].texto.startsWith('Oi, Carla!'), 'cada e-mail para quem deve');
+// a versão ilustrada ainda não sai sozinha: o dono é avisado no e-mail de revisão (02/11/2026)
+const doCombo = emailDeRevisao({ nome: 'Bia', tituloDoLivro: 'Bia entra na quadra!', pedidoId: 'x', linkDeRevisao: 'https://a', versao: 'combo' });
+const daIlustrada = emailDeRevisao({ nome: 'Bia', tituloDoLivro: 'Bia entra na quadra!', pedidoId: 'x', linkDeRevisao: 'https://a', versao: 'ilustrada' });
+ok(doCombo.texto.startsWith('ATENÇÃO') && doCombo.assunto.includes('falta a ilustrada'), 'combo: o dono sabe que falta a ilustrada');
+ok(daIlustrada.texto.includes('não libere este PDF'), 'só ilustrada: o dono não libera o de colorir');
+ok(!emails[0].texto.includes('ATENÇÃO') && !emails[0].assunto.includes('falta'), 'de colorir: e-mail de sempre');
 
 console.log(`livro: ${casos} casos ok`);

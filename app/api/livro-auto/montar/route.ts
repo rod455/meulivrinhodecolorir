@@ -45,7 +45,7 @@ export async function POST(req: Request) {
     const caminho = await guardarPdf(pedido.id, pdf);
     await mudarPedidoDoLivro(pedido.id, { livro_status: 'montado', livro_token: null, livro_pdf: caminho, livro_erro: null, status: 'pdf_gerado' }, '&livro_status=eq.gerando');
     const titulo = entrada.titulo;
-    return NextResponse.json({ status: 'montado', paginas: entrada.paginas.length, email: emailDeRevisao({ nome: pedido.nome_crianca, tituloDoLivro: titulo, pedidoId: pedido.id, linkDeRevisao }) });
+    return NextResponse.json({ status: 'montado', paginas: entrada.paginas.length, email: emailDeRevisao({ nome: pedido.nome_crianca, tituloDoLivro: titulo, pedidoId: pedido.id, linkDeRevisao, versao: pedido.versao }) });
   } catch (e) {
     console.error('[livro] montagem falhou', pedido.id, e);
     return falhar(`a montagem do PDF falhou (${String(e).slice(0, 200)})`);

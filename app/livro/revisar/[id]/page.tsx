@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Cabecalho } from '@/components/Cabecalho';
 import { bilheteConfere, ehUuid } from '@/lib/ficha';
-import { chavesDoLivro } from '@/lib/livro';
+import { avisoDaVersao, chavesDoLivro } from '@/lib/livro';
 import { pedidoDoLivro } from '@/lib/servidor/livros';
 import type { TemaId } from '@/lib/temas';
 
@@ -32,6 +32,11 @@ export default async function Revisar({ params, searchParams }: { params: { id: 
       <Cabecalho semMenu />
       <main className="texto-longo revisar-livro">
         <h1>Livro de {pedido.nome_crianca}</h1>
+        {avisoDaVersao(pedido.versao) && (
+          <div className="aviso-erro" role="alert">
+            {avisoDaVersao(pedido.versao)}
+          </div>
+        )}
         <p className="letra-miuda">
           Pedido {pedido.id.slice(0, 8).toUpperCase()} · tema {pedido.tema}
         </p>

@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { destinoSeguro } from '../lib/destino.ts';
 import { arrumarWhatsapp, lerPedido } from '../lib/pedido.ts';
 import { PERSONAGEM_INICIAL } from '../lib/personagem.ts';
-import { emReais, PRODUTOS, totalDoPedido } from '../lib/produtos.ts';
+import { economiaDoCombo, emReais, PRODUTOS, totalDoPedido } from '../lib/produtos.ts';
 
 let casos = 0;
 const ok = (cond: boolean, msg: string) => {
@@ -67,6 +67,20 @@ ok(lido.ok && lido.pedido.personagem?.superpoder === 'coragem', 'futebol leva o 
 ok(!lerPedido({ ...base, produto: 'kit' }).ok, 'produto desconhecido');
 ok(!lerPedido({ ...base, tema: 'princesa-famosa' }).ok, 'tema desconhecido');
 ok(!lerPedido({ ...base, nome: 'merda' }).ok, 'palavrão');
+// a versão do livro (dono, 02/11/2026): colorir, ilustrada ou combo; o preço é sempre o do servidor
+{
+  const presente = { ...base, produto: 'presente' };
+  const r1 = lerPedido(presente);
+  ok(r1.ok && r1.pedido.versao === 'colorir', 'sem versão, é o de colorir (rascunho antigo)');
+  const r2 = lerPedido({ ...presente, versao: 'ilustrada', pagamento: 'pix', total: 1 });
+  ok(r2.ok && r2.pedido.total === Math.floor(3490 * 0.95), `ilustrada no Pix: R$ 34,90 menos 5% (veio ${r2.ok ? r2.pedido.total : '-'}), e o total do navegador é ignorado`);
+  const r3 = lerPedido({ ...presente, versao: 'combo', pagamento: 'cartao' });
+  ok(r3.ok && r3.pedido.total === 4990, 'combo da turma no cartão: R$ 49,90');
+  ok(!lerPedido({ ...presente, versao: 'dourada' }).ok, 'versão desconhecida recusa');
+  ok(!lerPedido({ ...base, produto: 'lembrancinha', versao: 'combo' }).ok, 'a lembrancinha só tem a de colorir');
+}
+ok(totalDoPedido('sob-medida', 'cartao', 'combo') === 6990 && totalDoPedido('sob-medida', 'cartao', 'ilustrada') === 4990 && totalDoPedido('sob-medida', 'cartao') === 3990, 'sob medida: 39,90 / 49,90 / combo 69,90');
+ok(economiaDoCombo('sob-medida') === 1990 && economiaDoCombo('presente') === 990, 'o combo economiza R$ 19,90 na sob medida e R$ 9,90 na turma');
 // "Outra" idade abre a caixa, de 1 a 12 (dono, 02/11/2026)
 ok(lerPedido({ ...base, idade: 12 }).ok, 'idade 12, pela caixa do "Outra", passa');
 ok(lerPedido({ ...base, idade: 2 }).ok, 'idade 2, pela caixa do "Outra", passa');

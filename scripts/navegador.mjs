@@ -597,13 +597,23 @@ assert.ok((await semAprovar.json()).erros?.historiaId, 'e o erro aponta a histó
 await intrusa.getByRole('button', { name: 'Amei, aprovar a história' }).click();
 await intrusa.getByText(/Theo e o tesouro da praia”, história aprovada por você/).waitFor();
 await intrusa.getByText('R$ 37,90').first().waitFor();
+// ao final, a versão do livro (dono, 02/11/2026): colorir, ilustrada ou as duas, com o combo mais barato
+const versoes = intrusa.getByRole('radiogroup', { name: 'Qual versão do livro?' });
+assert.deepEqual(
+  (await versoes.getByRole('radio').allTextContents()).map((t) => t.replace(/\s+/g, ' ').trim()),
+  ['Livro de colorirOs desenhos em contorno, para pintarR$ 37,90', 'História ilustradaA mesma história, toda colorida, para ler juntoR$ 47,40', 'Os doisO de colorir e o ilustradoR$ 66,40economize R$ 19,90'].map((t) => t.replace(/\s+/g, ' ')),
+  'as três versões com o preço do Pix, e o combo dizendo quanto economiza',
+);
+await versoes.getByRole('radio', { name: /História ilustrada/ }).click();
+await intrusa.locator('.barra-fixa').getByText('R$ 47,40').waitFor();
 await intrusa.fill('#responsavel', 'Outra Pessoa');
 await intrusa.fill('#whatsapp', '(21) 99876-5432');
 await intrusa.getByRole('button', { name: 'Pagar com Pix' }).click();
 await intrusa.waitForURL(/\/obrigado\?pedido=/, { timeout: 15000 });
 const { pedido: sobMedida } = ultimoAvisoAoN8n();
 assert.equal(sobMedida.produto, 'sob-medida');
-assert.equal(sobMedida.total_centavos, 3790, 'R$ 39,90 com o Pix, recalculado no servidor');
+assert.equal(sobMedida.total_centavos, 4740, 'a ilustrada: R$ 49,90 com o Pix, recalculado no servidor');
+assert.equal(sobMedida.versao, 'ilustrada', 'a versão escolhida fica no pedido');
 assert.equal(sobMedida.modelo, 'sob-medida-little-paws-v1');
 assert.equal(sobMedida.plano.paginas.length, 16, 'dezesseis páginas no plano');
 assert.equal(sobMedida.plano.titulo, 'Theo e o tesouro da praia', 'o livro usa a versão aprovada');

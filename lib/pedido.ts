@@ -2,7 +2,7 @@
 // Puro: conferido por `npm run conferir:pedido`.
 
 import { arrumarNome, MENSAGEM_DO_PROBLEMA, problemaDoNome } from './nome.ts';
-import { ehProduto, PRODUTOS, totalDoPedido, type FormaDePagamento, type ProdutoId } from './produtos.ts';
+import { ehProduto, ehVersao, PRODUTOS, temVersoes, totalDoPedido, type FormaDePagamento, type ProdutoId, type VersaoId } from './produtos.ts';
 import { ehUuid } from './ficha.ts';
 import { lerPersonagem, type Personagem } from './personagem.ts';
 import { ehTema, TEMAS, type TemaId } from './temas.ts';
@@ -17,6 +17,8 @@ export const DEDICATORIAS_PRONTAS = [
 
 export type Pedido = {
   produto: ProdutoId;
+  /** colorir, ilustrada ou as duas (combo); só o presente e a sob medida têm as três */
+  versao: VersaoId;
   tema: TemaId;
   nome: string;
   idade: number;
@@ -135,6 +137,13 @@ export function lerPedido(entrada: Record<string, unknown>):
 
   const pagamento = entrada.pagamento === 'cartao' ? 'cartao' : 'pix';
 
+  // sem versão no pedido (rascunho antigo), é o de colorir; versão que o produto não tem, recusa
+  const versaoBruta = entrada.versao ?? 'colorir';
+  let versao: VersaoId = 'colorir';
+  if (!ehVersao(versaoBruta)) erros.versao = 'Escolha a versão do livro.';
+  else if (versaoBruta !== 'colorir' && ehProduto(produto) && !temVersoes(produto)) erros.versao = 'Este livrinho só tem a versão de colorir.';
+  else versao = versaoBruta;
+
   if (Object.keys(erros).length > 0 || !ehProduto(produto) || !ehTema(tema) || !whatsapp) {
     return { ok: false, erros };
   }
@@ -143,6 +152,7 @@ export function lerPedido(entrada: Record<string, unknown>):
     ok: true,
     pedido: {
       produto,
+      versao,
       tema,
       nome: arrumarNome(texto('nome')),
       idade,
@@ -158,7 +168,7 @@ export function lerPedido(entrada: Record<string, unknown>):
       personagem,
       fichaId,
       historiaId,
-      total: totalDoPedido(produto, pagamento),
+      total: totalDoPedido(produto, pagamento, versao),
     },
   };
 }
