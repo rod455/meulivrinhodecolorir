@@ -594,11 +594,6 @@ p { margin: 0 0 1em; }
 .capa-da-serie { position: relative; width: min(240px, 72%); justify-self: center; border: 2px solid var(--grafite); border-radius: 6px 14px 14px 6px; overflow: hidden; box-shadow: inset 10px 0 0 rgba(43, 45, 66, 0.12), 0 5px 0 var(--grafite); }
 @media (min-width: 560px) { .capa-da-serie { width: 100%; } }
 .capa-da-serie img { width: 100%; height: auto; display: block; }
-.capa-da-serie-topo { position: absolute; top: 5%; left: 5%; right: 5%; display: grid; justify-items: center; gap: 4px; text-align: center; }
-.capa-da-serie-selo { background: #1f2a44; color: var(--branco); border-radius: 999px; padding: 2px 10px; font: 800 0.58rem var(--fonte-titulo), system-ui, sans-serif; letter-spacing: 0.06em; text-transform: uppercase; }
-.capa-da-serie-titulo { display: grid; line-height: 0.95; font: 800 1.3rem/0.95 var(--fonte-titulo), system-ui, sans-serif; text-transform: uppercase; color: var(--branco); -webkit-text-stroke: 1.5px #1f2a44; paint-order: stroke fill; text-shadow: 0 3px 0 #1f2a44; }
-.capa-da-serie-titulo-cor { color: var(--amarelo); }
-.capa-da-serie-sub { font: 700 0.72rem var(--fonte-titulo), system-ui, sans-serif; color: var(--branco); -webkit-text-stroke: 0.5px #1f2a44; paint-order: stroke fill; text-shadow: 0 1px 2px rgba(31, 42, 68, 0.6); }
 .exemplo-paginas .historia-paginas { margin: 10px 0; }
 .exemplo-continua { margin: 0; font-weight: 700; color: var(--grafite-suave); font-size: 0.95rem; }
 .exemplo-nota { text-align: center; margin: 0; }

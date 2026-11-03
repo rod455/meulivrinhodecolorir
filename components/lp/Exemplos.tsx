@@ -17,7 +17,7 @@ const textoDa = (n: number) => PAGINAS.find((p) => p.pagina === n)?.texto ?? '';
 const EXEMPLO_SOB_MEDIDA = {
   escolhas: ['Praia', 'Enfrentar medos', 'Pet: Pipoca', 'Superpoder: coragem'],
   titulo: '{NOME} e o mar de conchas',
-  capa: '/artes/capa-mar-de-conchas.webp',
+  capa: '/artes/capa-laura-mar-de-conchas.webp',
   paginas: [
     { n: 1, texto: '{NOME} adorava conchas, mas tinha medo das ondas grandes. Do alto da duna, olhava o mar de longe.' },
     { n: 2, texto: 'Um dia, a coelha Lili e o cachorro Pipoca chegaram correndo: "Vamos achar a concha mais brilhante da praia?"' },
@@ -91,17 +91,9 @@ export function ExemploSobMedida() {
         ))}
       </div>
       <div className="exemplo-texto exemplo-com-capa">
-        {/* a capa como as da série Little Paws: etiqueta em cima, título em duas cores e o subtítulo */}
-        <div className="capa-da-serie" role="img" aria-label={`Capa do livro "${titulo}"`}>
-          <Image src={EXEMPLO_SOB_MEDIDA.capa} alt="" width={768} height={1152} sizes="(min-width: 960px) 220px, 60vw" />
-          <div className="capa-da-serie-topo">
-            <span className="capa-da-serie-selo">Meu Livrinho de Colorir</span>
-            <strong className="capa-da-serie-titulo">
-              <span>{quem} e o</span>
-              <span className="capa-da-serie-titulo-cor">mar de conchas</span>
-            </strong>
-            <span className="capa-da-serie-sub">Uma história sobre coragem</span>
-          </div>
+        {/* a capa no padrão da série Little Paws (dono, 03/11/2026: "mesma letra, desenho"): o título faz parte da arte, como nas capas publicadas */}
+        <div className="capa-da-serie capa-publicada-exemplo" role="img" aria-label={`Capa do livro "${titulo}"`}>
+          <Image src={EXEMPLO_SOB_MEDIDA.capa} alt="" width={768} height={1152} sizes="(min-width: 960px) 240px, 60vw" />
         </div>
         <div className="exemplo-paginas">
           <strong className="exemplo-titulo">{titulo}</strong>
