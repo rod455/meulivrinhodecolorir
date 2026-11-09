@@ -17,21 +17,26 @@ import { registrar } from '@/lib/analytics';
 import { supabaseNoNavegador } from '@/lib/supabase/navegador';
 import { linkDoWhatsapp } from '@/lib/config';
 import { arrumarNome, LIMITE_DO_NOME, MENSAGEM_DO_PROBLEMA, problemaDoNome } from '@/lib/nome';
+import { UFS_DO_BRASIL, type Endereco } from '@/lib/endereco';
 import { DEDICATORIAS_PRONTAS, idadeValida, LIMITE_DA_DEDICATORIA, lerPedido, type ErrosDoPedido } from '@/lib/pedido';
 import { chaveDoDesenho } from '@/lib/ficha';
 import { lerPersonagem, PERSONAGEM_INICIAL, SUPERPODERES, type Personagem } from '@/lib/personagem';
 import {
   DESCONTO_PIX,
   economiaDoCombo,
+  ehFormato,
   ehProduto,
   ehVersao,
+  FORMATOS,
   emReais,
   LISTA_DE_PRODUTOS,
   PRODUTOS,
+  temImpresso,
   temVersoes,
   totalDoPedido,
   VERSOES,
   type FormaDePagamento,
+  type FormatoId,
   type ProdutoId,
   type VersaoId,
 } from '@/lib/produtos';
@@ -73,6 +78,9 @@ type Rascunho = {
   pagamento: FormaDePagamento;
   /** o de colorir, a história ilustrada ou as duas (dono, 02/11/2026) */
   versao: VersaoId;
+  /** PDF ou o livro impresso, que chega pelo correio com o frete à parte (dono, 09/11/2026) */
+  formato: FormatoId;
+  endereco: Endereco;
   aceitaNovidades: boolean;
   aceitaLembrete: boolean;
   personagem: Personagem;
@@ -102,6 +110,8 @@ const VAZIO: Rascunho = {
   whatsapp: '',
   pagamento: 'pix',
   versao: 'colorir',
+  formato: 'pdf',
+  endereco: { cep: '', rua: '', numero: '', complemento: '', bairro: '', cidade: '', uf: '' },
   aceitaNovidades: false,
   aceitaLembrete: true,
   personagem: PERSONAGEM_INICIAL,
@@ -323,7 +333,7 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
       irPara(7);
       return;
     }
-    const resultado = lerPedido({ ...r, versao, email: conta.email, personagem: personagemDoPedido });
+    const resultado = lerPedido({ ...r, versao, formato, endereco: formato === 'impresso' ? r.endereco : null, email: conta.email, personagem: personagemDoPedido });
     if (!resultado.ok) {
       setErros(resultado.erros);
       if (resultado.erros.nome || resultado.erros.dedicatoria) irPara(2);
@@ -337,7 +347,7 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
       const resposta = await fetch('/api/pedido', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ ...r, versao, email: conta.email, personagem: personagemDoPedido, fichaId: temPersonagem ? r.fichaId : null, historiaId: sobMedida ? r.historiaId : null, origem: lerOrigem(), site: (document.getElementById('site') as HTMLInputElement | null)?.value ?? '' }),
+        body: JSON.stringify({ ...r, versao, formato, endereco: formato === 'impresso' ? r.endereco : null, email: conta.email, personagem: personagemDoPedido, fichaId: temPersonagem ? r.fichaId : null, historiaId: sobMedida ? r.historiaId : null, origem: lerOrigem(), site: (document.getElementById('site') as HTMLInputElement | null)?.value ?? '' }),
       });
       const dados = (await resposta.json().catch(() => ({}))) as { id?: string; pagar?: string | null; erros?: ErrosDoPedido; mensagem?: string };
       if (!resposta.ok || !dados.id) {
@@ -378,7 +388,20 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
 
   const comVersoes = Boolean(r.produto && temVersoes(r.produto));
   const versao: VersaoId = comVersoes && ehVersao(r.versao) ? r.versao : 'colorir';
-  const total = r.produto ? totalDoPedido(r.produto, r.pagamento, versao) : 0;
+  const comImpresso = Boolean(r.produto && temImpresso(r.produto));
+  const formato: FormatoId = comImpresso && ehFormato(r.formato) ? r.formato : 'pdf';
+  const total = r.produto ? totalDoPedido(r.produto, r.pagamento, versao, formato) : 0;
+  const mudaEndereco = (campo: keyof Endereco, valor: string) => {
+    setR((atual) => ({ ...atual, endereco: { ...atual.endereco, [campo]: valor } }));
+    setErros((e) => ({ ...e, [campo]: undefined }));
+  };
+  const campoDoEndereco = (id: keyof Endereco, rotulo: string, extra: React.InputHTMLAttributes<HTMLInputElement> = {}) => (
+    <div className="campo">
+      <label htmlFor={`end-${id}`}>{rotulo}</label>
+      <input id={`end-${id}`} value={r.endereco[id]} onChange={(ev) => mudaEndereco(id, ev.target.value)} aria-invalid={Boolean(erros[id])} {...extra} />
+      {erros[id] && <span className="erro">{erros[id]}</span>}
+    </div>
+  );
   // a barra fixa só aparece quando tem botão: sem botão ela só cobria o formulário de conta
   const acaoDaBarra =
     etapa === 2 ? (
@@ -788,19 +811,35 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
                 <div className="letra-miuda">
                   {sobMedida && r.historiaTitulo ? `“${r.historiaTitulo}”, história aprovada por você` : TEMAS[r.tema].nome} · {nome}, {r.idade} {r.idade === 1 ? 'ano' : 'anos'}
                 </div>
-                <div className="letra-miuda">Arquivo para imprimir, por e-mail e WhatsApp</div>
+                <div className="letra-miuda">{formato === 'impresso' ? 'Livro impresso, pelo correio (frete à parte)' : 'Arquivo para imprimir, por e-mail e WhatsApp'}</div>
                 <div className="resumo-preco">
                   {emReais(total)} <span className="letra-miuda">{r.pagamento === 'pix' ? 'no Pix' : 'no cartão'}</span>
                 </div>
               </div>
             </div>
+            {/* PDF ou impresso (dono, 09/11/2026): o impresso chega pelo correio, com o frete à parte */}
+            {comImpresso && (
+              <div className="versoes formatos" role="radiogroup" aria-label="Como você quer o livro?">
+                <span className="rotulo">Como você quer o livro?</span>
+                <div className="formatos-linha">
+                  {FORMATOS.map((f) => (
+                    <button key={f.id} type="button" role="radio" aria-checked={formato === f.id} className="versao formato" onClick={() => muda('formato', f.id)}>
+                      <span className="versao-texto">
+                        <strong>{f.nome}</strong>
+                        <span className="letra-miuda">{f.resumo}</span>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             {/* a escolha ocupa a largura toda do cartão: na coluna do texto ela ficava espremida no celular */}
             {comVersoes && r.produto && (
               // a versão do livro, ao final (dono, 02/11/2026): colorir, ilustrada ou as duas, com o combo mais barato
               <div className="versoes" role="radiogroup" aria-label="Qual versão do livro?">
                 <span className="rotulo">Qual versão do livro?</span>
                 {VERSOES.map((v) => {
-                  const preco = totalDoPedido(r.produto as ProdutoId, r.pagamento, v.id);
+                  const preco = totalDoPedido(r.produto as ProdutoId, r.pagamento, v.id, formato);
                   return (
                     <button key={v.id} type="button" role="radio" aria-checked={versao === v.id} className="versao" onClick={() => muda('versao', v.id)}>
                       <span className="versao-texto">
@@ -809,7 +848,7 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
                       </span>
                       <span className="versao-preco">
                         {emReais(preco)}
-                        {v.id === 'combo' && <span className="versao-selo">economize {emReais(economiaDoCombo(r.produto as ProdutoId))}</span>}
+                        {v.id === 'combo' && <span className="versao-selo">economize {emReais(economiaDoCombo(r.produto as ProdutoId, formato))}</span>}
                       </span>
                     </button>
                   );
@@ -869,6 +908,35 @@ export function Criar({ fotoLigada, google }: { fotoLigada: boolean; google: boo
               />
               {erros.whatsapp && <span className="erro">{erros.whatsapp}</span>}
             </div>
+            {formato === 'impresso' && (
+              // o endereço do impresso (dono, 09/11/2026); o frete é combinado à parte
+              <fieldset className="endereco">
+                <legend>Endereço de entrega</legend>
+                <span className="letra-miuda">O frete é à parte: a gente combina com você pelo WhatsApp.</span>
+                {campoDoEndereco('cep', 'CEP', { inputMode: 'numeric', autoComplete: 'postal-code', placeholder: '00000-000' })}
+                {campoDoEndereco('rua', 'Rua', { autoComplete: 'address-line1' })}
+                <div className="endereco-linha">
+                  {campoDoEndereco('numero', 'Número')}
+                  {campoDoEndereco('complemento', 'Complemento', { autoComplete: 'address-line2', placeholder: 'opcional' })}
+                </div>
+                {campoDoEndereco('bairro', 'Bairro')}
+                <div className="endereco-linha">
+                  {campoDoEndereco('cidade', 'Cidade', { autoComplete: 'address-level2' })}
+                  <div className="campo">
+                    <label htmlFor="end-uf">Estado</label>
+                    <select id="end-uf" value={r.endereco.uf} onChange={(ev) => mudaEndereco('uf', ev.target.value)} aria-invalid={Boolean(erros.uf)}>
+                      <option value="">UF</option>
+                      {UFS_DO_BRASIL.map((uf) => (
+                        <option key={uf} value={uf}>
+                          {uf}
+                        </option>
+                      ))}
+                    </select>
+                    {erros.uf && <span className="erro">{erros.uf}</span>}
+                  </div>
+                </div>
+              </fieldset>
+            )}
             {/* armadilha para robôs: gente de verdade não vê nem preenche */}
             <input id="site" name="site" tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position: 'absolute', left: -9999, width: 1, height: 1 }} />
 

@@ -79,15 +79,37 @@ export const PRECOS_POR_VERSAO: Partial<Record<ProdutoId, Record<VersaoId, numbe
   'sob-medida': { colorir: 3990, ilustrada: 4990, combo: 6990 },
 };
 export const ehVersao = (v: unknown): v is VersaoId => v === 'colorir' || v === 'ilustrada' || v === 'combo';
+
+/**
+ * O formato do livro personalizado (dono, 09/11/2026): o PDF para imprimir em casa (os preços
+ * acima) ou o livro impresso, que chega pelo correio, com o frete à parte. No impresso, o de
+ * colorir e o ilustrado custam o mesmo, e o combo sai por R$ 109,90 nos dois caminhos.
+ */
+export type FormatoId = 'pdf' | 'impresso';
+export const FORMATOS: { id: FormatoId; nome: string; resumo: string }[] = [
+  { id: 'pdf', nome: 'PDF', resumo: 'Para imprimir em casa. Chega por e-mail e WhatsApp.' },
+  { id: 'impresso', nome: 'Livro impresso', resumo: 'Chega pelo correio. O frete é à parte.' },
+];
+export const PRECOS_IMPRESSOS: Partial<Record<ProdutoId, Record<VersaoId, number>>> = {
+  presente: { colorir: 6990, ilustrada: 6990, combo: 10990 },
+  'sob-medida': { colorir: 7490, ilustrada: 7490, combo: 10990 },
+};
+export const ehFormato = (v: unknown): v is FormatoId => v === 'pdf' || v === 'impresso';
+/** o produto vende o impresso? (o presente e a sob medida; a lembrancinha não) */
+export const temImpresso = (produto: ProdutoId) => Boolean(PRECOS_IMPRESSOS[produto]);
 /** as versões que o produto tem; os outros produtos só têm a de colorir */
 export const temVersoes = (produto: ProdutoId) => Boolean(PRECOS_POR_VERSAO[produto]);
 /** o preço da versão, em centavos; a de colorir é o preço de sempre do produto */
-export function precoDaVersao(produto: ProdutoId, versao: VersaoId): number {
+export function precoDaVersao(produto: ProdutoId, versao: VersaoId, formato: FormatoId = 'pdf'): number {
+  if (formato === 'impresso') {
+    const impresso = PRECOS_IMPRESSOS[produto]?.[versao];
+    if (impresso) return impresso;
+  }
   return PRECOS_POR_VERSAO[produto]?.[versao] ?? PRODUTOS[produto].preco;
 }
 /** quanto o combo economiza contra comprar as duas versões separadas */
-export function economiaDoCombo(produto: ProdutoId): number {
-  const p = PRECOS_POR_VERSAO[produto];
+export function economiaDoCombo(produto: ProdutoId, formato: FormatoId = 'pdf'): number {
+  const p = (formato === 'impresso' ? PRECOS_IMPRESSOS[produto] : null) ?? PRECOS_POR_VERSAO[produto];
   return p ? p.colorir + p.ilustrada - p.combo : 0;
 }
 
@@ -103,8 +125,8 @@ export function ehProduto(valor: unknown): valor is ProdutoId {
 }
 
 /** Total em centavos. O Pix arredonda para o centavo de baixo, a favor de quem compra. */
-export function totalDoPedido(produto: ProdutoId, pagamento: FormaDePagamento, versao: VersaoId = 'colorir'): number {
-  const base = precoDaVersao(produto, versao);
+export function totalDoPedido(produto: ProdutoId, pagamento: FormaDePagamento, versao: VersaoId = 'colorir', formato: FormatoId = 'pdf'): number {
+  const base = precoDaVersao(produto, versao, formato);
   if (pagamento === 'pix') return Math.floor(base * (1 - DESCONTO_PIX));
   return base;
 }

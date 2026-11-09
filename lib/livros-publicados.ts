@@ -9,6 +9,7 @@
 // para imprimir em casa, R$ 29,90. Preço é decisão do dono: mudar só com ele.
 // Puro: conferido por `npm run conferir:turma`.
 
+import { lerEndereco, type Endereco } from './endereco.ts';
 import type { TemaId } from './temas.ts';
 
 export const PRECO_DO_FORMATO = { impresso: 5990, pdf: 2990 } as const;
@@ -131,11 +132,10 @@ export function acharEdicao(id: unknown): { livro: LivroPublicado; edicao: Edica
 
 export const ehFormatoDaTurma = (f: unknown): f is FormatoDaTurma => f === 'impresso' || f === 'pdf';
 
-export type Endereco = { cep: string; rua: string; numero: string; complemento: string; bairro: string; cidade: string; uf: string };
+export type { Endereco } from './endereco.ts';
 export type PedidoDaTurma = { edicao: string; formato: FormatoDaTurma; precoCentavos: number; responsavel: string; whatsapp: string; endereco: Endereco | null };
 export type ErrosDaTurma = Partial<Record<'edicao' | 'formato' | 'responsavel' | 'whatsapp' | keyof Endereco, string>>;
 
-const UFS = 'AC AL AP AM BA CE DF ES GO MA MT MS MG PA PB PR PE PI RJ RN RS RO RR SC SP SE TO'.split(' ');
 const texto = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().replace(/\s+/g, ' ').slice(0, max) : '');
 
 /**
@@ -156,22 +156,9 @@ export function lerPedidoDaTurma(entrada: unknown): { ok: true; pedido: PedidoDa
 
   let endereco: Endereco | null = null;
   if (formato === 'impresso') {
-    const d = (e.endereco && typeof e.endereco === 'object' ? e.endereco : {}) as Record<string, unknown>;
-    endereco = {
-      cep: typeof d.cep === 'string' ? d.cep.replace(/\D/g, '') : '',
-      rua: texto(d.rua, 120),
-      numero: texto(d.numero, 12),
-      complemento: texto(d.complemento, 60),
-      bairro: texto(d.bairro, 60),
-      cidade: texto(d.cidade, 60),
-      uf: texto(d.uf, 2).toUpperCase(),
-    };
-    if (!/^\d{8}$/.test(endereco.cep)) erros.cep = 'O CEP tem 8 números.';
-    if (!endereco.rua) erros.rua = 'Digite a rua.';
-    if (!endereco.numero) erros.numero = 'Digite o número (ou "s/n").';
-    if (!endereco.bairro) erros.bairro = 'Digite o bairro.';
-    if (!endereco.cidade) erros.cidade = 'Digite a cidade.';
-    if (!UFS.includes(endereco.uf)) erros.uf = 'Escolha o estado.';
+    const lido = lerEndereco(e.endereco);
+    endereco = lido.endereco;
+    Object.assign(erros, lido.erros);
   }
 
   if (Object.keys(erros).length > 0 || !achado || !formato) return { ok: false, erros };
@@ -181,4 +168,4 @@ export function lerPedidoDaTurma(entrada: unknown): { ok: true; pedido: PedidoDa
   };
 }
 
-export const UFS_DO_BRASIL = UFS;
+export { UFS_DO_BRASIL } from './endereco.ts';

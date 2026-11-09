@@ -140,5 +140,7 @@ const daIlustrada = emailDeRevisao({ nome: 'Bia', tituloDoLivro: 'Bia entra na q
 ok(doCombo.texto.startsWith('ATENÇÃO') && doCombo.assunto.includes('falta a ilustrada'), 'combo: o dono sabe que falta a ilustrada');
 ok(daIlustrada.texto.includes('não libere este PDF'), 'só ilustrada: o dono não libera o de colorir');
 ok(!emails[0].texto.includes('ATENÇÃO') && !emails[0].assunto.includes('falta'), 'de colorir: e-mail de sempre');
+const doImpresso = emailDeRevisao({ nome: 'Bia', tituloDoLivro: 'Bia entra na quadra!', pedidoId: 'x', linkDeRevisao: 'https://a', formato: 'impresso' });
+ok(doImpresso.texto.startsWith('IMPRESSO') && doImpresso.assunto.startsWith('[impresso]') && !doImpresso.assunto.includes('ilustrada'), 'impresso: o dono sabe que é para imprimir e mandar pelo correio');
 
 console.log(`livro: ${casos} casos ok`);

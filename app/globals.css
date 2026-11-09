@@ -907,3 +907,7 @@ body:has(.barra-fixa) .ajuda-painel { bottom: calc(172px + env(safe-area-inset-b
 .capa-publicada-exemplo { background: #fff; }
 .secao-caminho-propria .campo-do-nome input { min-height: 44px; font-size: 1rem; }
 @media (min-width: 960px) { .secao-caminho-propria .campo-do-nome { gap: 4px; } .secao-caminho-propria .campo-do-nome label { font-size: 0.95rem; } }
+
+/* PDF ou impresso, lado a lado (dono, 09/11/2026) */
+.formatos-linha { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.versao.formato { align-items: flex-start; }

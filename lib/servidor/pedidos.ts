@@ -29,8 +29,10 @@ export function destinosLigados() {
  * o pedido segue sem cobrança automática, como hoje quando falta um link.
  */
 export function linkDePagamento(pedido: Pedido): string | null {
+  // o impresso tem links próprios, com IMPRESSO no meio (PAGAMENTO_LINK_SOB_MEDIDA_IMPRESSO_COMBO_PIX)
+  const formato = pedido.formato === 'impresso' ? '_IMPRESSO' : '';
   const versao = pedido.versao && pedido.versao !== 'colorir' ? `_${pedido.versao.toUpperCase()}` : '';
-  const chave = `PAGAMENTO_LINK_${pedido.produto.toUpperCase().replace(/-/g, '_')}${versao}_${pedido.pagamento === 'pix' ? 'PIX' : 'CARTAO'}`;
+  const chave = `PAGAMENTO_LINK_${pedido.produto.toUpperCase().replace(/-/g, '_')}${formato}${versao}_${pedido.pagamento === 'pix' ? 'PIX' : 'CARTAO'}`;
   const link = process.env[chave];
   return link && /^https:\/\//.test(link) ? link : null;
 }
@@ -41,6 +43,8 @@ function emLinhaDoBanco(r: Registro) {
     criado_em: r.criadoEm,
     produto: r.produto,
     versao: r.versao,
+    formato: r.formato,
+    endereco: r.endereco,
     tema: r.tema,
     nome_crianca: r.nome,
     idade: r.idade,

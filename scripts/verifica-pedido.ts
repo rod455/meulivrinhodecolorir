@@ -81,6 +81,24 @@ ok(!lerPedido({ ...base, nome: 'merda' }).ok, 'palavrão');
 }
 ok(totalDoPedido('sob-medida', 'cartao', 'combo') === 6990 && totalDoPedido('sob-medida', 'cartao', 'ilustrada') === 4990 && totalDoPedido('sob-medida', 'cartao') === 3990, 'sob medida: 39,90 / 49,90 / combo 69,90');
 ok(economiaDoCombo('sob-medida') === 1990 && economiaDoCombo('presente') === 990, 'o combo economiza R$ 19,90 na sob medida e R$ 9,90 na turma');
+// o impresso (dono, 09/11/2026): R$ 69,90 (turma) e R$ 74,90 (sob medida) cada versão, combo R$ 109,90; frete à parte
+{
+  const presente = { ...base, produto: 'presente' };
+  const endereco = { cep: '01532-001', rua: 'Rua das Flores', numero: '10', complemento: '', bairro: 'Centro', cidade: 'São Paulo', uf: 'sp' };
+  const r1 = lerPedido({ ...presente, formato: 'impresso', versao: 'ilustrada', pagamento: 'cartao', endereco });
+  ok(r1.ok && r1.pedido.total === 6990 && r1.pedido.formato === 'impresso', 'turma impressa, ilustrada, no cartão: R$ 69,90');
+  ok(r1.ok && r1.pedido.endereco?.cep === '01532001' && r1.pedido.endereco?.uf === 'SP', 'o endereço vem arrumado (CEP só números, UF maiúscula)');
+  const r2 = lerPedido({ ...presente, formato: 'impresso', versao: 'combo', pagamento: 'cartao', endereco });
+  ok(r2.ok && r2.pedido.total === 10990, 'combo impresso da turma: R$ 109,90');
+  ok(totalDoPedido('sob-medida', 'cartao', 'colorir', 'impresso') === 7490 && totalDoPedido('sob-medida', 'cartao', 'ilustrada', 'impresso') === 7490 && totalDoPedido('sob-medida', 'cartao', 'combo', 'impresso') === 10990, 'sob medida impressa: 74,90 / 74,90 / combo 109,90');
+  ok(totalDoPedido('sob-medida', 'cartao', 'combo') === 6990, 'o PDF não muda');
+  const semEndereco = lerPedido({ ...presente, formato: 'impresso' });
+  ok(!semEndereco.ok && Boolean(semEndereco.erros.cep) && Boolean(semEndereco.erros.uf), 'impresso sem endereço recusa');
+  const pdf = lerPedido({ ...presente, formato: 'pdf', endereco });
+  ok(pdf.ok && pdf.pedido.endereco === null, 'no PDF o endereço é descartado');
+  ok(!lerPedido({ ...base, produto: 'lembrancinha', formato: 'impresso', endereco }).ok, 'a lembrancinha não tem impresso');
+  ok(!lerPedido({ ...presente, formato: 'capa-dura' }).ok, 'formato desconhecido recusa');
+}
 // "Outra" idade abre a caixa, de 1 a 12 (dono, 02/11/2026)
 ok(lerPedido({ ...base, idade: 12 }).ok, 'idade 12, pela caixa do "Outra", passa');
 ok(lerPedido({ ...base, idade: 2 }).ok, 'idade 2, pela caixa do "Outra", passa');

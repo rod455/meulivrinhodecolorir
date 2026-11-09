@@ -168,11 +168,16 @@ export function avisoDaVersao(versao: string | undefined): string {
   return '';
 }
 
-export function emailDeRevisao(d: { nome: string; tituloDoLivro: string; pedidoId: string; linkDeRevisao: string; versao?: string }): Email {
-  const aviso = avisoDaVersao(d.versao);
+/** o impresso não vai para a família como arquivo: o dono imprime e manda pelo correio */
+export function avisoDoFormato(formato: string | undefined): string {
+  return formato === 'impresso' ? 'IMPRESSO: esta família pediu o livro impresso. Imprima e mande pelo correio para o endereço do pedido; o frete é combinado à parte pelo WhatsApp.' : '';
+}
+
+export function emailDeRevisao(d: { nome: string; tituloDoLivro: string; pedidoId: string; linkDeRevisao: string; versao?: string; formato?: string }): Email {
+  const aviso = [avisoDaVersao(d.versao), avisoDoFormato(d.formato)].filter(Boolean).join('\n\n');
   return {
     para: EMAIL_DO_DONO,
-    assunto: `${aviso ? '[falta a ilustrada] ' : ''}Livro pronto para revisar: ${d.tituloDoLivro}`,
+    assunto: `${avisoDaVersao(d.versao) ? '[falta a ilustrada] ' : ''}${avisoDoFormato(d.formato) ? '[impresso] ' : ''}Livro pronto para revisar: ${d.tituloDoLivro}`,
     texto: [
       ...(aviso ? [aviso, ''] : []),
       `O livro "${d.tituloDoLivro}" ficou pronto e está esperando a sua revisão.`,

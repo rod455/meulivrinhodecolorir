@@ -2,7 +2,8 @@
 // Puro: conferido por `npm run conferir:pedido`.
 
 import { arrumarNome, MENSAGEM_DO_PROBLEMA, problemaDoNome } from './nome.ts';
-import { ehProduto, ehVersao, PRODUTOS, temVersoes, totalDoPedido, type FormaDePagamento, type ProdutoId, type VersaoId } from './produtos.ts';
+import { lerEndereco, type Endereco } from './endereco.ts';
+import { ehFormato, ehProduto, ehVersao, PRODUTOS, temImpresso, temVersoes, totalDoPedido, type FormaDePagamento, type FormatoId, type ProdutoId, type VersaoId } from './produtos.ts';
 import { ehUuid } from './ficha.ts';
 import { lerPersonagem, type Personagem } from './personagem.ts';
 import { ehTema, TEMAS, type TemaId } from './temas.ts';
@@ -19,6 +20,10 @@ export type Pedido = {
   produto: ProdutoId;
   /** colorir, ilustrada ou as duas (combo); só o presente e a sob medida têm as três */
   versao: VersaoId;
+  /** PDF ou impresso (dono, 09/11/2026); o impresso leva o endereço, e o frete é à parte */
+  formato: FormatoId;
+  /** só no impresso */
+  endereco: Endereco | null;
   tema: TemaId;
   nome: string;
   idade: number;
@@ -49,7 +54,7 @@ export const IDADES_NA_TELA = [3, 4, 5, 6, 7, 8, 9, 10] as const;
 export const idadeValida = (n: unknown): n is number => Number.isInteger(n) && (n as number) >= IDADE_MINIMA && (n as number) <= IDADE_MAXIMA;
 export const MENSAGEM_DA_IDADE = `Escolha a idade de ${IDADE_MINIMA} a ${IDADE_MAXIMA}.`;
 
-export type ErrosDoPedido = Partial<Record<keyof Pedido, string>>;
+export type ErrosDoPedido = Partial<Record<keyof Pedido | keyof Endereco, string>>;
 
 export function soDigitos(texto: string): string {
   return texto.replace(/\D/g, '');
@@ -144,6 +149,19 @@ export function lerPedido(entrada: Record<string, unknown>):
   else if (versaoBruta !== 'colorir' && ehProduto(produto) && !temVersoes(produto)) erros.versao = 'Este livrinho só tem a versão de colorir.';
   else versao = versaoBruta;
 
+  // sem formato no pedido (rascunho antigo), é o PDF; o impresso pede o endereço de entrega
+  const formatoBruto = entrada.formato ?? 'pdf';
+  let formato: FormatoId = 'pdf';
+  let endereco: Endereco | null = null;
+  if (!ehFormato(formatoBruto)) erros.formato = 'Escolha PDF ou impresso.';
+  else if (formatoBruto === 'impresso' && ehProduto(produto) && !temImpresso(produto)) erros.formato = 'Este livrinho só sai em PDF.';
+  else formato = formatoBruto;
+  if (formato === 'impresso') {
+    const lido = lerEndereco(entrada.endereco);
+    endereco = lido.endereco;
+    Object.assign(erros, lido.erros);
+  }
+
   if (Object.keys(erros).length > 0 || !ehProduto(produto) || !ehTema(tema) || !whatsapp) {
     return { ok: false, erros };
   }
@@ -153,6 +171,8 @@ export function lerPedido(entrada: Record<string, unknown>):
     pedido: {
       produto,
       versao,
+      formato,
+      endereco,
       tema,
       nome: arrumarNome(texto('nome')),
       idade,
@@ -168,7 +188,7 @@ export function lerPedido(entrada: Record<string, unknown>):
       personagem,
       fichaId,
       historiaId,
-      total: totalDoPedido(produto, pagamento, versao),
+      total: totalDoPedido(produto, pagamento, versao, formato),
     },
   };
 }
