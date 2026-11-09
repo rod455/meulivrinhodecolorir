@@ -1,4 +1,4 @@
-// Os livros da turma vendidos no site (dono, 26/10/2026): impresso R$ 79,90,
+// Os livros da turma vendidos no site (dono, 26/10/2026; impresso para R$ 59,90 em 09/11/2026): impresso R$ 59,90,
 // PDF R$ 29,90, Kindle só na Amazon. O preço sai do servidor, nunca do
 // navegador, e o endereço só existe no impresso.
 //
@@ -13,7 +13,7 @@ const ok = (cond: boolean, msg: string) => {
 };
 
 // 1. os preços que o dono fixou
-ok(PRECO_DO_FORMATO.impresso === 7990 && PRECO_DO_FORMATO.pdf === 2990, 'impresso R$ 79,90 e PDF R$ 29,90');
+ok(PRECO_DO_FORMATO.impresso === 5990 && PRECO_DO_FORMATO.pdf === 2990, 'impresso R$ 59,90 e PDF R$ 29,90');
 
 // 2. o catálogo: ids únicos, Kindle só em link da Amazon e só nos ilustrados
 const edicoes = LIVROS_PUBLICADOS.flatMap((l) => l.edicoes);
@@ -37,7 +37,7 @@ ok(LIVROS_PUBLICADOS.filter((l) => l.idioma === 'pt').every((l) => l.edicoes.eve
 // 3. o pedido
 const endereco = { cep: '01532-001', rua: 'Rua das Flores', numero: '10', complemento: '', bairro: 'Centro', cidade: 'São Paulo', uf: 'sp' };
 const impresso = lerPedidoDaTurma({ edicao: 'big-game-ilustrado', formato: 'impresso', responsavel: 'Carla', whatsapp: '(11) 91234-5678', endereco, precoCentavos: 1 });
-ok(impresso.ok && impresso.pedido.precoCentavos === 7990, 'o preço vem do formato, nunca do navegador');
+ok(impresso.ok && impresso.pedido.precoCentavos === 5990, 'o preço vem do formato, nunca do navegador');
 ok(impresso.ok && impresso.pedido.endereco?.cep === '01532001' && impresso.pedido.endereco.uf === 'SP', 'CEP só com números e UF em maiúscula');
 ok(impresso.ok && impresso.pedido.whatsapp === '5511912345678', 'WhatsApp com 55 e DDD');
 const pdf = lerPedidoDaTurma({ edicao: 'big-game-colorir', formato: 'pdf', responsavel: 'Carla', whatsapp: '11912345678', endereco });

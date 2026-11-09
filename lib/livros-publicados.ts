@@ -4,13 +4,14 @@
 // livros-fonte/ (README, com o status de cada um).
 //
 // Cada edição (ilustrado, de colorir) se vende de três jeitos (dono, 26/10):
-// Kindle, direto na Amazon internacional; impresso sob medida, R$ 79,90; e PDF
+// Kindle, direto na Amazon internacional; impresso sob medida, R$ 59,90 (era R$ 79,90 até
+// 09/11/2026, quando o dono baixou); e PDF
 // para imprimir em casa, R$ 29,90. Preço é decisão do dono: mudar só com ele.
 // Puro: conferido por `npm run conferir:turma`.
 
 import type { TemaId } from './temas.ts';
 
-export const PRECO_DO_FORMATO = { impresso: 7990, pdf: 2990 } as const;
+export const PRECO_DO_FORMATO = { impresso: 5990, pdf: 2990 } as const;
 export type FormatoDaTurma = keyof typeof PRECO_DO_FORMATO;
 export const ROTULO_DO_FORMATO: Record<FormatoDaTurma, string> = { impresso: 'Impresso sob medida', pdf: 'PDF para imprimir em casa' };
 

@@ -106,7 +106,7 @@ assert.equal(await botoesDo('Big Game'), 'Livro de história|E-book (Kindle)|Liv
 assert.equal(await botoesDo('Big Play'), 'Livro de história|E-book (Kindle)|Livro de colorir', 'o Big Play com os três formatos');
 assert.equal(await botoesDo('Big Christmas'), 'Livro de história|E-book (Kindle)', 'o Natal sem o de colorir até chegar o link');
 assert.ok(await p.locator('#livro-big-game .na-amazon a', { hasText: 'Livro de colorir' }).isVisible(), 'os links da Amazon não ficam escondidos');
-assert.equal(await p.locator('#little-paws a', { hasText: 'Impresso R$ 79,90' }).count(), 7, 'cada edição tem o impresso a R$ 79,90');
+assert.equal(await p.locator('#little-paws a', { hasText: 'Impresso R$ 59,90' }).count(), 7, 'cada edição tem o impresso a R$ 59,90');
 // "compre e imprima você mesmo": o PDF de cada edição, à vista em cada livro (dono, 31/10/2026)
 const pdfs = p.locator('#little-paws .imprima-voce a');
 assert.equal(await pdfs.count(), 7, 'cada edição tem o PDF para imprimir em casa');
@@ -418,7 +418,7 @@ assert.ok(!readFileSync(`${REGISTRO}.ultima.jpg`).includes(Buffer.from('CelularD
 await p.goto(`${SITE}/`);
 const bigGame = p.locator('#little-paws article').filter({ hasText: 'Big Game' });
 await bigGame.getByText('Prefere impresso? A gente imprime e envia').click();
-await bigGame.getByRole('link', { name: 'Impresso R$ 79,90' }).first().click();
+await bigGame.getByRole('link', { name: 'Impresso R$ 59,90' }).first().click();
 await p.getByRole('heading', { name: 'Little Paws, Big Game' }).waitFor();
 await p.fill('#responsavel', 'Carla Teste');
 await p.fill('#whatsapp', '(11) 91234-5678');
@@ -434,8 +434,8 @@ await p.getByRole('button', { name: 'Pedir o impresso' }).click();
 await p.getByText('Pedido registrado!').waitFor();
 let turma = (await estado()).pedidosTurma;
 const aviso = JSON.parse(readFileSync(`${REGISTRO}.turma`, 'utf8').trim().split('\n').at(-1));
-assert.ok(aviso.valor === '79,90' && aviso.formato === 'Impresso sob medida' && aviso.endereco.includes('CEP 01532001') && /Big Game/.test(aviso.livro), 'o dono recebe o aviso do pedido com valor, formato e endereço');
-assert.ok(turma.length === 1 && turma[0].preco_centavos === 7990 && turma[0].edicao === 'big-game-ilustrado' && turma[0].endereco.cep === '01532001' && turma[0].user_id === carla, 'impresso gravado com o preço do servidor, o endereço e a conta');
+assert.ok(aviso.valor === '59,90' && aviso.formato === 'Impresso sob medida' && aviso.endereco.includes('CEP 01532001') && /Big Game/.test(aviso.livro), 'o dono recebe o aviso do pedido com valor, formato e endereço');
+assert.ok(turma.length === 1 && turma[0].preco_centavos === 5990 && turma[0].edicao === 'big-game-ilustrado' && turma[0].endereco.cep === '01532001' && turma[0].user_id === carla, 'impresso gravado com o preço do servidor, o endereço e a conta');
 const barato = await p.request.post(`${SITE}/api/turma/pedido`, { data: { edicao: 'big-play-colorir', formato: 'pdf', responsavel: 'Carla', whatsapp: '11912345678', precoCentavos: 1, endereco: { cep: '01532001' } } });
 assert.equal(barato.status(), 200);
 turma = (await estado()).pedidosTurma;

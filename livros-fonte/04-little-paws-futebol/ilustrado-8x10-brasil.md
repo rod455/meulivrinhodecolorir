@@ -5,7 +5,7 @@
 **Idioma:** português do Brasil. A versão em inglês vem depois, com as mesmas imagens (seção 11).
 
 **Produtos (decisão do dono, 26/10/2026):**
-1. **Impresso sob medida:** R$ 79,90, vendido no site (`/turma/comprar`). A gráfica imprime cada exemplar quando a pessoa pede.
+1. **Impresso sob medida:** R$ 59,90 (desde 09/11/2026; era R$ 79,90), vendido no site (`/turma/comprar`). A gráfica imprime cada exemplar quando a pessoa pede.
 2. **PDF para imprimir em casa:** R$ 29,90, vendido no site.
 3. **Depois:** paperback 8 × 10" e eBook Kindle em inglês, na KDP.
 
@@ -585,7 +585,7 @@ Create the BACK COVER ART ONLY, portrait 2:3 canvas (1024x1536), full color, sam
 
 **O que pedir no orçamento:** "Livro infantil ilustrado 203 × 254 mm, 32 páginas, miolo couché fosco 150 g 4/4, capa cartão 300 g 4/0 com laminação fosca, acabamento canoa (grampo), impressão digital sob demanda, a partir de 1 exemplar. Preço unitário e prazo."
 
-> **Conta para o dono:** o impresso sai por R$ 79,90 mais o frete. Antes de abrir a venda deste livro, confirme que o custo de 1 exemplar na gráfica escolhida deixa margem.
+> **Conta para o dono:** o impresso sai por R$ 59,90 mais o frete (era R$ 79,90 até 09/11/2026). Antes de abrir a venda deste livro, confirme que o custo de 1 exemplar na gráfica escolhida deixa margem.
 
 ---
 
